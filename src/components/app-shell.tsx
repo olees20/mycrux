@@ -7,7 +7,7 @@ import { GymSwitcher } from "./gym-switcher";
 
 const navItems = [
   ["Home", ""], ["Routes", "/routes"], ["Community", "/community"], ["Chat", "/chat"], ["Partners", "/partners"],
-  ["Events", "/events"], ["Announcements", "/announcements"],
+  ["Events", "/events"], ["Competitions", "/competitions"], ["Announcements", "/announcements"],
   ["Notifications", "/notifications"], ["Logbook", "/logbook"], ["Statistics", "/statistics"], ["Leaderboards", "/leaderboards"], ["Wallet", "/wallet"], ["Waivers", "/waivers"], ["Guests", "/guests"], ["Profile", "/profile"],
 ] as const;
 

@@ -951,6 +951,110 @@ export type Database = {
           }
         ]
       }
+      "competition_divisions": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "competition_id": string
+          "name": string
+          "eligibility": Json
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "competition_id": string
+          "name": string
+          "eligibility"?: Json
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "competition_id"?: string
+          "name"?: string
+          "eligibility"?: Json
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_divisions_competition_fkey"
+            columns: ["competition_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "competition_divisions_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "competition_registrations": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "competition_id": string
+          "division_id": string
+          "profile_id": string
+          "status": string
+          "registered_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "competition_id": string
+          "division_id": string
+          "profile_id": string
+          "status"?: string
+          "registered_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "competition_id"?: string
+          "division_id"?: string
+          "profile_id"?: string
+          "status"?: string
+          "registered_at"?: string
+          "updated_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_registrations_competition_fkey"
+            columns: ["competition_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "competition_registrations_division_fkey"
+            columns: ["division_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "competition_divisions"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "competition_registrations_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competition_registrations_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "competition_routes": {
         Row: {
           "id": string
@@ -1029,6 +1133,11 @@ export type Database = {
           "archived_at": string | null
           "created_at": string
           "updated_at": string
+          "registration_opens_at": string | null
+          "registration_closes_at": string | null
+          "attempt_limit": number | null
+          "finalized_at": string | null
+          "finalized_by": string | null
         }
         Insert: {
           "id"?: string
@@ -1046,6 +1155,11 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "registration_opens_at"?: string | null
+          "registration_closes_at"?: string | null
+          "attempt_limit"?: number | null
+          "finalized_at"?: string | null
+          "finalized_by"?: string | null
         }
         Update: {
           "id"?: string
@@ -1063,6 +1177,11 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "registration_opens_at"?: string | null
+          "registration_closes_at"?: string | null
+          "attempt_limit"?: number | null
+          "finalized_at"?: string | null
+          "finalized_by"?: string | null
         }
         Relationships: [
           {
@@ -1078,6 +1197,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "competitions_finalized_by_fkey"
+            columns: ["finalized_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "competitions_gym_id_fkey"
@@ -2933,6 +3059,64 @@ export type Database = {
           }
         ]
       }
+      "score_entry_history": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "score_entry_id": string
+          "competition_id": string
+          "changed_by": string
+          "change_reason": string
+          "before_value": Json | null
+          "after_value": Json
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "score_entry_id": string
+          "competition_id": string
+          "changed_by": string
+          "change_reason": string
+          "before_value"?: Json | null
+          "after_value": Json
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "score_entry_id"?: string
+          "competition_id"?: string
+          "changed_by"?: string
+          "change_reason"?: string
+          "before_value"?: Json | null
+          "after_value"?: Json
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "score_entry_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "score_entry_history_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "score_history_entry_fkey"
+            columns: ["score_entry_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "score_entries"
+            referencedColumns: ["id","gym_id"]
+          }
+        ]
+      }
       "staff_roles": {
         Row: {
           "id": string
@@ -3539,6 +3723,11 @@ export type Database = {
       mark_channel_read: { Args: { target_gym_id: string; target_channel_id: string }; Returns: string }
       report_chat_message: { Args: { target_gym_id: string; target_message_id: string; report_reason: string }; Returns: string }
       moderate_chat_message: { Args: { target_gym_id: string; target_message_id: string; target_status: string; reason: string }; Returns: string }
+      save_competition: { Args: { target_gym_id: string; target_competition_id?: string; competition_name: string; competition_description: string; window_start: string; window_end: string; registration_start: string; registration_end: string; competition_status: string; maximum_attempts: number; division_names: string[] }; Returns: string }
+      add_competition_route: { Args: { target_gym_id: string; target_competition_id: string; target_route_id: string }; Returns: string }
+      register_for_competition: { Args: { target_gym_id: string; target_competition_id: string; target_division_id: string }; Returns: string }
+      submit_competition_score: { Args: { target_gym_id: string; target_competition_id: string; target_competition_route_id: string; target_profile_id: string; top_achieved: boolean; zone_achieved: boolean; attempt_count: number; correction_reason?: string }; Returns: string }
+      finalize_competition: { Args: { target_gym_id: string; target_competition_id: string }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

@@ -346,6 +346,11 @@ ${renderRelations(views, relationshipsByTable, "Views")}
       mark_channel_read: { Args: { target_gym_id: string; target_channel_id: string }; Returns: string }
       report_chat_message: { Args: { target_gym_id: string; target_message_id: string; report_reason: string }; Returns: string }
       moderate_chat_message: { Args: { target_gym_id: string; target_message_id: string; target_status: string; reason: string }; Returns: string }
+      save_competition: { Args: { target_gym_id: string; target_competition_id?: string; competition_name: string; competition_description: string; window_start: string; window_end: string; registration_start: string; registration_end: string; competition_status: string; maximum_attempts: number; division_names: string[] }; Returns: string }
+      add_competition_route: { Args: { target_gym_id: string; target_competition_id: string; target_route_id: string }; Returns: string }
+      register_for_competition: { Args: { target_gym_id: string; target_competition_id: string; target_division_id: string }; Returns: string }
+      submit_competition_score: { Args: { target_gym_id: string; target_competition_id: string; target_competition_route_id: string; target_profile_id: string; top_achieved: boolean; zone_achieved: boolean; attempt_count: number; correction_reason?: string }; Returns: string }
+      finalize_competition: { Args: { target_gym_id: string; target_competition_id: string }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
