@@ -364,6 +364,126 @@ export type Database = {
           }
         ]
       }
+      "check_in_tokens": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "profile_id": string
+          "token_hash": string
+          "expires_at": string
+          "consumed_at": string | null
+          "revoked_at": string | null
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "profile_id": string
+          "token_hash": string
+          "expires_at": string
+          "consumed_at"?: string | null
+          "revoked_at"?: string | null
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "profile_id"?: string
+          "token_hash"?: string
+          "expires_at"?: string
+          "consumed_at"?: string | null
+          "revoked_at"?: string | null
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_in_tokens_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_in_tokens_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "check_ins": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "profile_id": string | null
+          "guest_invite_id": string | null
+          "pass_id": string | null
+          "verified_by": string | null
+          "source": string
+          "checked_in_at": string
+          "metadata": Json
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "profile_id"?: string | null
+          "guest_invite_id"?: string | null
+          "pass_id"?: string | null
+          "verified_by"?: string | null
+          "source": string
+          "checked_in_at"?: string
+          "metadata"?: Json
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "profile_id"?: string | null
+          "guest_invite_id"?: string | null
+          "pass_id"?: string | null
+          "verified_by"?: string | null
+          "source"?: string
+          "checked_in_at"?: string
+          "metadata"?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_guest_fkey"
+            columns: ["guest_invite_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "guest_invites"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "check_ins_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_ins_pass_fkey"
+            columns: ["pass_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "passes"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "check_ins_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_ins_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "comments": {
         Row: {
           "id": string
@@ -1049,6 +1169,8 @@ export type Database = {
           "last_active_at": string | null
           "created_at": string
           "updated_at": string
+          "external_reference": string | null
+          "external_synced_at": string | null
         }
         Insert: {
           "id"?: string
@@ -1063,6 +1185,8 @@ export type Database = {
           "last_active_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "external_reference"?: string | null
+          "external_synced_at"?: string | null
         }
         Update: {
           "id"?: string
@@ -1077,6 +1201,8 @@ export type Database = {
           "last_active_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "external_reference"?: string | null
+          "external_synced_at"?: string | null
         }
         Relationships: [
           {
@@ -1169,6 +1295,7 @@ export type Database = {
           "day_pass_registration_enabled": boolean
           "day_pass_valid_hours": number
           "day_pass_information": string | null
+          "membership_source": string
         }
         Insert: {
           "id"?: string
@@ -1194,6 +1321,7 @@ export type Database = {
           "day_pass_registration_enabled"?: boolean
           "day_pass_valid_hours"?: number
           "day_pass_information"?: string | null
+          "membership_source"?: string
         }
         Update: {
           "id"?: string
@@ -1219,6 +1347,7 @@ export type Database = {
           "day_pass_registration_enabled"?: boolean
           "day_pass_valid_hours"?: number
           "day_pass_information"?: string | null
+          "membership_source"?: string
         }
         Relationships: []
       }
@@ -2701,6 +2830,22 @@ export type Database = {
       }
       revoke_guest_pass: {
         Args: { target_gym_id: string; target_pass_id: string }
+        Returns: string
+      }
+      issue_member_check_in_token: {
+        Args: { target_gym_id: string; new_token_hash: string; token_expires_at: string }
+        Returns: string
+      }
+      verify_member_check_in_token: {
+        Args: { target_gym_id: string; member_token_hash: string }
+        Returns: Json
+      }
+      check_in_member_token: {
+        Args: { target_gym_id: string; member_token_hash: string }
+        Returns: string
+      }
+      manual_member_check_in: {
+        Args: { target_gym_id: string; target_membership_id: string }
         Returns: string
       }
       resend_staff_invitation: {

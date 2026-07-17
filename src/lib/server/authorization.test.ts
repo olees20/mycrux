@@ -16,6 +16,8 @@ const activeMembership: Tables<"gym_memberships"> = {
   last_active_at: null,
   created_at: "2026-07-17T12:00:00.000Z",
   updated_at: "2026-07-17T12:00:00.000Z",
+  external_reference: null,
+  external_synced_at: null,
 };
 
 describe("authorization decisions", () => {

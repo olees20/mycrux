@@ -274,6 +274,22 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; target_pass_id: string }
         Returns: string
       }
+      issue_member_check_in_token: {
+        Args: { target_gym_id: string; new_token_hash: string; token_expires_at: string }
+        Returns: string
+      }
+      verify_member_check_in_token: {
+        Args: { target_gym_id: string; member_token_hash: string }
+        Returns: Json
+      }
+      check_in_member_token: {
+        Args: { target_gym_id: string; member_token_hash: string }
+        Returns: string
+      }
+      manual_member_check_in: {
+        Args: { target_gym_id: string; target_membership_id: string }
+        Returns: string
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

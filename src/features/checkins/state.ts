@@ -1,0 +1,2 @@
+export type MemberTokenState={status:"idle"|"success"|"error";message?:string;reference?:string;qrDataUrl?:string;expiresAt?:string};export const initialMemberTokenState:MemberTokenState={status:"idle"};
+export type MemberCheckInState={status:"idle"|"success"|"error";message?:string;reference?:string;result?:{found:boolean;memberName?:string;membershipStatus?:string;membershipSource?:string;waiversComplete?:boolean;tokenStatus?:string;expiresAt?:string}};export const initialMemberCheckInState:MemberCheckInState={status:"idle"};
