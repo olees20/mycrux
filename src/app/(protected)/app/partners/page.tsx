@@ -1,0 +1,1 @@
+import{redirect}from"next/navigation";import{requireActiveGymContext}from"@/lib/server/gym-context";export default async function PartnersRedirect(){const{gym}=await requireActiveGymContext({});redirect(`/g/${gym.slug}/app/partners`);}

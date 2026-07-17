@@ -2085,6 +2085,120 @@ export type Database = {
           }
         ]
       }
+      "partner_interests": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "request_id": string
+          "profile_id": string
+          "note": string | null
+          "status": string
+          "conversation_channel_id": string | null
+          "created_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "request_id": string
+          "profile_id": string
+          "note"?: string | null
+          "status"?: string
+          "conversation_channel_id"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "request_id"?: string
+          "profile_id"?: string
+          "note"?: string | null
+          "status"?: string
+          "conversation_channel_id"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_interests_channel_fkey"
+            columns: ["conversation_channel_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "partner_interests_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_interests_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_interests_request_fkey"
+            columns: ["request_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "partner_requests"
+            referencedColumns: ["id","gym_id"]
+          }
+        ]
+      }
+      "partner_request_reports": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "request_id": string
+          "reporter_id": string
+          "reason": string
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "request_id": string
+          "reporter_id": string
+          "reason": string
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "request_id"?: string
+          "reporter_id"?: string
+          "reason"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_reports_request_fkey"
+            columns: ["request_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "partner_requests"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "partner_request_reports_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_request_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "partner_requests": {
         Row: {
           "id": string
@@ -2100,6 +2214,11 @@ export type Database = {
           "closed_at": string | null
           "created_at": string
           "updated_at": string
+          "window_ends_at": string | null
+          "discipline": string | null
+          "approximate_ability": string | null
+          "session_intent": string | null
+          "availability_note": string | null
         }
         Insert: {
           "id"?: string
@@ -2115,6 +2234,11 @@ export type Database = {
           "closed_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "window_ends_at"?: string | null
+          "discipline"?: string | null
+          "approximate_ability"?: string | null
+          "session_intent"?: string | null
+          "availability_note"?: string | null
         }
         Update: {
           "id"?: string
@@ -2130,6 +2254,11 @@ export type Database = {
           "closed_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "window_ends_at"?: string | null
+          "discipline"?: string | null
+          "approximate_ability"?: string | null
+          "session_intent"?: string | null
+          "availability_note"?: string | null
         }
         Relationships: [
           {
@@ -3348,6 +3477,12 @@ export type Database = {
       delete_community_content: { Args: { target_gym_id: string; target_type: string; target_id: string }; Returns: string }
       report_community_content: { Args: { target_gym_id: string; target_type: string; target_id: string; report_reason: string }; Returns: string }
       moderate_community_post: { Args: { target_gym_id: string; target_post_id: string; target_status: string; lock_post: boolean; reason: string; pin_post: boolean }; Returns: string }
+      create_partner_request: { Args: { target_gym_id: string; window_start: string; window_end: string; discipline_name: string; ability_name: string; intent_name: string; public_note: string; private_availability: string }; Returns: string }
+      get_partner_requests: { Args: { target_gym_id: string }; Returns: { id: string; profile_id: string; public_name: string; climbing_day: string; discipline: string; approximate_ability: string; session_intent: string; body: string; status: string; exact_start: string | null; exact_end: string | null; availability_note: string | null; is_owner: boolean }[] }
+      express_partner_interest: { Args: { target_gym_id: string; target_request_id: string; interest_note: string }; Returns: string }
+      respond_partner_interest: { Args: { target_gym_id: string; target_interest_id: string; accept_interest: boolean }; Returns: string }
+      withdraw_partner_request: { Args: { target_gym_id: string; target_request_id: string }; Returns: string }
+      report_partner_request: { Args: { target_gym_id: string; target_request_id: string; report_reason: string }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
