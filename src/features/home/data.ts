@@ -3,12 +3,12 @@ import "server-only";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 import { dateInTimezone, isEntitlementActive } from "./data-core";
 
-export async function loadGymHomeData(gymId: string, timezone: string, now = new Date()) {
+export async function loadGymHomeData(gymId: string, timezone: string, now = new Date(), includeStaffAudience = false) {
   const supabase = await createServerComponentSupabaseClient();
   const nowIso = now.toISOString();
   const today = dateInTimezone(now, timezone);
   const [announcements, events, routes, community, entitlement, competition] = await Promise.all([
-    supabase.from("announcements").select("id,title,body,published_at,pinned_until").eq("gym_id", gymId).eq("status", "published").is("archived_at", null).lte("published_at", nowIso).in("audience", ["public", "members"]).order("pinned_until", { ascending: false, nullsFirst: false }).order("published_at", { ascending: false }).limit(3),
+    supabase.from("announcements").select("id,title,body,published_at,priority,is_pinned").eq("gym_id", gymId).eq("status", "published").is("archived_at", null).lte("published_at", nowIso).or(`expires_at.is.null,expires_at.gt.${nowIso}`).in("audience", includeStaffAudience ? ["public", "members", "staff"] : ["public", "members"]).order("is_pinned", { ascending: false }).order("published_at", { ascending: false }).limit(3),
     supabase.from("events").select("id,title,starts_at,ends_at,location").eq("gym_id", gymId).eq("status", "published").is("archived_at", null).in("visibility", ["public", "members"]).gte("ends_at", nowIso).order("starts_at").limit(3),
     supabase.from("routes").select("id,name,colour,grade,set_on,wall_id").eq("gym_id", gymId).eq("status", "published").is("archived_at", null).eq("set_on", today).order("published_at", { ascending: false }).limit(4),
     supabase.from("community_posts").select("id,title,body,post_type,created_at,author_id").eq("gym_id", gymId).eq("visibility", "members").eq("moderation_status", "visible").is("deleted_at", null).order("created_at", { ascending: false }).limit(3),

@@ -222,6 +222,10 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; object_path: string }
         Returns: string
       }
+      process_due_announcements: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       set_updated_at: {
         Args: Record<PropertyKey, never>
         Returns: unknown

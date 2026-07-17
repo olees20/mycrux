@@ -145,6 +145,14 @@ begin
   ) then
     raise exception 'Invitation acceptance was not audited';
   end if;
+
+  if not exists (
+    select 1 from public.notifications
+    where source_id = '91000000-0000-4000-8000-000000000001'
+      and notification_type = 'invitation.accepted'
+  ) then
+    raise exception 'Invitation acceptance notification was not generated';
+  end if;
 end;
 $$;
 

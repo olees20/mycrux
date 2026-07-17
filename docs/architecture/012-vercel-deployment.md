@@ -13,6 +13,8 @@ Deploy Next.js to Vercel. Pull requests receive Preview deployments connected on
 
 The release pipeline runs lint, strict type-check, tests, migration validation, and production build before deployment. Database migrations are forward-only, reviewed, and applied through a controlled release step before code that requires them. Webhook endpoints verify signatures and tolerate retries. Scheduled work must be short, idempotent, authenticated, and within platform limits.
 
+`vercel.json` invokes the due-announcement processor every five minutes. Vercel supplies `Authorization: Bearer $CRON_SECRET`; the route rejects missing or mismatched secrets, and the underlying RPC independently requires the Supabase service role.
+
 ## Consequences and trade-offs
 
 - Preview environments and Next.js hosting require little infrastructure work.

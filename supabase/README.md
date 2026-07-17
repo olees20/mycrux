@@ -19,6 +19,8 @@ Canonical staff-role delegation, audited invitation management, suspension, and 
 
 Gym creation, owner configuration, accessible branding, controlled slugs, and tenant-scoped Storage policies are covered by `tests/gym_branding.sql`.
 
+Announcement scheduling/expiry, staff audiences, notification idempotency, event changes, read state, and preference opt-outs are covered by `tests/notifications.sql`.
+
 ## Generated TypeScript types
 
 After applying migrations to a local/disposable PostgreSQL database, regenerate the typed client schema with:

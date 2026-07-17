@@ -7,7 +7,8 @@ import { GymSwitcher } from "./gym-switcher";
 
 const navItems = [
   ["Home", ""], ["Routes", "/routes"], ["Community", "/community"],
-  ["Events", "/events"], ["Profile", "/profile"],
+  ["Events", "/events"], ["Announcements", "/announcements"],
+  ["Notifications", "/notifications"], ["Profile", "/profile"],
 ] as const;
 
 export function AppShell({ children, gym, gyms, branding }: Readonly<{

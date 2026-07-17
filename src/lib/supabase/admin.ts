@@ -97,9 +97,20 @@ async function createGymTenant(input: {
   return data;
 }
 
+async function processDueAnnouncements() {
+  const client = createPrivilegedSupabaseClient();
+  const { data, error } = await client.rpc("process_due_announcements");
+  if (error) {
+    logger.write({ level: "error", event: "due_announcement_processing_failed", error });
+    throw normalizeDatabaseError(error, "Due announcements could not be processed");
+  }
+  return data;
+}
+
 export const privilegedAccess = Object.freeze({
   findInvitationByTokenHash,
   findGuestInviteByTokenHash,
   findPassByReferenceHash,
   createGymTenant,
+  processDueAnnouncements,
 });

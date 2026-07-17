@@ -28,7 +28,7 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 | `staff_roles` | Active gym members. | Canonical system bundles are database-provisioned and immutable to authenticated clients; owners manage only future custom roles. |
 | `gym_memberships` | Self and active members of the same gym. | Audited RPCs enforce owner/manager staff-role boundaries and suspension; public join requests remain constrained to the caller's own `member`/`invited` row. |
 | `invitations` | Owners and gym managers. | Direct authenticated mutation is revoked. Audited RPCs issue, rotate, and revoke hashed links within delegation boundaries; verified users accept through the atomic single-use RPC. |
-| `announcements` | Active members see published, unarchived posts; permitted staff see drafts. | Staff with `announcements.manage`; author and tenant remain immutable. |
+| `announcements` | Active members see only due, unexpired published posts for their audience; permitted staff see drafts and schedules. | Staff with `announcements.manage`; author and tenant remain immutable. |
 | `walls` | Active members see active, unarchived walls. | Staff with `routes.manage`. |
 | `wall_images` | Active members see current, unarchived images. | Staff with `routes.manage`; wall and tenant remain immutable. |
 | `routes` | Active members see published, unarchived routes. | Staff/route setters with `routes.manage`. |
@@ -55,8 +55,8 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 | `chat_channels` | Community channels for active members; restricted channels require explicit membership or chat management. | Staff with `chat.manage`. |
 | `channel_members` | Self or callers authorized for the channel. | Members join/leave as themselves; chat managers administer membership. |
 | `messages` | Callers authorized for the channel. | Members create/update their own; chat managers moderate. Physical deletion is not granted. |
-| `notifications` | Recipient only. | Recipient updates read/archive state; creation is a trusted server operation. |
-| `notification_preferences` | Owner only. | Owner manages only their per-gym preferences. |
+| `notifications` | Recipient only. | Database delivery paths create audience-scoped rows; recipients update read/archive state while source/content fields remain immutable. |
+| `notification_preferences` | Owner only. | Owner manages only their per-gym category, future-channel, and quiet-hour preferences. |
 | `audit_logs` | Gym owners see their tenant audit rows. Platform-global rows are server-only. | Append-only trusted server/database paths; no authenticated mutation policy. |
 | `billing_customers` | Gym owners. | Verified Stripe/server-only paths; no authenticated mutation policy. |
 | `subscriptions` | Gym owners. | Verified Stripe webhooks/server-only paths; no authenticated mutation policy. |

@@ -5,7 +5,10 @@ import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 
 function Empty({ children }: { children: React.ReactNode }) { return <p className="rounded-xl bg-black/5 p-4 text-sm text-[var(--muted)]">{children}</p>; }
 function Failed() { return <p className="rounded-xl bg-red-50 p-4 text-sm text-red-800">This section could not be loaded. Refresh to try again.</p>; }
-function Section({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) { return <section className="rounded-2xl border border-black/10 bg-[var(--surface)] p-5 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-xl font-black">{title}</h2>{href ? <Link className="text-sm font-bold underline underline-offset-4" href={href}>View all</Link> : null}</div>{children}</section>; }
+function Section({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
+  const destination = title === "Latest announcements" ? href?.replace(/\/community$/, "/announcements") : href;
+  return <section className="rounded-2xl border border-black/10 bg-[var(--surface)] p-5 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-xl font-black">{title}</h2>{destination ? <Link className="text-sm font-bold underline underline-offset-4" href={destination}>View all</Link> : null}</div>{children}</section>;
+}
 
 export default async function GymHome({ params }: { params: Promise<{ gymSlug: string }> }) {
   const { gymSlug } = await params;
@@ -14,7 +17,7 @@ export default async function GymHome({ params }: { params: Promise<{ gymSlug: s
   const { data: details } = await supabase.from("gyms").select("name,timezone,status,opening_hours_text,city").eq("id", gym.id).single();
   const { data: branding } = await supabase.from("gym_branding").select("welcome_message").eq("gym_id", gym.id).maybeSingle();
   const timezone = details?.timezone ?? "Europe/London";
-  const home = await loadGymHomeData(gym.id, timezone);
+  const home = await loadGymHomeData(gym.id, timezone, new Date(), gym.role !== "member");
   const base = `/g/${gym.slug}/app`;
   const names = new Map((home.profiles.data ?? []).map((profile) => [profile.id, profile.display_name]));
   const dateTime = (value: string) => new Intl.DateTimeFormat("en-GB", { timeZone: timezone, dateStyle: "medium", timeStyle: "short" }).format(new Date(value));

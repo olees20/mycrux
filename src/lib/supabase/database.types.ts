@@ -26,6 +26,9 @@ export type Database = {
           "archived_at": string | null
           "created_at": string
           "updated_at": string
+          "priority": string
+          "expires_at": string | null
+          "is_pinned": boolean
         }
         Insert: {
           "id"?: string
@@ -40,6 +43,9 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "priority"?: string
+          "expires_at"?: string | null
+          "is_pinned"?: boolean
         }
         Update: {
           "id"?: string
@@ -54,6 +60,9 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "priority"?: string
+          "expires_at"?: string | null
+          "is_pinned"?: boolean
         }
         Relationships: [
           {
@@ -1369,6 +1378,7 @@ export type Database = {
           "quiet_hours_end": string | null
           "created_at": string
           "updated_at": string
+          "announcements_enabled": boolean
         }
         Insert: {
           "id"?: string
@@ -1383,6 +1393,7 @@ export type Database = {
           "quiet_hours_end"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "announcements_enabled"?: boolean
         }
         Update: {
           "id"?: string
@@ -1397,6 +1408,7 @@ export type Database = {
           "quiet_hours_end"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "announcements_enabled"?: boolean
         }
         Relationships: [
           {
@@ -1429,6 +1441,7 @@ export type Database = {
           "delivered_at": string | null
           "archived_at": string | null
           "created_at": string
+          "source_id": string | null
         }
         Insert: {
           "id"?: string
@@ -1443,6 +1456,7 @@ export type Database = {
           "delivered_at"?: string | null
           "archived_at"?: string | null
           "created_at"?: string
+          "source_id"?: string | null
         }
         Update: {
           "id"?: string
@@ -1457,6 +1471,7 @@ export type Database = {
           "delivered_at"?: string | null
           "archived_at"?: string | null
           "created_at"?: string
+          "source_id"?: string | null
         }
         Relationships: [
           {
@@ -2590,6 +2605,10 @@ export type Database = {
       set_gym_logo_path: {
         Args: { target_gym_id: string; object_path: string }
         Returns: string
+      }
+      process_due_announcements: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       set_updated_at: {
         Args: Record<PropertyKey, never>

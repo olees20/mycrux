@@ -122,6 +122,10 @@ begin
     or not exists (select 1 from public.audit_logs where action = 'staff.access.updated') then
     raise exception 'A staff access mutation was not audited';
   end if;
+  if not exists (select 1 from public.notifications where notification_type='invitation.created')
+    or not exists (select 1 from public.notifications where notification_type='invitation.revoked') then
+    raise exception 'Invitation lifecycle notifications were not generated';
+  end if;
   if exists (
     select 1 from public.audit_logs
     where metadata::text like '%aaaaaaaaaaaaaaaa%'
