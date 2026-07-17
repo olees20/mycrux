@@ -1,2 +1,2 @@
-import { PlaceholderPage } from "@/components/placeholder-page";
-export default function StaffPage() { return <PlaceholderPage eyebrow="Staff area" title="Run the gym." description="Operational tools and gym management will be added in later stages." />; }
+import { redirectToActiveGym } from "@/lib/server/gym-context";
+export default async function StaffPage() { await redirectToActiveGym("/staff", ["owner", "staff", "route_setter"]); }

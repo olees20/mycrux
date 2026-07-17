@@ -30,7 +30,7 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getUser();
   const user = data.user;
   const pathname = request.nextUrl.pathname;
-  const protectedPage = pathname.startsWith("/app") || pathname.startsWith("/staff");
+  const protectedPage = pathname.startsWith("/app") || pathname.startsWith("/staff") || pathname.startsWith("/g/");
   const onboarding = pathname.startsWith("/onboarding");
   const resetPassword = pathname.startsWith("/reset-password");
 
@@ -53,7 +53,7 @@ export async function proxy(request: NextRequest) {
 
     if (!memberships?.length) return redirectWithCookies(request, response, "/onboarding");
     if (
-      pathname.startsWith("/staff")
+      (pathname.startsWith("/staff") || /^\/g\/[^/]+\/staff(?:\/|$)/.test(pathname))
       && !memberships.some(({ role }) => ["owner", "staff", "route_setter"].includes(role))
     ) {
       return redirectWithCookies(request, response, "/app");

@@ -10,6 +10,7 @@ All exposed base tables have RLS enabled and forced by `20260717163000_row_level
 - Owners implicitly have all gym capabilities. Staff capabilities come from their active `staff_roles` record. Route setters receive only route, feedback, and competition-scoring capabilities.
 - Platform admins do not receive a JWT/RLS bypass. Cross-tenant administration must go through a server-only `service_role` path, and the action must create an audit event.
 - Guest invitation, waiver, and pass tokens are verified by narrow server-only handlers. Tokens are stored as hashes and anonymous callers cannot query their tables.
+- Gym URL slugs and the remembered active-gym cookie are routing hints only. Server layouts resolve them against the caller's active memberships, and tenant queries use only the resulting validated gym UUID.
 
 ## Protected columns
 
