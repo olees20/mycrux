@@ -1,5 +1,10 @@
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { requireActiveGymContext } from "@/lib/server/gym-context";
+import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 
-export default function RoutesPage() {
-  return <PlaceholderPage eyebrow="Routes" title="Find your next climb." description="Published routes and wall maps will live here." />;
+export default async function RoutesPage({ params }: { params: Promise<{ gymSlug: string }> }) {
+  const { gymSlug } = await params;
+  const { gym } = await requireActiveGymContext({ gymSlug });
+  const supabase = await createServerComponentSupabaseClient();
+  const { data: routes } = await supabase.from("routes").select("id,name,colour,grade_system,grade,route_type,set_on,retire_on,description,overlay,walls(name),route_tags(tag)").eq("gym_id", gym.id).eq("status", "published").order("set_on", { ascending: false });
+  return <div className="mx-auto max-w-5xl"><p className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--muted)]">Routes</p><h1 className="mt-3 text-4xl font-black">Find your next climb.</h1><p className="mt-3 text-[var(--muted)]">Only currently published routes appear here. Your ascents remain in your log after a reset.</p><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{routes?.map((route) => <article className="rounded-2xl border border-[var(--border)] bg-white p-5" key={route.id}><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-[var(--muted)]">{route.walls?.name} · {route.route_type.replace("_", " ")}</p><h2 className="mt-1 text-xl font-black">{route.name || `${route.colour} ${route.grade}`}</h2></div><span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-black">{route.grade}</span></div><p className="mt-3 text-sm">{route.colour} · {route.grade_system}</p>{route.description ? <p className="mt-3 text-sm text-[var(--muted)]">{route.description}</p> : null}<div className="mt-4 flex flex-wrap gap-2">{route.route_tags.map(({ tag }) => <span className="rounded-full bg-stone-100 px-2 py-1 text-xs font-bold" key={tag}>{tag}</span>)}</div>{route.retire_on ? <p className="mt-4 text-xs text-[var(--muted)]">Planned removal {new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(new Date(`${route.retire_on}T12:00:00Z`))}</p> : null}</article>)}{routes?.length ? null : <p className="rounded-2xl bg-white p-5 text-sm text-[var(--muted)]">No routes are published right now.</p>}</div></div>;
 }

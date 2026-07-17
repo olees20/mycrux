@@ -202,6 +202,22 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { actor_profile_id: string; owner_profile_id: string; configuration: Json; branding: Json }
         Returns: string
       }
+      attach_wall_image: {
+        Args: { target_gym_id: string; target_wall_id: string; object_path: string; image_alt_text: string; image_width: number; image_height: number; image_captured_at?: string | null }
+        Returns: string
+      }
+      attach_route_media: {
+        Args: { target_gym_id: string; target_route_id: string; object_path: string; object_media_type: string; object_alt_text?: string | null }
+        Returns: string
+      }
+      publish_routes: {
+        Args: { target_gym_id: string; target_route_ids: string[] }
+        Returns: number
+      }
+      retire_routes: {
+        Args: { target_gym_id: string; target_route_ids: string[] }
+        Returns: number
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
