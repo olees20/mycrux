@@ -15,6 +15,8 @@ Row Level Security is enabled and forced by the Prompt 4 migration. Policy inten
 
 Authentication profile creation, public join requests, and single-use invitation acceptance are covered by `tests/auth_onboarding.sql`.
 
+Canonical staff-role delegation, audited invitation management, suspension, and denied permission boundaries are covered by `tests/staff_permissions.sql`.
+
 ## Generated TypeScript types
 
 After applying migrations to a local/disposable PostgreSQL database, regenerate the typed client schema with:

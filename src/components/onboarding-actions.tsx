@@ -7,12 +7,12 @@ import {
 } from "@/features/auth/actions";
 import { initialAuthActionState } from "@/features/auth/state";
 
-export function InvitationForm() {
+export function InvitationForm({ token }: { token?: string }) {
   const [state, action, pending] = useActionState(acceptInvitationAction, initialAuthActionState);
   return (
     <form action={action} className="mt-4 space-y-3">
       <label className="block text-sm font-semibold">Invitation code or token
-        <input className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] px-4 font-normal" name="token" required />
+        <input className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] px-4 font-normal" defaultValue={token} name="token" required />
       </label>
       <ActionMessage state={state} />
       <button className="min-h-11 rounded-full bg-[var(--foreground)] px-5 font-bold text-white disabled:opacity-60" disabled={pending}>{pending ? "Joining…" : "Accept invitation"}</button>

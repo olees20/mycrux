@@ -161,16 +161,16 @@ values
   (
     '40000000-0000-4000-8000-000000000001',
     '30000000-0000-4000-8000-000000000001',
-    'operations', 'Operations staff', 'Demo front-of-house role.',
-    array['announcements.manage', 'events.manage', 'guests.check_in'], true
+    'front_desk', 'Front desk', 'Demo front-of-house role.',
+    array['events.manage', 'guests.manage', 'guests.check_in', 'waivers.manage', 'passes.manage'], true
   ),
   (
     '40000000-0000-4000-8000-000000000002',
     '30000000-0000-4000-8000-000000000001',
-    'route_setting', 'Route setting', 'Demo route-setting role.',
-    array['walls.read', 'routes.manage', 'route_feedback.read'], true
+    'route_setter', 'Route setter', 'Demo route-setting role.',
+    array['walls.read', 'routes.manage', 'route_feedback.read', 'competitions.score'], true
   )
-on conflict (id) do update
+on conflict (gym_id, key) do update
 set name = excluded.name,
     description = excluded.description,
     capabilities = excluded.capabilities,
@@ -187,23 +187,43 @@ values
     'owner', null, 'active', now()
   ),
   (
-    '50000000-0000-4000-8000-000000000002',
-    '30000000-0000-4000-8000-000000000001',
-    '10000000-0000-4000-8000-000000000002',
-    'staff', '40000000-0000-4000-8000-000000000001', 'active', now()
-  ),
-  (
-    '50000000-0000-4000-8000-000000000003',
-    '30000000-0000-4000-8000-000000000001',
-    '10000000-0000-4000-8000-000000000003',
-    'route_setter', '40000000-0000-4000-8000-000000000002', 'active', now()
-  ),
-  (
     '50000000-0000-4000-8000-000000000004',
     '30000000-0000-4000-8000-000000000001',
     '10000000-0000-4000-8000-000000000004',
     'member', null, 'active', now()
   )
+on conflict (id) do update
+set role = excluded.role,
+    staff_role_id = excluded.staff_role_id,
+    status = excluded.status,
+    joined_at = excluded.joined_at;
+
+insert into public.gym_memberships (
+  id, gym_id, profile_id, role, staff_role_id, status, joined_at
+)
+select
+  '50000000-0000-4000-8000-000000000002',
+  '30000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000002',
+  'staff', role.id, 'active', now()
+from public.staff_roles role
+where role.gym_id = '30000000-0000-4000-8000-000000000001' and role.key = 'front_desk'
+on conflict (id) do update
+set role = excluded.role,
+    staff_role_id = excluded.staff_role_id,
+    status = excluded.status,
+    joined_at = excluded.joined_at;
+
+insert into public.gym_memberships (
+  id, gym_id, profile_id, role, staff_role_id, status, joined_at
+)
+select
+  '50000000-0000-4000-8000-000000000003',
+  '30000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000003',
+  'route_setter', role.id, 'active', now()
+from public.staff_roles role
+where role.gym_id = '30000000-0000-4000-8000-000000000001' and role.key = 'route_setter'
 on conflict (id) do update
 set role = excluded.role,
     staff_role_id = excluded.staff_role_id,

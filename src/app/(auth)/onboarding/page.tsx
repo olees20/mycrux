@@ -3,7 +3,8 @@ import { InvitationForm, MembershipRequestButton } from "@/components/onboarding
 import { requireRouteUser } from "@/lib/server/authorization";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
+  const { token } = await searchParams;
   const supabase = await createServerComponentSupabaseClient();
   const user = await requireRouteUser(supabase);
   if (!user.email_confirmed_at) redirect("/verify-email");
@@ -32,7 +33,7 @@ export default async function OnboardingPage() {
       <p className="mt-3 leading-7 text-[var(--muted)]">Accept an invitation from your gym, or request access to a public gym.</p>
       <div className="mt-8 rounded-2xl bg-[var(--background)] p-5">
         <h2 className="font-bold">Have an invitation?</h2>
-        <InvitationForm />
+        <InvitationForm token={token} />
       </div>
       <div className="mt-8">
         <h2 className="text-xl font-black">Public gyms</h2>

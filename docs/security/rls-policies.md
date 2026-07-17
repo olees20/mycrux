@@ -24,9 +24,9 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 | `gyms` | Active members of that gym; verified authenticated users may also discover gyms that explicitly allow public join requests. | Owners update settings; creation/closure uses privileged onboarding/operations paths. |
 | `gym_domains` | Active gym members. | Owners manage mappings; `gym_id` is immutable. |
 | `gym_branding` | Active gym members. | Owners manage branding. |
-| `staff_roles` | Active gym members. | Owners manage custom roles; system-role state cannot be client-created or changed. |
-| `gym_memberships` | Self and active members of the same gym. | Owners add/change/remove memberships. A verified user may create only their own `member`/`invited` request for a public-join gym; role, status, profile, and tenant escalation are rejected. |
-| `invitations` | Owners only. | Owners issue and manage invitations; insertion records the authenticated inviter. Verified users accept a matching, unexpired token through the single-use atomic `accept_gym_invitation` RPC. |
+| `staff_roles` | Active gym members. | Canonical system bundles are database-provisioned and immutable to authenticated clients; owners manage only future custom roles. |
+| `gym_memberships` | Self and active members of the same gym. | Audited RPCs enforce owner/manager staff-role boundaries and suspension; public join requests remain constrained to the caller's own `member`/`invited` row. |
+| `invitations` | Owners and gym managers. | Direct authenticated mutation is revoked. Audited RPCs issue, rotate, and revoke hashed links within delegation boundaries; verified users accept through the atomic single-use RPC. |
 | `announcements` | Active members see published, unarchived posts; permitted staff see drafts. | Staff with `announcements.manage`; author and tenant remain immutable. |
 | `walls` | Active members see active, unarchived walls. | Staff with `routes.manage`. |
 | `wall_images` | Active members see current, unarchived images. | Staff with `routes.manage`; wall and tenant remain immutable. |

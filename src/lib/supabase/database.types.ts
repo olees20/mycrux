@@ -2497,6 +2497,22 @@ export type Database = {
         Args: { invitation_token_hash: string }
         Returns: string
       }
+      create_staff_invitation: {
+        Args: { target_gym_id: string; invite_email: string; target_role_key: string; invitation_token_hash: string; invitation_expires_at: string }
+        Returns: string
+      }
+      resend_staff_invitation: {
+        Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
+        Returns: string
+      }
+      revoke_staff_invitation: {
+        Args: { target_invitation_id: string }
+        Returns: string
+      }
+      update_staff_access: {
+        Args: { target_membership_id: string; target_role_key: string; target_status: string }
+        Returns: string
+      }
       set_updated_at: {
         Args: Record<PropertyKey, never>
         Returns: unknown

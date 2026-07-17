@@ -47,7 +47,7 @@ values
     'invitee@crux.example.invalid',
     '242ae763272c94fd83aaff5fe1102118e762859b17b98a3ad239bdf28b1c7a1b',
     'staff',
-    '40000000-0000-4000-8000-000000000001',
+    (select id from public.staff_roles where gym_id = '30000000-0000-4000-8000-000000000001' and key = 'front_desk'),
     '10000000-0000-4000-8000-000000000001',
     now() + interval '1 day'
   ),
@@ -136,6 +136,14 @@ begin
       and accepted_by = '10000000-0000-4000-8000-000000000091'
   ) then
     raise exception 'Invitation acceptance state was not recorded';
+  end if;
+
+  if not exists (
+    select 1 from public.audit_logs
+    where target_id = '91000000-0000-4000-8000-000000000001'
+      and action = 'staff.invitation.accepted'
+  ) then
+    raise exception 'Invitation acceptance was not audited';
   end if;
 end;
 $$;
