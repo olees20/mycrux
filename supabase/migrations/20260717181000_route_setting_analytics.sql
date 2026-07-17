@@ -1,0 +1,21 @@
+-- Prompt 27: privacy-conscious, date-scoped route-setting aggregates.
+create index if not exists ascent_logs_gym_climbed_route_idx on public.ascent_logs(gym_id,climbed_at,route_id)where deleted_at is null;
+create index if not exists route_feedback_gym_created_route_idx on public.route_feedback(gym_id,created_at,route_id)where archived_at is null;
+
+create or replace function public.get_route_setting_analytics(target_gym_id uuid,date_from date,date_to date,target_wall_id uuid default null,target_setter_id uuid default null,target_route_type text default null)
+returns table(route_id uuid,route_name text,colour text,grade text,grade_system text,route_type text,wall_name text,setter_name text,set_on date,age_days integer,styles text[],activity_count bigint,send_count bigint,attempt_count bigint,send_ratio numeric,grade_soft bigint,grade_right bigint,grade_hard bigint,open_issues bigint,sample_size bigint,low_sample boolean,reset_priority text)
+language sql stable security definer set search_path=''as $$
+select route.id,coalesce(route.name,route.colour||' '||route.grade),route.colour,route.grade,route.grade_system,route.route_type,wall.name,coalesce(setter.display_name,'Unassigned'),route.set_on,(current_date-coalesce(route.set_on,route.created_at::date))::integer,coalesce(tags.styles,'{}'::text[]),
+coalesce(activity.activity_count,0),coalesce(activity.send_count,0),coalesce(activity.attempt_count,0),case when coalesce(activity.activity_count,0)=0 then null else round(activity.send_count::numeric/activity.activity_count,3)end,
+coalesce(feedback.grade_soft,0),coalesce(feedback.grade_right,0),coalesce(feedback.grade_hard,0),coalesce(feedback.open_issues,0),coalesce(activity.activity_count,0)+coalesce(feedback.grade_votes,0),(coalesce(activity.activity_count,0)+coalesce(feedback.grade_votes,0))<5,
+case when coalesce(feedback.open_issues,0)>0 then 'review_issue'when current_date-coalesce(route.set_on,route.created_at::date)>=120 then 'high'when current_date-coalesce(route.set_on,route.created_at::date)>=90 then 'medium'else 'normal'end
+from public.routes route join public.walls wall on wall.id=route.wall_id and wall.gym_id=route.gym_id left join public.profiles setter on setter.id=route.setter_id
+left join lateral(select array_agg(tag.tag order by tag.tag)styles from public.route_tags tag where tag.route_id=route.id and tag.gym_id=route.gym_id)tags on true
+left join lateral(select count(*)activity_count,count(*)filter(where ascent.ascent_type in('flash','onsight','redpoint','repeat'))send_count,sum(ascent.attempts)attempt_count from public.ascent_logs ascent where ascent.gym_id=route.gym_id and ascent.route_id=route.id and ascent.deleted_at is null and ascent.climbed_at>=date_from::timestamptz and ascent.climbed_at<(date_to+1)::timestamptz)activity on true
+left join lateral(select count(*)filter(where item.feedback_kind='grade_soft')grade_soft,count(*)filter(where item.feedback_kind='grade_right')grade_right,count(*)filter(where item.feedback_kind='grade_hard')grade_hard,count(*)filter(where item.feedback_kind in('spinning_hold','dirty_hold','other_issue')and item.issue_status in('open','reviewing'))open_issues,count(*)filter(where item.feedback_kind in('grade_soft','grade_right','grade_hard'))grade_votes from public.route_feedback item where item.gym_id=route.gym_id and item.route_id=route.id and item.archived_at is null and item.moderation_status='visible'and item.created_at>=date_from::timestamptz and item.created_at<(date_to+1)::timestamptz)feedback on true
+where route.gym_id=target_gym_id and route.archived_at is null and route.status in('published','retired')and(date_to>=date_from and date_to-date_from<=366)and(target_wall_id is null or route.wall_id=target_wall_id)and(target_setter_id is null or route.setter_id=target_setter_id)and(target_route_type is null or route.route_type=target_route_type)
+and(private.has_gym_capability(target_gym_id,'routes.manage')or private.has_gym_capability(target_gym_id,'route_feedback.read'))
+order by case when coalesce(feedback.open_issues,0)>0 then 0 else 1 end,current_date-coalesce(route.set_on,route.created_at::date)desc,route.id;
+$$;
+revoke all on function public.get_route_setting_analytics(uuid,date,date,uuid,uuid,text)from public,anon;
+grant execute on function public.get_route_setting_analytics(uuid,date,date,uuid,uuid,text)to authenticated;

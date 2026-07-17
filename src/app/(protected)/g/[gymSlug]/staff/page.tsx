@@ -81,7 +81,7 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
   const time = (value: string) => new Intl.DateTimeFormat("en-GB", { timeZone: timezone, timeStyle: "short" }).format(new Date(value));
   const quickActions = [
     ...(permissions.frontDesk ? [["Check in", "check-in"], ["Guests", "guests"]] : []),
-    ...(permissions.routeSetting ? [["Routes", "routes"], ["Route issues", "route-feedback"]] : []),
+    ...(permissions.routeSetting ? [["Routes", "routes"], ["Route issues", "route-feedback"], ["Route analytics", "route-analytics"]] : []),
     ...(permissions.events ? [["Events", "events"]] : []),
     ...(permissions.announcements ? [["Announcements", "announcements"]] : []),
     ...(permissions.management ? [["Team access", "team"]] : []),
