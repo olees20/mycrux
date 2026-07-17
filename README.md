@@ -56,4 +56,4 @@ Before deployment, run `npm run lint`, `npm run type-check`, `npm test`, and `np
 
 ## Architecture
 
-Accepted technical decisions, system diagrams, trade-offs, and deferred scope are indexed in [`docs/architecture`](./docs/architecture/README.md). The relational schema and ER diagrams are documented in [`docs/data-model.md`](./docs/data-model.md).
+Accepted technical decisions, system diagrams, trade-offs, and deferred scope are indexed in [`docs/architecture`](./docs/architecture/README.md). The relational schema and ER diagrams are documented in [`docs/data-model.md`](./docs/data-model.md), with database authorization detailed in [`docs/security/rls-policies.md`](./docs/security/rls-policies.md).
