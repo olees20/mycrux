@@ -62,9 +62,9 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 
 ## Service-role boundary
 
-The service-role key may be imported only by the future `src/lib/supabase/admin.ts` module introduced with Prompt 5. That module must begin with `import "server-only"`, expose purpose-specific functions rather than a raw client, validate signed guest/Stripe requests before queries, and add audit context. Client Components, browser helpers, and generic shared utilities must never import it.
+The service-role key may be imported only by `src/lib/supabase/admin.ts`. That module begins with `import "server-only"`, keeps its raw client private, exposes purpose-specific functions rather than a raw client, validates signed inputs before queries, and emits structured failure events. Client Components, browser helpers, and generic shared utilities must never import it.
 
-Currently no Supabase client is implemented and the service-role key has no code consumer. SQL tests use a local `service_role` database role solely to prove that the intended server boundary can perform controlled cross-tenant work.
+Normal Server Component and Route Handler clients use the caller's cookies and anonymous key so RLS applies. SQL tests use a local `service_role` database role solely to prove that the server boundary can perform controlled cross-tenant work.
 
 ## Verification
 

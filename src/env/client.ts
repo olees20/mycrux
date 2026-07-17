@@ -1,4 +1,4 @@
-import { parsePublicEnvironment } from "./schema";
+import { parsePublicEnvironment } from "./public";
 
 export function getPublicEnvironment() {
   return parsePublicEnvironment({

@@ -27,6 +27,7 @@ The environment helpers produce a single, readable error listing invalid or miss
 | `npm test` | Run Vitest once |
 | `npm run build` | Create a production build |
 | `npm start` | Serve a production build |
+| `npm run db:types -- URL` | Regenerate typed Supabase schema from a migrated development database |
 
 ## Structure
 
