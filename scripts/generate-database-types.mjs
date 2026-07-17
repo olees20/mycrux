@@ -290,6 +290,18 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; target_membership_id: string }
         Returns: string
       }
+      register_for_event: {
+        Args: { target_gym_id: string; target_event_id: string }
+        Returns: string
+      }
+      cancel_event_registration: {
+        Args: { target_gym_id: string; target_event_id: string }
+        Returns: string
+      }
+      get_event_availability: {
+        Args: { target_gym_id: string; target_event_id: string }
+        Returns: Json
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

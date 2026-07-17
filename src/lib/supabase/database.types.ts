@@ -842,6 +842,13 @@ export type Database = {
           "archived_at": string | null
           "created_at": string
           "updated_at": string
+          "event_type": string
+          "image_path": string | null
+          "organiser_id": string | null
+          "eligibility": Json
+          "waitlist_enabled": boolean
+          "cancellation_policy": string | null
+          "cancellation_closes_at": string | null
         }
         Insert: {
           "id"?: string
@@ -861,6 +868,13 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "event_type"?: string
+          "image_path"?: string | null
+          "organiser_id"?: string | null
+          "eligibility"?: Json
+          "waitlist_enabled"?: boolean
+          "cancellation_policy"?: string | null
+          "cancellation_closes_at"?: string | null
         }
         Update: {
           "id"?: string
@@ -880,6 +894,13 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "event_type"?: string
+          "image_path"?: string | null
+          "organiser_id"?: string | null
+          "eligibility"?: Json
+          "waitlist_enabled"?: boolean
+          "cancellation_policy"?: string | null
+          "cancellation_closes_at"?: string | null
         }
         Relationships: [
           {
@@ -894,6 +915,13 @@ export type Database = {
             columns: ["gym_id"]
             isOneToOne: false
             referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organiser_id_fkey"
+            columns: ["organiser_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -2847,6 +2875,18 @@ export type Database = {
       manual_member_check_in: {
         Args: { target_gym_id: string; target_membership_id: string }
         Returns: string
+      }
+      register_for_event: {
+        Args: { target_gym_id: string; target_event_id: string }
+        Returns: string
+      }
+      cancel_event_registration: {
+        Args: { target_gym_id: string; target_event_id: string }
+        Returns: string
+      }
+      get_event_availability: {
+        Args: { target_gym_id: string; target_event_id: string }
+        Returns: Json
       }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
