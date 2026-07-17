@@ -11,5 +11,6 @@ export function getServerEnvironment() {
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     CRON_SECRET: process.env.CRON_SECRET,
     INTEGRATION_WEBHOOK_SECRET: process.env.INTEGRATION_WEBHOOK_SECRET,
+    STRIPE_PLATFORM_PRICE_ID: process.env.STRIPE_PLATFORM_PRICE_ID,
   });
 }

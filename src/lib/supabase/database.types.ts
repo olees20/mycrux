@@ -3290,6 +3290,41 @@ export type Database = {
           }
         ]
       }
+      "stripe_billing_events": {
+        Row: {
+          "id": string
+          "gym_id": string | null
+          "event_type": string
+          "livemode": boolean
+          "processed_at": string
+          "created_at": string
+        }
+        Insert: {
+          "id": string
+          "gym_id"?: string | null
+          "event_type": string
+          "livemode": boolean
+          "processed_at"?: string
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string | null
+          "event_type"?: string
+          "livemode"?: boolean
+          "processed_at"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_billing_events_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "subscriptions": {
         Row: {
           "id": string
@@ -3859,6 +3894,8 @@ export type Database = {
       get_integration_statuses: { Args: { target_gym_id: string }; Returns: { id: string; provider_key: string; provider_category: string; status: string; last_sync_at: string | null; last_error_code: string | null; updated_at: string; queued: number; dead_letter: number }[] }
       ingest_integration_delivery: { Args: { target_integration_id: string; target_provider_key: string; event_key: string; event_payload: Json }; Returns: string }
       record_integration_delivery_attempt: { Args: { target_delivery_id: string; succeeded: boolean; error_code?: string }; Returns: string }
+      upsert_stripe_billing_customer: { Args: { target_gym_id: string; customer_id: string; billing_address: string }; Returns: string }
+      apply_stripe_subscription_event: { Args: { event_id: string; event_type: string; event_livemode: boolean; customer_id: string; subscription_id: string; price_id: string; subscription_status: string; period_start?: string; period_end?: string; cancel_period_end: boolean; cancelled_at?: string; trial_end?: string; plan_name: string }; Returns: boolean }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

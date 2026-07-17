@@ -139,6 +139,8 @@ async function registerPublicDayPass(input:{gymSlug:string;guestName:string;gues
 
 async function getIntegrationForWebhook(id:string,providerKey:string){const client=createPrivilegedSupabaseClient(),{data,error}=await client.from("integration_connections").select("id,gym_id,provider_key,status").eq("id",z.uuid().parse(id)).eq("provider_key",z.string().regex(/^[a-z][a-z0-9_.-]*$/).parse(providerKey)).maybeSingle();if(error)throw normalizeDatabaseError(error,"Integration lookup failed");return data;}
 async function ingestIntegrationDelivery(integrationId:string,providerKey:string,eventKey:string,payload:Json){const client=createPrivilegedSupabaseClient(),{data,error}=await client.rpc("ingest_integration_delivery",{target_integration_id:z.uuid().parse(integrationId),target_provider_key:z.string().regex(/^[a-z][a-z0-9_.-]*$/).parse(providerKey),event_key:z.string().min(1).max(255).parse(eventKey),event_payload:payload});if(error)throw normalizeDatabaseError(error,"Integration delivery could not be accepted");return data;}
+async function upsertStripeBillingCustomer(gymId:string,customerId:string,billingEmail:string){const client=createPrivilegedSupabaseClient(),{data,error}=await client.rpc("upsert_stripe_billing_customer",{target_gym_id:z.uuid().parse(gymId),customer_id:z.string().regex(/^cus_[A-Za-z0-9]+$/).parse(customerId),billing_address:z.union([z.email(),z.literal("")]).parse(billingEmail)});if(error)throw normalizeDatabaseError(error,"Billing customer could not be stored");return data;}
+async function applyStripeSubscriptionEvent(input:{eventId:string;eventType:string;livemode:boolean;customerId:string;subscriptionId:string;priceId:string;status:string;periodStart:string|null;periodEnd:string|null;cancelAtPeriodEnd:boolean;cancelledAt:string|null;trialEnd:string|null;planKey:string}){const client=createPrivilegedSupabaseClient(),{data,error}=await client.rpc("apply_stripe_subscription_event",{event_id:input.eventId,event_type:input.eventType,event_livemode:input.livemode,customer_id:input.customerId,subscription_id:input.subscriptionId,price_id:input.priceId,subscription_status:input.status,period_start:input.periodStart??undefined,period_end:input.periodEnd??undefined,cancel_period_end:input.cancelAtPeriodEnd,cancelled_at:input.cancelledAt??undefined,trial_end:input.trialEnd??undefined,plan_name:input.planKey});if(error)throw normalizeDatabaseError(error,"Subscription event could not be applied");return data;}
 
 export const privilegedAccess = Object.freeze({
   findInvitationByTokenHash,
@@ -152,4 +154,6 @@ export const privilegedAccess = Object.freeze({
   registerPublicDayPass,
   getIntegrationForWebhook,
   ingestIntegrationDelivery,
+  upsertStripeBillingCustomer,
+  applyStripeSubscriptionEvent,
 });

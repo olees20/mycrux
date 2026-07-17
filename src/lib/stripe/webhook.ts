@@ -1,0 +1,4 @@
+import type Stripe from"stripe";
+function iso(value:number|null){return value?new Date(value*1000).toISOString():null}
+export function subscriptionProjection(subscription:Stripe.Subscription){const item=subscription.items.data[0];if(!item)throw new Error("Stripe subscription has no item");const customer=typeof subscription.customer==="string"?subscription.customer:subscription.customer.id;return{customerId:customer,subscriptionId:subscription.id,priceId:typeof item.price==="string"?item.price:item.price.id,status:subscription.status,periodStart:iso(item.current_period_start),periodEnd:iso(item.current_period_end),cancelAtPeriodEnd:subscription.cancel_at_period_end,cancelledAt:iso(subscription.canceled_at),trialEnd:iso(subscription.trial_end),planKey:subscription.metadata.plan_key||"starter"}}
+export function verifyStripeEventWithClient(raw:string,signature:string,secret:string,stripe:Stripe){return stripe.webhooks.constructEvent(raw,signature,secret)}
