@@ -318,6 +318,14 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string }
         Returns: number
       }
+      set_leaderboard_preference: {
+        Args: { target_gym_id: string; participate: boolean; name_mode: string }
+        Returns: string
+      }
+      get_community_leaderboard: {
+        Args: { target_gym_id: string; category: string; window_month: string }
+        Returns: { rank: number; profile_id: string; display_name: string; score: number; window_start: string; window_end: string; tie_achieved_at: string | null }[]
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

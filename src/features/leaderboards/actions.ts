@@ -1,0 +1,4 @@
+"use server";
+import{revalidatePath}from"next/cache";import{z}from"zod";import{requireActiveGymContext}from"@/lib/server/gym-context";import{createServerComponentSupabaseClient}from"@/lib/supabase/server";
+const schema=z.object({gymSlug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),participate:z.enum(["yes","no"]),nameMode:z.enum(["name","anonymous"])});
+export async function saveLeaderboardPreferenceAction(formData:FormData){const parsed=schema.parse(Object.fromEntries(formData.entries()));const{gym}=await requireActiveGymContext({gymSlug:parsed.gymSlug});const supabase=await createServerComponentSupabaseClient();await supabase.rpc("set_leaderboard_preference",{target_gym_id:gym.id,participate:parsed.participate==="yes",name_mode:parsed.nameMode});revalidatePath(`/g/${gym.slug}/app/leaderboards`);revalidatePath(`/g/${gym.slug}/app`);}

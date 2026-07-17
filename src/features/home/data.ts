@@ -13,10 +13,16 @@ export async function loadGymHomeData(gymId: string, timezone: string, now = new
     supabase.from("routes").select("id,name,colour,grade,set_on,wall_id").eq("gym_id", gymId).eq("status", "published").is("archived_at", null).eq("set_on", today).order("published_at", { ascending: false }).limit(4),
     supabase.from("community_posts").select("id,title,body,post_type,created_at,author_id").eq("gym_id", gymId).eq("visibility", "members").eq("moderation_status", "visible").is("deleted_at", null).order("created_at", { ascending: false }).limit(3),
     supabase.from("feature_entitlements").select("enabled,starts_at,ends_at").eq("gym_id", gymId).eq("feature_key", "occupancy.integration").maybeSingle(),
-    supabase.from("competitions").select("id,name,status").eq("gym_id", gymId).in("status", ["registration", "live", "completed"]).is("archived_at", null).order("starts_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("competitions").select("id,name,status").eq("gym_id", gymId).in("status", ["registration", "live", "complete"]).is("archived_at", null).order("starts_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
-  const leaderboard = competition.data ? await supabase.from("competition_leaderboard").select("profile_id,total_score,rank").eq("gym_id", gymId).eq("competition_id", competition.data.id).order("rank").limit(3) : { data: [], error: null };
-  const profileIds = [...new Set([...(community.data ?? []).map(({ author_id }) => author_id), ...(leaderboard.data ?? []).flatMap(({ profile_id }) => profile_id ? [profile_id] : [])])];
-  const profiles = profileIds.length ? await supabase.from("profiles").select("id,display_name").in("id", profileIds) : { data: [], error: null };
-  return { announcements, events, routes, community, competition, leaderboard, profiles, occupancyEnabled: isEntitlementActive(entitlement.data, now), occupancyError: entitlement.error };
+  const communityRanking = competition.data ? null : await supabase.rpc("get_community_leaderboard", { target_gym_id: gymId, category: "monthly_sends", window_month: `${today.slice(0, 7)}-01` });
+  const leaderboard = competition.data
+    ? await supabase.from("competition_leaderboard").select("profile_id,total_score,rank").eq("gym_id", gymId).eq("competition_id", competition.data.id).order("rank").limit(3)
+    : { data: (communityRanking?.data ?? []).slice(0, 3).map((row) => ({ profile_id: row.profile_id, total_score: row.score, rank: row.rank })), error: communityRanking?.error ?? null };
+  const profileIds = [...new Set([...(community.data ?? []).map(({ author_id }) => author_id), ...(competition.data ? (leaderboard.data ?? []).flatMap(({ profile_id }) => profile_id ? [profile_id] : []) : [])])];
+  const databaseProfiles = profileIds.length ? await supabase.from("profiles").select("id,display_name").in("id", profileIds) : { data: [], error: null };
+  const syntheticProfiles = competition.data ? [] : (communityRanking?.data ?? []).map((row) => ({ id: row.profile_id, display_name: row.display_name }));
+  const profiles = { data: [...(databaseProfiles.data ?? []), ...syntheticProfiles], error: databaseProfiles.error };
+  const displayedCompetition = competition.data ? competition : { data: { id: "community", name: "Monthly sends", status: "live" }, error: competition.error };
+  return { announcements, events, routes, community, competition: displayedCompetition, leaderboard, profiles, occupancyEnabled: isEntitlementActive(entitlement.data, now), occupancyError: entitlement.error };
 }

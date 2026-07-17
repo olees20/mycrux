@@ -1593,6 +1593,51 @@ export type Database = {
           }
         ]
       }
+      "leaderboard_preferences": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "profile_id": string
+          "opted_in": boolean
+          "display_name_mode": string
+          "updated_at": string
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "profile_id": string
+          "opted_in"?: boolean
+          "display_name_mode"?: string
+          "updated_at"?: string
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "profile_id"?: string
+          "opted_in"?: boolean
+          "display_name_mode"?: string
+          "updated_at"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leaderboard_preferences_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leaderboard_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "member_achievements": {
         Row: {
           "id": string
@@ -3085,6 +3130,14 @@ export type Database = {
       process_my_achievements: {
         Args: { target_gym_id: string }
         Returns: number
+      }
+      set_leaderboard_preference: {
+        Args: { target_gym_id: string; participate: boolean; name_mode: string }
+        Returns: string
+      }
+      get_community_leaderboard: {
+        Args: { target_gym_id: string; category: string; window_month: string }
+        Returns: { rank: number; profile_id: string; display_name: string; score: number; window_start: string; window_end: string; tie_achieved_at: string | null }[]
       }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
