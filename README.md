@@ -53,3 +53,7 @@ Use Stripe test mode locally and separate webhook secrets per environment. Strip
 Import the repository into Vercel, select the Next.js framework preset, and configure all variables from `.env.example` for Preview and Production separately. Use a staging Supabase project for Preview deployments. Do not copy production secrets into Preview.
 
 Before deployment, run `npm run lint`, `npm run type-check`, `npm test`, and `npm run build`.
+
+## Architecture
+
+Accepted technical decisions, system diagrams, trade-offs, and deferred scope are indexed in [`docs/architecture`](./docs/architecture/README.md).
