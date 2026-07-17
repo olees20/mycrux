@@ -2285,6 +2285,13 @@ export type Database = {
           "revoked_at": string | null
           "revocation_reason": string | null
           "created_at": string
+          "date_of_birth": string | null
+          "age_confirmed": boolean | null
+          "emergency_contact_name": string | null
+          "emergency_contact_phone": string | null
+          "signature_text": string
+          "evidence": Json
+          "retention_until": string
         }
         Insert: {
           "id"?: string
@@ -2300,6 +2307,13 @@ export type Database = {
           "revoked_at"?: string | null
           "revocation_reason"?: string | null
           "created_at"?: string
+          "date_of_birth"?: string | null
+          "age_confirmed"?: boolean | null
+          "emergency_contact_name"?: string | null
+          "emergency_contact_phone"?: string | null
+          "signature_text"?: string
+          "evidence"?: Json
+          "retention_until"?: string
         }
         Update: {
           "id"?: string
@@ -2315,6 +2329,13 @@ export type Database = {
           "revoked_at"?: string | null
           "revocation_reason"?: string | null
           "created_at"?: string
+          "date_of_birth"?: string | null
+          "age_confirmed"?: boolean | null
+          "emergency_contact_name"?: string | null
+          "emergency_contact_phone"?: string | null
+          "signature_text"?: string
+          "evidence"?: Json
+          "retention_until"?: string
         }
         Relationships: [
           {
@@ -2361,6 +2382,7 @@ export type Database = {
           "published_at": string | null
           "created_by": string
           "created_at": string
+          "requirements": Json
         }
         Insert: {
           "id"?: string
@@ -2375,6 +2397,7 @@ export type Database = {
           "published_at"?: string | null
           "created_by": string
           "created_at"?: string
+          "requirements"?: Json
         }
         Update: {
           "id"?: string
@@ -2389,6 +2412,7 @@ export type Database = {
           "published_at"?: string | null
           "created_by"?: string
           "created_at"?: string
+          "requirements"?: Json
         }
         Relationships: [
           {
@@ -2622,6 +2646,22 @@ export type Database = {
       }
       triage_route_feedback: {
         Args: { target_feedback_id: string; target_status: string }
+        Returns: string
+      }
+      save_waiver_draft: {
+        Args: { target_gym_id: string; target_waiver_id: string | null; template_name: string; template_description: string; required_for_entry: boolean; version_title: string; version_content: string; version_requirements: Json }
+        Returns: string
+      }
+      publish_waiver_version: {
+        Args: { target_gym_id: string; target_version_id: string }
+        Returns: string
+      }
+      accept_member_waiver: {
+        Args: { target_gym_id: string; target_version_id: string; acceptance: Json }
+        Returns: string
+      }
+      accept_guest_waiver: {
+        Args: { invitation_token_hash: string; target_version_id: string; acceptance: Json }
         Returns: string
       }
       resend_staff_invitation: {

@@ -234,6 +234,22 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_feedback_id: string; target_status: string }
         Returns: string
       }
+      save_waiver_draft: {
+        Args: { target_gym_id: string; target_waiver_id: string | null; template_name: string; template_description: string; required_for_entry: boolean; version_title: string; version_content: string; version_requirements: Json }
+        Returns: string
+      }
+      publish_waiver_version: {
+        Args: { target_gym_id: string; target_version_id: string }
+        Returns: string
+      }
+      accept_member_waiver: {
+        Args: { target_gym_id: string; target_version_id: string; acceptance: Json }
+        Returns: string
+      }
+      accept_guest_waiver: {
+        Args: { invitation_token_hash: string; target_version_id: string; acceptance: Json }
+        Returns: string
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
