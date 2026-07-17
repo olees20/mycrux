@@ -1593,6 +1593,54 @@ export type Database = {
           }
         ]
       }
+      "member_achievements": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "profile_id": string
+          "achievement_key": string
+          "title": string
+          "description": string
+          "context": Json
+          "awarded_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "profile_id": string
+          "achievement_key": string
+          "title": string
+          "description": string
+          "context"?: Json
+          "awarded_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "profile_id"?: string
+          "achievement_key"?: string
+          "title"?: string
+          "description"?: string
+          "context"?: Json
+          "awarded_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_achievements_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_achievements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "messages": {
         Row: {
           "id": string
@@ -3033,6 +3081,10 @@ export type Database = {
       attach_ascent_media: {
         Args: { target_gym_id: string; target_ascent_id: string; object_path: string; object_media_type: string }
         Returns: string
+      }
+      process_my_achievements: {
+        Args: { target_gym_id: string }
+        Returns: number
       }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }

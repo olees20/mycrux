@@ -47,6 +47,7 @@ export async function saveAscentAction(_state: AscentActionState, formData: Form
     const attached = await supabase.rpc("attach_ascent_media", { target_gym_id: gym.id, target_ascent_id: ascentId, object_path: path, object_media_type: media.type === "video/mp4" ? "video" : "image" });
     if (attached.error) { await supabase.storage.from("ascent-media").remove([path]); return { status: "error", message: "Ascent saved, but media could not be attached." }; }
   }
+  await supabase.rpc("process_my_achievements", { target_gym_id: gym.id });
   refresh(gym.slug, parsed.data.routeId);
   return { status: "success", message: parsed.data.ascentId ? "Ascent updated." : "Ascent logged." };
 }

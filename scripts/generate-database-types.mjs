@@ -314,6 +314,10 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; target_ascent_id: string; object_path: string; object_media_type: string }
         Returns: string
       }
+      process_my_achievements: {
+        Args: { target_gym_id: string }
+        Returns: number
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
