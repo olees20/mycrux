@@ -631,6 +631,7 @@ export type Database = {
           "deleted_at": string | null
           "created_at": string
           "updated_at": string
+          "moderation_reason": string | null
         }
         Insert: {
           "id"?: string
@@ -644,6 +645,7 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "moderation_reason"?: string | null
         }
         Update: {
           "id"?: string
@@ -657,6 +659,7 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "moderation_reason"?: string | null
         }
         Relationships: [
           {
@@ -689,6 +692,131 @@ export type Database = {
           }
         ]
       }
+      "community_blocks": {
+        Row: {
+          "gym_id": string
+          "blocker_id": string
+          "blocked_id": string
+          "created_at": string
+        }
+        Insert: {
+          "gym_id": string
+          "blocker_id": string
+          "blocked_id": string
+          "created_at"?: string
+        }
+        Update: {
+          "gym_id"?: string
+          "blocker_id"?: string
+          "blocked_id"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_blocks_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_blocks_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "community_guideline_acceptances": {
+        Row: {
+          "gym_id": string
+          "profile_id": string
+          "version": string
+          "accepted_at": string
+        }
+        Insert: {
+          "gym_id": string
+          "profile_id": string
+          "version"?: string
+          "accepted_at"?: string
+        }
+        Update: {
+          "gym_id"?: string
+          "profile_id"?: string
+          "version"?: string
+          "accepted_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_guideline_acceptances_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_guideline_acceptances_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "community_mutes": {
+        Row: {
+          "gym_id": string
+          "profile_id": string
+          "muted_profile_id": string
+          "expires_at": string | null
+          "created_at": string
+        }
+        Insert: {
+          "gym_id": string
+          "profile_id": string
+          "muted_profile_id": string
+          "expires_at"?: string | null
+          "created_at"?: string
+        }
+        Update: {
+          "gym_id"?: string
+          "profile_id"?: string
+          "muted_profile_id"?: string
+          "expires_at"?: string | null
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_mutes_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_mutes_muted_profile_id_fkey"
+            columns: ["muted_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_mutes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "community_posts": {
         Row: {
           "id": string
@@ -703,6 +831,10 @@ export type Database = {
           "deleted_at": string | null
           "created_at": string
           "updated_at": string
+          "image_path": string | null
+          "is_pinned": boolean
+          "locked_at": string | null
+          "moderation_reason": string | null
         }
         Insert: {
           "id"?: string
@@ -717,6 +849,10 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "image_path"?: string | null
+          "is_pinned"?: boolean
+          "locked_at"?: string | null
+          "moderation_reason"?: string | null
         }
         Update: {
           "id"?: string
@@ -731,6 +867,10 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "image_path"?: string | null
+          "is_pinned"?: boolean
+          "locked_at"?: string | null
+          "moderation_reason"?: string | null
         }
         Relationships: [
           {
@@ -745,6 +885,68 @@ export type Database = {
             columns: ["gym_id"]
             isOneToOne: false
             referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "community_reports": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "reporter_id": string
+          "post_id": string | null
+          "comment_id": string | null
+          "reason": string
+          "status": string
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "reporter_id": string
+          "post_id"?: string | null
+          "comment_id"?: string | null
+          "reason": string
+          "status"?: string
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "reporter_id"?: string
+          "post_id"?: string | null
+          "comment_id"?: string | null
+          "reason"?: string
+          "status"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_reports_comment_fkey"
+            columns: ["comment_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "community_reports_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_reports_post_fkey"
+            columns: ["post_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "community_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -3139,6 +3341,13 @@ export type Database = {
         Args: { target_gym_id: string; category: string; window_month: string }
         Returns: { rank: number; profile_id: string; display_name: string; score: number; window_start: string; window_end: string; tie_achieved_at: string | null }[]
       }
+      accept_community_guidelines: { Args: { target_gym_id: string }; Returns: string }
+      create_community_post: { Args: { target_gym_id: string; post_title: string; post_body: string; post_image_path: string | null }; Returns: string }
+      create_community_comment: { Args: { target_gym_id: string; target_post_id: string; comment_body: string }; Returns: string }
+      toggle_community_reaction: { Args: { target_gym_id: string; target_post_id: string; reaction_name: string }; Returns: boolean }
+      delete_community_content: { Args: { target_gym_id: string; target_type: string; target_id: string }; Returns: string }
+      report_community_content: { Args: { target_gym_id: string; target_type: string; target_id: string; report_reason: string }; Returns: string }
+      moderate_community_post: { Args: { target_gym_id: string; target_post_id: string; target_status: string; lock_post: boolean; reason: string; pin_post: boolean }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

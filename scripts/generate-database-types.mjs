@@ -326,6 +326,13 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; category: string; window_month: string }
         Returns: { rank: number; profile_id: string; display_name: string; score: number; window_start: string; window_end: string; tie_achieved_at: string | null }[]
       }
+      accept_community_guidelines: { Args: { target_gym_id: string }; Returns: string }
+      create_community_post: { Args: { target_gym_id: string; post_title: string; post_body: string; post_image_path: string | null }; Returns: string }
+      create_community_comment: { Args: { target_gym_id: string; target_post_id: string; comment_body: string }; Returns: string }
+      toggle_community_reaction: { Args: { target_gym_id: string; target_post_id: string; reaction_name: string }; Returns: boolean }
+      delete_community_content: { Args: { target_gym_id: string; target_type: string; target_id: string }; Returns: string }
+      report_community_content: { Args: { target_gym_id: string; target_type: string; target_id: string; report_reason: string }; Returns: string }
+      moderate_community_post: { Args: { target_gym_id: string; target_post_id: string; target_status: string; lock_post: boolean; reason: string; pin_post: boolean }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
