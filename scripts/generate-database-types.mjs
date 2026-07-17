@@ -198,6 +198,10 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; invite_email: string; target_role_key: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
       }
+      create_gym_tenant: {
+        Args: { actor_profile_id: string; owner_profile_id: string; configuration: Json; branding: Json }
+        Returns: string
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
@@ -208,6 +212,14 @@ ${renderRelations(views, relationshipsByTable, "Views")}
       }
       update_staff_access: {
         Args: { target_membership_id: string; target_role_key: string; target_status: string }
+        Returns: string
+      }
+      update_gym_configuration: {
+        Args: { target_gym_id: string; gym_name: string; gym_slug: string; gym_timezone: string; gym_country_code: string; gym_address_line_1: string; gym_address_line_2: string; gym_city: string; gym_postcode: string; gym_contact_email: string; gym_contact_phone: string; gym_disciplines: string[]; gym_opening_hours_text: string; allow_public_join_requests: boolean; brand_primary_colour: string; brand_accent_colour: string; brand_background_colour: string; brand_welcome_message: string }
+        Returns: string
+      }
+      set_gym_logo_path: {
+        Args: { target_gym_id: string; object_path: string }
         Returns: string
       }
       set_updated_at: {

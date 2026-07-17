@@ -6,6 +6,7 @@ import { getServerEnvironment } from "@/env/server";
 import { normalizeDatabaseError } from "@/lib/server/errors";
 import { logger } from "@/lib/server/logger";
 import type { Database } from "./database.types";
+import { gymBrandingSchema, gymDetailsSchema, type GymBranding, type GymDetails } from "@/features/gyms/validation";
 
 const sha256Hash = z.string().regex(/^[a-f0-9]{64}$/, "Expected a SHA-256 hash");
 
@@ -74,8 +75,31 @@ async function findPassByReferenceHash(hash: string) {
   return data;
 }
 
+async function createGymTenant(input: {
+  actorProfileId: string;
+  ownerProfileId: string;
+  details: GymDetails;
+  branding: GymBranding;
+}) {
+  const client = createPrivilegedSupabaseClient();
+  const details = gymDetailsSchema.parse(input.details);
+  const branding = gymBrandingSchema.parse(input.branding);
+  const { data, error } = await client.rpc("create_gym_tenant", {
+    actor_profile_id: z.uuid().parse(input.actorProfileId),
+    owner_profile_id: z.uuid().parse(input.ownerProfileId),
+    configuration: details,
+    branding,
+  });
+  if (error) {
+    logger.write({ level: "error", event: "privileged_gym_creation_failed", context: { actorProfileId: input.actorProfileId }, error });
+    throw normalizeDatabaseError(error, "The gym could not be created");
+  }
+  return data;
+}
+
 export const privilegedAccess = Object.freeze({
   findInvitationByTokenHash,
   findGuestInviteByTokenHash,
   findPassByReferenceHash,
+  createGymTenant,
 });

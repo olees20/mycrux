@@ -58,3 +58,37 @@ create table auth.identities (
   updated_at timestamptz,
   unique (provider_id, provider)
 );
+
+-- Minimal Storage stubs for policy/migration smoke tests. Supabase owns these in real projects.
+create schema storage;
+grant usage on schema storage to anon, authenticated, service_role;
+
+create table storage.buckets (
+  id text primary key,
+  name text not null unique,
+  public boolean not null default false,
+  file_size_limit bigint,
+  allowed_mime_types text[]
+);
+
+create table storage.objects (
+  id uuid primary key default gen_random_uuid(),
+  bucket_id text not null references storage.buckets(id),
+  name text not null,
+  owner_id text,
+  metadata jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (bucket_id, name)
+);
+
+grant all on storage.buckets, storage.objects to service_role;
+grant select, insert, update, delete on storage.objects to authenticated;
+
+create function storage.foldername(name text)
+returns text[] language sql immutable as $$
+  select case when cardinality(parts) <= 1 then '{}'::text[] else parts[1:cardinality(parts) - 1] end
+  from (select string_to_array(name, '/') as parts) parsed;
+$$;
+
+grant execute on function storage.foldername(text) to authenticated, service_role;

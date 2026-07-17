@@ -90,7 +90,8 @@ erDiagram
 | `profiles` | Global user-facing identity tied to `auth.users`; account deletion is recorded before Auth cleanup. |
 | `gyms` | Tenant root, lifecycle, locale, and safe JSON settings; closed gyms are archived. |
 | `gym_domains` | Reserved custom-domain mappings and verification state. |
-| `gym_branding` | One branding record per gym. |
+| `gym_branding` | One accessible palette and private logo-path record per gym. |
+| `gym_slug_history` | Append-only record of controlled tenant slug changes. |
 | `staff_roles` | Gym-specific named capability bundles; archived rather than reused. |
 | `gym_memberships` | User-to-gym role and invited/active/suspended/left lifecycle. |
 | `invitations` | Hashed, expiring member/staff invitations and acceptance history. |

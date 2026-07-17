@@ -17,6 +17,8 @@ Authentication profile creation, public join requests, and single-use invitation
 
 Canonical staff-role delegation, audited invitation management, suspension, and denied permission boundaries are covered by `tests/staff_permissions.sql`.
 
+Gym creation, owner configuration, accessible branding, controlled slugs, and tenant-scoped Storage policies are covered by `tests/gym_branding.sql`.
+
 ## Generated TypeScript types
 
 After applying migrations to a local/disposable PostgreSQL database, regenerate the typed client schema with:

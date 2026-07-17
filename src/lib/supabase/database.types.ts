@@ -1093,6 +1093,48 @@ export type Database = {
           }
         ]
       }
+      "gym_slug_history": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "previous_slug": string
+          "changed_to_slug": string
+          "changed_by": string
+          "changed_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "previous_slug": string
+          "changed_to_slug": string
+          "changed_by": string
+          "changed_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "previous_slug"?: string
+          "changed_to_slug"?: string
+          "changed_by"?: string
+          "changed_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_slug_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gym_slug_history_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "gyms": {
         Row: {
           "id": string
@@ -1107,6 +1149,14 @@ export type Database = {
           "archived_at": string | null
           "created_at": string
           "updated_at": string
+          "address_line_1": string | null
+          "address_line_2": string | null
+          "city": string | null
+          "postcode": string | null
+          "contact_email": string | null
+          "contact_phone": string | null
+          "disciplines": string[]
+          "opening_hours_text": string | null
         }
         Insert: {
           "id"?: string
@@ -1121,6 +1171,14 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "address_line_1"?: string | null
+          "address_line_2"?: string | null
+          "city"?: string | null
+          "postcode"?: string | null
+          "contact_email"?: string | null
+          "contact_phone"?: string | null
+          "disciplines"?: string[]
+          "opening_hours_text"?: string | null
         }
         Update: {
           "id"?: string
@@ -1135,6 +1193,14 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "address_line_1"?: string | null
+          "address_line_2"?: string | null
+          "city"?: string | null
+          "postcode"?: string | null
+          "contact_email"?: string | null
+          "contact_phone"?: string | null
+          "disciplines"?: string[]
+          "opening_hours_text"?: string | null
         }
         Relationships: []
       }
@@ -2501,6 +2567,10 @@ export type Database = {
         Args: { target_gym_id: string; invite_email: string; target_role_key: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
       }
+      create_gym_tenant: {
+        Args: { actor_profile_id: string; owner_profile_id: string; configuration: Json; branding: Json }
+        Returns: string
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
@@ -2511,6 +2581,14 @@ export type Database = {
       }
       update_staff_access: {
         Args: { target_membership_id: string; target_role_key: string; target_status: string }
+        Returns: string
+      }
+      update_gym_configuration: {
+        Args: { target_gym_id: string; gym_name: string; gym_slug: string; gym_timezone: string; gym_country_code: string; gym_address_line_1: string; gym_address_line_2: string; gym_city: string; gym_postcode: string; gym_contact_email: string; gym_contact_phone: string; gym_disciplines: string[]; gym_opening_hours_text: string; allow_public_join_requests: boolean; brand_primary_colour: string; brand_accent_colour: string; brand_background_colour: string; brand_welcome_message: string }
+        Returns: string
+      }
+      set_gym_logo_path: {
+        Args: { target_gym_id: string; object_path: string }
         Returns: string
       }
       set_updated_at: {

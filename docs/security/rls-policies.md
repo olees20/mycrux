@@ -24,6 +24,7 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 | `gyms` | Active members of that gym; verified authenticated users may also discover gyms that explicitly allow public join requests. | Owners update settings; creation/closure uses privileged onboarding/operations paths. |
 | `gym_domains` | Active gym members. | Owners manage mappings; `gym_id` is immutable. |
 | `gym_branding` | Active gym members. | Owners manage branding. |
+| `gym_slug_history` | Owners of the associated gym. | Append-only through the audited owner configuration RPC. |
 | `staff_roles` | Active gym members. | Canonical system bundles are database-provisioned and immutable to authenticated clients; owners manage only future custom roles. |
 | `gym_memberships` | Self and active members of the same gym. | Audited RPCs enforce owner/manager staff-role boundaries and suspension; public join requests remain constrained to the caller's own `member`/`invited` row. |
 | `invitations` | Owners and gym managers. | Direct authenticated mutation is revoked. Audited RPCs issue, rotate, and revoke hashed links within delegation boundaries; verified users accept through the atomic single-use RPC. |
@@ -66,6 +67,8 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 The service-role key may be imported only by `src/lib/supabase/admin.ts`. That module begins with `import "server-only"`, keeps its raw client private, exposes purpose-specific functions rather than a raw client, validates signed inputs before queries, and emits structured failure events. Client Components, browser helpers, and generic shared utilities must never import it.
 
 Normal Server Component and Route Handler clients use the caller's cookies and anonymous key so RLS applies. SQL tests use a local `service_role` database role solely to prove that the server boundary can perform controlled cross-tenant work.
+
+Gym creation is the only Prompt 9 service-role mutation. A normal session first proves the caller's platform-admin profile, then a narrow privileged helper invokes the service-only transactional RPC. The RPC independently rechecks the platform actor and creates the gym, branding, owner membership, canonical roles, and audit record atomically. Owner configuration and logo attachment use caller-scoped audited RPCs; direct authenticated gym/branding mutation is revoked.
 
 ## Verification
 

@@ -29,3 +29,7 @@ Uploads use allow-listed MIME types, verified size limits, random names, and ser
 ## Deferred decisions
 
 CDN vendor selection, video transcoding, malware scanning provider, customer-managed keys, and regional storage selection are deferred.
+
+## Gym branding implementation
+
+Gym logos use the private `gym-branding` bucket with a 2 MB limit and PNG/JPEG/WebP allow-list. Object paths are `{immutableGymId}/{randomUuid}.{extension}`. Storage RLS permits active members to read their gym's objects and only owners to mutate them. The server validates MIME type, size, and binary signature before upload; the database attaches only an existing object whose path belongs to the validated gym. Signed URLs are short-lived.

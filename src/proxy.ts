@@ -33,13 +33,14 @@ export async function proxy(request: NextRequest) {
   const protectedPage = pathname.startsWith("/app") || pathname.startsWith("/staff") || pathname.startsWith("/g/");
   const onboarding = pathname.startsWith("/onboarding");
   const resetPassword = pathname.startsWith("/reset-password");
+  const platformPage = pathname.startsWith("/platform/");
 
-  if ((protectedPage || onboarding || resetPassword) && !user) {
+  if ((protectedPage || onboarding || resetPassword || platformPage) && !user) {
     const next = encodeURIComponent(`${pathname}${request.nextUrl.search}`);
     return redirectWithCookies(request, response, `/login?next=${next}`);
   }
 
-  if (user && !user.email_confirmed_at && (protectedPage || onboarding)) {
+  if (user && !user.email_confirmed_at && (protectedPage || onboarding || platformPage)) {
     return redirectWithCookies(request, response, "/verify-email");
   }
 

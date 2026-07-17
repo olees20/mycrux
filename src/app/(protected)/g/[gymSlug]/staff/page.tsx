@@ -15,5 +15,5 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
       canManageTeam = role?.key === "gym_manager";
     }
   }
-  return <><PlaceholderPage eyebrow="Staff area" title="Run the gym." description="Operational tools and gym management will be added in later stages." />{canManageTeam ? <div className="mx-auto mt-8 max-w-4xl"><Link className="inline-flex min-h-11 items-center rounded-full bg-[var(--foreground)] px-5 text-sm font-bold text-white" href={`/g/${gymSlug}/staff/team`}>Manage team access</Link></div> : null}</>;
+  return <><PlaceholderPage eyebrow="Staff area" title="Run the gym." description="Operational tools and gym management will be added in later stages." /><div className="mx-auto mt-8 flex max-w-4xl flex-wrap gap-3">{canManageTeam ? <Link className="inline-flex min-h-11 items-center rounded-full bg-[var(--foreground)] px-5 text-sm font-bold text-white" href={`/g/${gymSlug}/staff/team`}>Manage team access</Link> : null}{gym.role === "owner" ? <Link className="inline-flex min-h-11 items-center rounded-full border border-[var(--border)] bg-white px-5 text-sm font-bold" href={`/g/${gymSlug}/staff/settings`}>Gym settings</Link> : null}</div></>;
 }
