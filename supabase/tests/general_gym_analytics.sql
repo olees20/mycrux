@@ -1,0 +1,8 @@
+-- Prompt 28 KPI reconciliation, equal-period comparison and private-field exclusion.
+begin;set local role service_role;
+insert into public.check_ins(gym_id,profile_id,verified_by,source,checked_in_at)values('30000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000004','10000000-0000-4000-8000-000000000001','manual',now());
+set local role authenticated;select set_config('request.jwt.claim.role','authenticated',true);select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000004',true);
+do $$begin begin perform*from public.get_gym_operational_analytics('30000000-0000-4000-8000-000000000001',current_date,current_date);raise exception'Member accessed owner analytics';exception when insufficient_privilege then null;end;end$$;
+select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001',true);
+do $$declare value bigint;source_value bigint;begin select metric_value into value from public.get_gym_operational_analytics('30000000-0000-4000-8000-000000000001',current_date,current_date)where period='current'and metric_key='check_ins';select count(*)into source_value from public.check_ins where gym_id='30000000-0000-4000-8000-000000000001'and checked_in_at>=current_date and checked_in_at<current_date+1;if value<>source_value then raise exception'Check-in KPI does not reconcile';end if;if(select count(*)from public.get_gym_operational_analytics('30000000-0000-4000-8000-000000000001',current_date,current_date))<>14 then raise exception'Current/previous KPI set is incomplete';end if;if pg_get_function_result('public.get_gym_operational_analytics(uuid,date,date)'::regprocedure)~'(profile_id|notes|message|email|accepted_name)'then raise exception'Analytics exposes private fields';end if;end$$;
+rollback;

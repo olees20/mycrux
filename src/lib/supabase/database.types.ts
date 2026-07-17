@@ -3729,6 +3729,7 @@ export type Database = {
       submit_competition_score: { Args: { target_gym_id: string; target_competition_id: string; target_competition_route_id: string; target_profile_id: string; top_achieved: boolean; zone_achieved: boolean; attempt_count: number; correction_reason?: string }; Returns: string }
       finalize_competition: { Args: { target_gym_id: string; target_competition_id: string }; Returns: string }
       get_route_setting_analytics: { Args: { target_gym_id: string; date_from: string; date_to: string; target_wall_id?: string; target_setter_id?: string; target_route_type?: string }; Returns: { route_id: string; route_name: string; colour: string; grade: string; grade_system: string; route_type: string; wall_name: string; setter_name: string; set_on: string | null; age_days: number; styles: string[]; activity_count: number; send_count: number; attempt_count: number; send_ratio: number | null; grade_soft: number; grade_right: number; grade_hard: number; open_issues: number; sample_size: number; low_sample: boolean; reset_priority: string }[] }
+      get_gym_operational_analytics: { Args: { target_gym_id: string; date_from: string; date_to: string }; Returns: { period: string; metric_key: string; metric_label: string; metric_value: number; definition: string }[] }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
