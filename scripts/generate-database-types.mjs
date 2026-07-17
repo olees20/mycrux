@@ -353,6 +353,9 @@ ${renderRelations(views, relationshipsByTable, "Views")}
       finalize_competition: { Args: { target_gym_id: string; target_competition_id: string }; Returns: string }
       get_route_setting_analytics: { Args: { target_gym_id: string; date_from: string; date_to: string; target_wall_id?: string; target_setter_id?: string; target_route_type?: string }; Returns: { route_id: string; route_name: string; colour: string; grade: string; grade_system: string; route_type: string; wall_name: string; setter_name: string; set_on: string | null; age_days: number; styles: string[]; activity_count: number; send_count: number; attempt_count: number; send_ratio: number | null; grade_soft: number; grade_right: number; grade_hard: number; open_issues: number; sample_size: number; low_sample: boolean; reset_priority: string }[] }
       get_gym_operational_analytics: { Args: { target_gym_id: string; date_from: string; date_to: string }; Returns: { period: string; metric_key: string; metric_label: string; metric_value: number; definition: string }[] }
+      get_integration_statuses: { Args: { target_gym_id: string }; Returns: { id: string; provider_key: string; provider_category: string; status: string; last_sync_at: string | null; last_error_code: string | null; updated_at: string; queued: number; dead_letter: number }[] }
+      ingest_integration_delivery: { Args: { target_integration_id: string; target_provider_key: string; event_key: string; event_payload: Json }; Returns: string }
+      record_integration_delivery_attempt: { Args: { target_delivery_id: string; succeeded: boolean; error_code?: string }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

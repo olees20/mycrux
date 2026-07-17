@@ -5,7 +5,7 @@ import { z } from "zod";
 import { getServerEnvironment } from "@/env/server";
 import { normalizeDatabaseError } from "@/lib/server/errors";
 import { logger } from "@/lib/server/logger";
-import type { Database } from "./database.types";
+import type { Database, Json } from "./database.types";
 import { gymBrandingSchema, gymDetailsSchema, type GymBranding, type GymDetails } from "@/features/gyms/validation";
 import { acceptanceSchema } from "@/features/waivers/validation";
 
@@ -137,6 +137,9 @@ async function registerPublicDayPass(input:{gymSlug:string;guestName:string;gues
   const client=createPrivilegedSupabaseClient();const{data,error}=await client.rpc("register_public_day_pass",{target_gym_slug:input.gymSlug,guest_full_name:input.guestName,guest_email:input.guestEmail,invitation_token_hash:validateHash(input.invitationTokenHash),pass_reference_hash:validateHash(input.passReferenceHash),payment_choice:input.paymentChoice});if(error)throw normalizeDatabaseError(error,"Day-pass registration failed");if(!data||typeof data!=="object"||Array.isArray(data)||typeof data.valid_until!=="string")throw new Error("Registration response was invalid");return{validUntil:data.valid_until};
 }
 
+async function getIntegrationForWebhook(id:string,providerKey:string){const client=createPrivilegedSupabaseClient(),{data,error}=await client.from("integration_connections").select("id,gym_id,provider_key,status").eq("id",z.uuid().parse(id)).eq("provider_key",z.string().regex(/^[a-z][a-z0-9_.-]*$/).parse(providerKey)).maybeSingle();if(error)throw normalizeDatabaseError(error,"Integration lookup failed");return data;}
+async function ingestIntegrationDelivery(integrationId:string,providerKey:string,eventKey:string,payload:Json){const client=createPrivilegedSupabaseClient(),{data,error}=await client.rpc("ingest_integration_delivery",{target_integration_id:z.uuid().parse(integrationId),target_provider_key:z.string().regex(/^[a-z][a-z0-9_.-]*$/).parse(providerKey),event_key:z.string().min(1).max(255).parse(eventKey),event_payload:payload});if(error)throw normalizeDatabaseError(error,"Integration delivery could not be accepted");return data;}
+
 export const privilegedAccess = Object.freeze({
   findInvitationByTokenHash,
   findGuestInviteByTokenHash,
@@ -147,4 +150,6 @@ export const privilegedAccess = Object.freeze({
   acceptGuestWaiver,
   getPublicDayPassGym,
   registerPublicDayPass,
+  getIntegrationForWebhook,
+  ingestIntegrationDelivery,
 });
