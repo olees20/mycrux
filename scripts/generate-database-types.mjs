@@ -302,6 +302,18 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; target_event_id: string }
         Returns: Json
       }
+      save_ascent: {
+        Args: { target_gym_id: string; target_route_id: string; target_ascent_id: string | null; target_session_id: string | null; target_session_date: string; target_outcome: string; target_attempts: number; target_notes: string; target_visibility: string }
+        Returns: string
+      }
+      delete_ascent: {
+        Args: { target_gym_id: string; target_ascent_id: string }
+        Returns: string
+      }
+      attach_ascent_media: {
+        Args: { target_gym_id: string; target_ascent_id: string; object_path: string; object_media_type: string }
+        Returns: string
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

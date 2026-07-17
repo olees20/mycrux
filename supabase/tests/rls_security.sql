@@ -146,15 +146,10 @@ begin
 end;
 $$;
 
-insert into public.ascent_logs (
-  id, gym_id, route_id, profile_id, ascent_type
-)
-values (
-  '90000000-0000-4000-8000-000000000001',
+select public.save_ascent(
   '30000000-0000-4000-8000-000000000001',
   '70000000-0000-4000-8000-000000000001',
-  '10000000-0000-4000-8000-000000000004',
-  'flash'
+  null, null, current_date, 'flash', 1, '', 'private'
 );
 
 do $$

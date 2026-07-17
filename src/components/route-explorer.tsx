@@ -13,7 +13,7 @@ function label(route: Route) { return route.name || `${route.colour} ${route.gra
 export function RouteExplorer({ routes, view, image, detailBase, returnSearch }: { routes: Route[]; view: "map" | "list"; image: { url: string; alt: string; width: number; height: number } | null; detailBase: string; returnSearch: string }) {
   const [selectedId, setSelectedId] = useState(routes[0]?.id ?? null); const [zoom, setZoom] = useState(1);
   const selected = routes.find((route) => route.id === selectedId) ?? null;
-  const detailHref = (id: string) => `${detailBase}/${id}?from=${encodeURIComponent(`${detailBase}${returnSearch}`)}`;
+  const detailHref = (id: string) => `${detailBase}/${id}?from=${encodeURIComponent(`${detailBase}${returnSearch}`)}#log-ascent`;
   if (!routes.length) return <p className="rounded-2xl bg-white p-6 text-sm text-[var(--muted)]">No published routes match these filters.</p>;
   function selectOnKey(event: React.KeyboardEvent, routeId: string) { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedId(routeId); } }
   return <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">

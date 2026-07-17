@@ -32,14 +32,13 @@ select '62000000-0000-4000-8000-000000000012','30000000-0000-4000-8000-000000000
 from public.wall_images where wall_id='61000000-0000-4000-8000-000000000012' and is_current and archived_at is null;
 
 select public.publish_routes('30000000-0000-4000-8000-000000000001',array['62000000-0000-4000-8000-000000000012']::uuid[]);
-insert into public.ascent_logs(id,gym_id,route_id,profile_id,ascent_type)
-values('63000000-0000-4000-8000-000000000012','30000000-0000-4000-8000-000000000001','62000000-0000-4000-8000-000000000012','10000000-0000-4000-8000-000000000003','flash');
+select public.save_ascent('30000000-0000-4000-8000-000000000001','62000000-0000-4000-8000-000000000012',null,null,current_date,'flash',1,'','private');
 select public.retire_routes('30000000-0000-4000-8000-000000000001',array['62000000-0000-4000-8000-000000000012']::uuid[]);
 
 do $$
 begin
   if not exists(select 1 from public.routes where id='62000000-0000-4000-8000-000000000012' and status='retired' and retired_at is not null) then raise exception 'Route was not retired'; end if;
-  if not exists(select 1 from public.ascent_logs where id='63000000-0000-4000-8000-000000000012') then raise exception 'Retirement destroyed ascent history'; end if;
+  if not exists(select 1 from public.ascent_logs where route_id='62000000-0000-4000-8000-000000000012' and profile_id=auth.uid()) then raise exception 'Retirement destroyed ascent history'; end if;
   begin
     delete from public.routes where id='62000000-0000-4000-8000-000000000012';
     raise exception 'Route setter hard-deleted a route';

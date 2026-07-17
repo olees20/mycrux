@@ -96,6 +96,14 @@ export type Database = {
           "deleted_at": string | null
           "created_at": string
           "updated_at": string
+          "session_date": string
+          "visibility": string
+          "route_name_snapshot": string | null
+          "route_colour_snapshot": string
+          "route_grade_snapshot": string
+          "route_grade_system_snapshot": string
+          "wall_name_snapshot": string
+          "session_id": string | null
         }
         Insert: {
           "id"?: string
@@ -111,6 +119,14 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "session_date"?: string
+          "visibility"?: string
+          "route_name_snapshot"?: string | null
+          "route_colour_snapshot"?: string
+          "route_grade_snapshot"?: string
+          "route_grade_system_snapshot"?: string
+          "wall_name_snapshot"?: string
+          "session_id"?: string | null
         }
         Update: {
           "id"?: string
@@ -126,6 +142,14 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "session_date"?: string
+          "visibility"?: string
+          "route_name_snapshot"?: string | null
+          "route_colour_snapshot"?: string
+          "route_grade_snapshot"?: string
+          "route_grade_system_snapshot"?: string
+          "wall_name_snapshot"?: string
+          "session_id"?: string | null
         }
         Relationships: [
           {
@@ -148,6 +172,65 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "routes"
             referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "ascent_logs_session_fkey"
+            columns: ["session_id","gym_id","profile_id"]
+            isOneToOne: false
+            referencedRelation: "climbing_sessions"
+            referencedColumns: ["id","gym_id","profile_id"]
+          }
+        ]
+      }
+      "ascent_media": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "ascent_id": string
+          "profile_id": string
+          "storage_path": string
+          "media_type": string
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "ascent_id": string
+          "profile_id": string
+          "storage_path": string
+          "media_type": string
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "ascent_id"?: string
+          "profile_id"?: string
+          "storage_path"?: string
+          "media_type"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ascent_media_ascent_fkey"
+            columns: ["ascent_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "ascent_logs"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "ascent_media_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ascent_media_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           }
         ]
       }
@@ -478,6 +561,57 @@ export type Database = {
           {
             foreignKeyName: "check_ins_verified_by_fkey"
             columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "climbing_sessions": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "profile_id": string
+          "session_date": string
+          "started_at": string | null
+          "ended_at": string | null
+          "notes": string | null
+          "created_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "profile_id": string
+          "session_date": string
+          "started_at"?: string | null
+          "ended_at"?: string | null
+          "notes"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "profile_id"?: string
+          "session_date"?: string
+          "started_at"?: string | null
+          "ended_at"?: string | null
+          "notes"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "climbing_sessions_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "climbing_sessions_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2887,6 +3021,18 @@ export type Database = {
       get_event_availability: {
         Args: { target_gym_id: string; target_event_id: string }
         Returns: Json
+      }
+      save_ascent: {
+        Args: { target_gym_id: string; target_route_id: string; target_ascent_id: string | null; target_session_id: string | null; target_session_date: string; target_outcome: string; target_attempts: number; target_notes: string; target_visibility: string }
+        Returns: string
+      }
+      delete_ascent: {
+        Args: { target_gym_id: string; target_ascent_id: string }
+        Returns: string
+      }
+      attach_ascent_media: {
+        Args: { target_gym_id: string; target_ascent_id: string; object_path: string; object_media_type: string }
+        Returns: string
       }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
