@@ -1,0 +1,2 @@
+import"server-only";import{createServerComponentSupabaseClient}from"@/lib/supabase/server";
+export async function requireFeatureEntitlement(gymId:string,feature:string){const s=await createServerComponentSupabaseClient(),{data,error}=await s.rpc("has_feature_entitlement",{target_gym_id:gymId,target_feature:feature});if(error||!data)throw new Error(`The ${feature.replaceAll("_"," ")} feature is not available on this gym plan.`)}
