@@ -1,6 +1,8 @@
 -- Repeatable local/demo seed. All identities use reserved example.invalid addresses.
 -- The shared demo password is intentionally non-secret and must never be used outside local/staging.
 
+select set_config('request.jwt.claim.role', 'service_role', false);
+
 insert into auth.users (
   instance_id,
   id,

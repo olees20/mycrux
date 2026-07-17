@@ -1,2 +1,6 @@
-import { AuthPlaceholder } from "@/components/auth-placeholder";
-export default function RegisterPage() { return <AuthPlaceholder mode="register" />; }
+import { AuthForm } from "@/components/auth-form";
+import { registerAction } from "@/features/auth/actions";
+
+export default function RegisterPage() {
+  return <AuthForm action={registerAction} mode="register" />;
+}

@@ -20,12 +20,12 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 | Table | Read intent | Write intent |
 | --- | --- | --- |
 | `profiles` | Self or profiles sharing an active gym. | A user creates/updates only their own non-platform-admin profile; ID and admin flag are immutable. |
-| `gyms` | Active members of that gym. | Owners update settings; creation/closure uses privileged onboarding/operations paths. |
+| `gyms` | Active members of that gym; verified authenticated users may also discover gyms that explicitly allow public join requests. | Owners update settings; creation/closure uses privileged onboarding/operations paths. |
 | `gym_domains` | Active gym members. | Owners manage mappings; `gym_id` is immutable. |
 | `gym_branding` | Active gym members. | Owners manage branding. |
 | `staff_roles` | Active gym members. | Owners manage custom roles; system-role state cannot be client-created or changed. |
-| `gym_memberships` | Self and active members of the same gym. | Owners add/change/remove memberships; ordinary members cannot change roles or tenant. |
-| `invitations` | Owners only. | Owners issue and manage invitations; insertion records the authenticated inviter. Signed acceptance is server-only. |
+| `gym_memberships` | Self and active members of the same gym. | Owners add/change/remove memberships. A verified user may create only their own `member`/`invited` request for a public-join gym; role, status, profile, and tenant escalation are rejected. |
+| `invitations` | Owners only. | Owners issue and manage invitations; insertion records the authenticated inviter. Verified users accept a matching, unexpired token through the single-use atomic `accept_gym_invitation` RPC. |
 | `announcements` | Active members see published, unarchived posts; permitted staff see drafts. | Staff with `announcements.manage`; author and tenant remain immutable. |
 | `walls` | Active members see active, unarchived walls. | Staff with `routes.manage`. |
 | `wall_images` | Active members see current, unarchived images. | Staff with `routes.manage`; wall and tenant remain immutable. |
@@ -68,4 +68,4 @@ Normal Server Component and Route Handler clients use the caller's cookies and a
 
 ## Verification
 
-`supabase/tests/rls_security.sql` uses real `anon`, `authenticated`, and `BYPASSRLS service_role` roles. It verifies own-gym reads and writes, denied cross-gym reads/writes, denied membership/platform-admin escalation, protected-column enforcement, route-setter scope, platform-admin JWT isolation, anonymous denial, and service-role cross-tenant access.
+`supabase/tests/rls_security.sql` uses real `anon`, `authenticated`, and `BYPASSRLS service_role` roles. It verifies own-gym reads and writes, denied cross-gym reads/writes, denied membership/platform-admin escalation, protected-column enforcement, route-setter scope, platform-admin JWT isolation, anonymous denial, and service-role cross-tenant access. `supabase/tests/auth_onboarding.sql` verifies automatic profile creation, atomic single-use invitation acceptance, correct staff-role assignment, constrained public membership requests, and denial for unverified accounts.

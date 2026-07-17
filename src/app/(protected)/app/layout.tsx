@@ -1,2 +1,7 @@
 import { AppShell } from "@/components/app-shell";
-export default function ProtectedLayout({ children }: Readonly<{ children: React.ReactNode }>) { return <AppShell>{children}</AppShell>; }
+import { requirePageMembership } from "@/lib/server/authorization";
+
+export default async function ProtectedLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  await requirePageMembership();
+  return <AppShell>{children}</AppShell>;
+}

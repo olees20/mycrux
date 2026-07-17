@@ -190,6 +190,10 @@ ${renderRelations(tables, relationshipsByTable, "Tables")}
 ${renderRelations(views, relationshipsByTable, "Views")}
     }
     Functions: {
+      accept_gym_invitation: {
+        Args: { invitation_token_hash: string }
+        Returns: string
+      }
       set_updated_at: {
         Args: Record<PropertyKey, never>
         Returns: unknown

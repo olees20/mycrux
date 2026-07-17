@@ -13,6 +13,8 @@ supabase db reset
 
 Row Level Security is enabled and forced by the Prompt 4 migration. Policy intent and the privileged service-role boundary are documented in [`docs/security/rls-policies.md`](../docs/security/rls-policies.md). Run `tests/rls_security.sql` after migrations and seed when reviewing security changes.
 
+Authentication profile creation, public join requests, and single-use invitation acceptance are covered by `tests/auth_onboarding.sql`.
+
 ## Generated TypeScript types
 
 After applying migrations to a local/disposable PostgreSQL database, regenerate the typed client schema with:

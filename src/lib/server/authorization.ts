@@ -82,3 +82,29 @@ export function requireGymRole(
 ) {
   return requireGymMembership(gymId, roles, client);
 }
+
+export async function requirePageMembership(allowedRoles?: readonly GymRole[]) {
+  const supabase = await createServerComponentSupabaseClient();
+  const user = await requireUser({ redirectTo: "/app", client: supabase });
+  if (!user.email_confirmed_at) redirect("/verify-email");
+
+  let query = supabase
+    .from("gym_memberships")
+    .select("*")
+    .eq("profile_id", user.id)
+    .eq("status", "active");
+
+  if (allowedRoles?.length) query = query.in("role", [...allowedRoles]);
+  const { data, error } = await query.limit(1).maybeSingle();
+
+  if (error) {
+    logger.write({ level: "error", event: "page_membership_lookup_failed", context: { profileId: user.id }, error });
+    throw normalizeDatabaseError(error, "The active gym could not be verified");
+  }
+  if (!data) {
+    if (allowedRoles?.length) redirect("/app");
+    redirect("/onboarding");
+  }
+
+  return data as ActiveMembership;
+}

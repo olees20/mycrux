@@ -40,7 +40,8 @@ insert into auth.users (id, email) values
   ('10000000-0000-4000-8000-000000000098', 'other-member@crux.example.invalid');
 
 insert into public.profiles (id, display_name)
-values ('10000000-0000-4000-8000-000000000098', 'Other Gym Member');
+values ('10000000-0000-4000-8000-000000000098', 'Other Gym Member')
+on conflict (id) do update set display_name = excluded.display_name;
 
 insert into public.gyms (id, slug, name)
 values ('30000000-0000-4000-8000-000000000098', 'other-demo-gym', 'Other Demo Gym');
@@ -282,8 +283,15 @@ select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000005
 
 do $$
 begin
-  if exists (select 1 from public.gyms) then
-    raise exception 'Platform admin JWT unexpectedly bypassed tenant RLS';
+  if exists (
+    select 1 from public.gyms
+    where id = '30000000-0000-4000-8000-000000000098'
+  ) then
+    raise exception 'Platform admin JWT unexpectedly bypassed private tenant RLS';
+  end if;
+
+  if (select count(*) from public.gyms) <> 1 then
+    raise exception 'Platform admin should see only the public join-enabled gym';
   end if;
 end;
 $$;
