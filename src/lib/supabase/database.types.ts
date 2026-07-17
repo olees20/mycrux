@@ -1166,6 +1166,9 @@ export type Database = {
           "contact_phone": string | null
           "disciplines": string[]
           "opening_hours_text": string | null
+          "day_pass_registration_enabled": boolean
+          "day_pass_valid_hours": number
+          "day_pass_information": string | null
         }
         Insert: {
           "id"?: string
@@ -1188,6 +1191,9 @@ export type Database = {
           "contact_phone"?: string | null
           "disciplines"?: string[]
           "opening_hours_text"?: string | null
+          "day_pass_registration_enabled"?: boolean
+          "day_pass_valid_hours"?: number
+          "day_pass_information"?: string | null
         }
         Update: {
           "id"?: string
@@ -1210,6 +1216,9 @@ export type Database = {
           "contact_phone"?: string | null
           "disciplines"?: string[]
           "opening_hours_text"?: string | null
+          "day_pass_registration_enabled"?: boolean
+          "day_pass_valid_hours"?: number
+          "day_pass_information"?: string | null
         }
         Relationships: []
       }
@@ -1572,6 +1581,8 @@ export type Database = {
           "archived_at": string | null
           "created_at": string
           "updated_at": string
+          "payment_state": string
+          "registration_source": string
         }
         Insert: {
           "id"?: string
@@ -1591,6 +1602,8 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "payment_state"?: string
+          "registration_source"?: string
         }
         Update: {
           "id"?: string
@@ -1610,6 +1623,8 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "payment_state"?: string
+          "registration_source"?: string
         }
         Relationships: [
           {
@@ -2662,6 +2677,30 @@ export type Database = {
       }
       accept_guest_waiver: {
         Args: { invitation_token_hash: string; target_version_id: string; acceptance: Json }
+        Returns: string
+      }
+      register_public_day_pass: {
+        Args: { target_gym_slug: string; guest_full_name: string; guest_email: string; invitation_token_hash: string; pass_reference_hash: string; payment_choice: string }
+        Returns: Json
+      }
+      create_guest_pass: {
+        Args: { target_gym_id: string; guest_full_name: string; guest_email: string; invitation_token_hash: string; pass_reference_hash: string; payment_choice: string }
+        Returns: Json
+      }
+      configure_day_pass_registration: {
+        Args: { target_gym_id: string; registration_enabled: boolean; valid_hours: number; public_information: string }
+        Returns: string
+      }
+      verify_guest_pass: {
+        Args: { target_gym_id: string; pass_reference_hash: string }
+        Returns: Json
+      }
+      check_in_guest_pass: {
+        Args: { target_gym_id: string; pass_reference_hash: string; confirm_reception_payment?: boolean }
+        Returns: string
+      }
+      revoke_guest_pass: {
+        Args: { target_gym_id: string; target_pass_id: string }
         Returns: string
       }
       resend_staff_invitation: {

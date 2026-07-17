@@ -250,6 +250,30 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { invitation_token_hash: string; target_version_id: string; acceptance: Json }
         Returns: string
       }
+      register_public_day_pass: {
+        Args: { target_gym_slug: string; guest_full_name: string; guest_email: string; invitation_token_hash: string; pass_reference_hash: string; payment_choice: string }
+        Returns: Json
+      }
+      create_guest_pass: {
+        Args: { target_gym_id: string; guest_full_name: string; guest_email: string; invitation_token_hash: string; pass_reference_hash: string; payment_choice: string }
+        Returns: Json
+      }
+      configure_day_pass_registration: {
+        Args: { target_gym_id: string; registration_enabled: boolean; valid_hours: number; public_information: string }
+        Returns: string
+      }
+      verify_guest_pass: {
+        Args: { target_gym_id: string; pass_reference_hash: string }
+        Returns: Json
+      }
+      check_in_guest_pass: {
+        Args: { target_gym_id: string; pass_reference_hash: string; confirm_reception_payment?: boolean }
+        Returns: string
+      }
+      revoke_guest_pass: {
+        Args: { target_gym_id: string; target_pass_id: string }
+        Returns: string
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

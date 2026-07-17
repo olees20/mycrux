@@ -128,6 +128,15 @@ async function acceptGuestWaiver(hash: string, versionId: string, acceptance: un
   return data;
 }
 
+async function getPublicDayPassGym(gymSlug: string) {
+  const client=createPrivilegedSupabaseClient();const{data,error}=await client.from("gyms").select("id,slug,name,day_pass_information,day_pass_valid_hours").eq("slug",z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).parse(gymSlug)).eq("day_pass_registration_enabled",true).in("status",["trial","active"]).is("archived_at",null).maybeSingle();
+  if(error)throw normalizeDatabaseError(error,"Day-pass registration could not be loaded");return data;
+}
+
+async function registerPublicDayPass(input:{gymSlug:string;guestName:string;guestEmail:string;paymentChoice:"pay_at_reception"|"integration_placeholder";invitationTokenHash:string;passReferenceHash:string}){
+  const client=createPrivilegedSupabaseClient();const{data,error}=await client.rpc("register_public_day_pass",{target_gym_slug:input.gymSlug,guest_full_name:input.guestName,guest_email:input.guestEmail,invitation_token_hash:validateHash(input.invitationTokenHash),pass_reference_hash:validateHash(input.passReferenceHash),payment_choice:input.paymentChoice});if(error)throw normalizeDatabaseError(error,"Day-pass registration failed");if(!data||typeof data!=="object"||Array.isArray(data)||typeof data.valid_until!=="string")throw new Error("Registration response was invalid");return{validUntil:data.valid_until};
+}
+
 export const privilegedAccess = Object.freeze({
   findInvitationByTokenHash,
   findGuestInviteByTokenHash,
@@ -136,4 +145,6 @@ export const privilegedAccess = Object.freeze({
   processDueAnnouncements,
   getGuestWaiverFlow,
   acceptGuestWaiver,
+  getPublicDayPassGym,
+  registerPublicDayPass,
 });
