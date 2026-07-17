@@ -6,7 +6,7 @@ import type { AccessibleGym } from "@/lib/server/gym-context-core";
 import { GymSwitcher } from "./gym-switcher";
 
 const navItems = [
-  ["Home", ""], ["Routes", "/routes"], ["Community", "/community"], ["Partners", "/partners"],
+  ["Home", ""], ["Routes", "/routes"], ["Community", "/community"], ["Chat", "/chat"], ["Partners", "/partners"],
   ["Events", "/events"], ["Announcements", "/announcements"],
   ["Notifications", "/notifications"], ["Logbook", "/logbook"], ["Statistics", "/statistics"], ["Leaderboards", "/leaderboards"], ["Wallet", "/wallet"], ["Waivers", "/waivers"], ["Guests", "/guests"], ["Profile", "/profile"],
 ] as const;

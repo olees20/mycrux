@@ -1888,6 +1888,55 @@ export type Database = {
           }
         ]
       }
+      "message_reports": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "message_id": string
+          "reporter_id": string
+          "reason": string
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "message_id": string
+          "reporter_id": string
+          "reason": string
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "message_id"?: string
+          "reporter_id"?: string
+          "reason"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reports_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_reports_message_fkey"
+            columns: ["message_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "message_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "messages": {
         Row: {
           "id": string
@@ -3483,6 +3532,13 @@ export type Database = {
       respond_partner_interest: { Args: { target_gym_id: string; target_interest_id: string; accept_interest: boolean }; Returns: string }
       withdraw_partner_request: { Args: { target_gym_id: string; target_request_id: string }; Returns: string }
       report_partner_request: { Args: { target_gym_id: string; target_request_id: string; report_reason: string }; Returns: string }
+      create_chat_channel: { Args: { target_gym_id: string; channel_name: string; channel_description: string; read_only?: boolean }; Returns: string }
+      send_chat_message: { Args: { target_gym_id: string; target_channel_id: string; message_body: string; target_reply_id?: string }; Returns: string }
+      edit_chat_message: { Args: { target_gym_id: string; target_message_id: string; message_body: string }; Returns: string }
+      delete_chat_message: { Args: { target_gym_id: string; target_message_id: string }; Returns: string }
+      mark_channel_read: { Args: { target_gym_id: string; target_channel_id: string }; Returns: string }
+      report_chat_message: { Args: { target_gym_id: string; target_message_id: string; report_reason: string }; Returns: string }
+      moderate_chat_message: { Args: { target_gym_id: string; target_message_id: string; target_status: string; reason: string }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
