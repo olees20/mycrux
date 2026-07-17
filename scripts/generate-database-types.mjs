@@ -218,6 +218,22 @@ ${renderRelations(views, relationshipsByTable, "Views")}
         Args: { target_gym_id: string; target_route_ids: string[] }
         Returns: number
       }
+      submit_route_feedback: {
+        Args: { target_gym_id: string; target_route_id: string; target_kind: string; feedback_comment?: string | null }
+        Returns: string
+      }
+      toggle_route_favourite: {
+        Args: { target_gym_id: string; target_route_id: string }
+        Returns: boolean
+      }
+      get_route_public_metrics: {
+        Args: { target_gym_id: string; target_route_id: string }
+        Returns: Json
+      }
+      triage_route_feedback: {
+        Args: { target_feedback_id: string; target_status: string }
+        Returns: string
+      }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
