@@ -6,6 +6,7 @@ export type LogContext = Readonly<Record<string, unknown>>;
 export type LogEntry = Readonly<{
   level: LogLevel;
   event: string;
+  correlationId?: string;
   context?: LogContext;
   error?: unknown;
 }>;
@@ -46,6 +47,7 @@ export const logger: StructuredLogger = {
       timestamp: new Date().toISOString(),
       level: entry.level,
       event: entry.event,
+      correlationId: entry.correlationId ? sanitizeString(entry.correlationId) : undefined,
       context: sanitize(entry.context),
       error: entry.error instanceof Error
         ? { name: entry.error.name, message: sanitizeString(entry.error.message) }

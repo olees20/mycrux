@@ -146,6 +146,19 @@ async function getPlatformGymSupportView(actorProfileId:string,gymId:string){con
 async function addPlatformSupportNote(actorProfileId:string,gymId:string,note:string){const client=createPrivilegedSupabaseClient(),{data,error}=await client.rpc("add_platform_support_note",{actor_profile_id:z.uuid().parse(actorProfileId),target_gym_id:z.uuid().parse(gymId),note_body:z.string().trim().min(3).max(2000).parse(note)});if(error)throw normalizeDatabaseError(error,"Support note could not be added");return data;}
 async function suspendPlatformGym(actorProfileId:string,gymId:string,reason:string){const client=createPrivilegedSupabaseClient(),{error}=await client.rpc("suspend_platform_gym",{actor_profile_id:z.uuid().parse(actorProfileId),target_gym_id:z.uuid().parse(gymId),reason:z.string().trim().min(3).max(500).parse(reason)});if(error)throw normalizeDatabaseError(error,"Gym could not be suspended");}
 async function restorePlatformGym(actorProfileId:string,gymId:string,reason:string){const client=createPrivilegedSupabaseClient(),{error}=await client.rpc("restore_platform_gym",{actor_profile_id:z.uuid().parse(actorProfileId),target_gym_id:z.uuid().parse(gymId),reason:z.string().trim().min(3).max(500).parse(reason)});if(error)throw normalizeDatabaseError(error,"Gym could not be restored");}
+async function checkDatabaseHealth(){const client=createPrivilegedSupabaseClient(),{error}=await client.from("gyms").select("id",{head:true}).limit(1);if(error)throw normalizeDatabaseError(error,"Database health check failed");}
+async function getIntegrationDeliveryHealth(){
+  const client=createPrivilegedSupabaseClient();
+  const [pending,retry,deadLetter,oldest]=await Promise.all([
+    client.from("integration_deliveries").select("id",{head:true,count:"exact"}).eq("status","pending"),
+    client.from("integration_deliveries").select("id",{head:true,count:"exact"}).eq("status","retry"),
+    client.from("integration_deliveries").select("id",{head:true,count:"exact"}).eq("status","dead_letter"),
+    client.from("integration_deliveries").select("created_at").in("status",["pending","retry"]).order("created_at",{ascending:true}).limit(1).maybeSingle(),
+  ]);
+  const error=pending.error??retry.error??deadLetter.error??oldest.error;
+  if(error)throw normalizeDatabaseError(error,"Integration delivery health could not be loaded");
+  return{pending:pending.count??0,retry:retry.count??0,deadLetter:deadLetter.count??0,oldestQueuedAt:oldest.data?.created_at??null};
+}
 
 export const privilegedAccess = Object.freeze({
   findInvitationByTokenHash,
@@ -166,4 +179,6 @@ export const privilegedAccess = Object.freeze({
   addPlatformSupportNote,
   suspendPlatformGym,
   restorePlatformGym,
+  checkDatabaseHealth,
+  getIntegrationDeliveryHealth,
 });
