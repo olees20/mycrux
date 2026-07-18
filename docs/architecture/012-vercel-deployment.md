@@ -31,3 +31,7 @@ The release pipeline runs lint, strict type-check, tests, migration validation, 
 ## Deferred decisions
 
 Multi-region compute, disaster-recovery targets, blue/green database releases, dedicated workers, and infrastructure-as-code tooling are finalized during production readiness.
+
+## Operational procedure
+
+The environment matrix, CI gates, migration order, rollback/forward-fix policy, secret rotation steps, Preview limitations, and custom-domain checklist are maintained in [the Vercel release process](../deployment/vercel-release-process.md).

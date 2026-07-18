@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: local-placeholder
+  NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+  SUPABASE_SERVICE_ROLE_KEY: local-placeholder
+  STRIPE_SECRET_KEY: sk_test_placeholder
+  STRIPE_WEBHOOK_SECRET: whsec_placeholder
+  CRON_SECRET: ci-cron-placeholder-secret-12345
+  INTEGRATION_WEBHOOK_SECRET: ci-integration-webhook-placeholder-secret
+  TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/crux_test
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: crux_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d crux_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Lint, type-check, and unit/integration tests
+        run: npm run test:ci
+
+      - name: Apply migrations and run two-tenant database tests
+        run: npm run test:db
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run public and accessibility browser tests
+        run: npx playwright test e2e/public.spec.ts e2e/accessibility.spec.ts
+
+      - name: Build production application
+        run: npm run build
+
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
