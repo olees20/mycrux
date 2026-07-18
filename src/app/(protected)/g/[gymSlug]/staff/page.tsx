@@ -85,7 +85,7 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
     ...(permissions.events ? [["Events", "events"]] : []),
     ...(permissions.announcements ? [["Announcements", "announcements"]] : []),
     ...(permissions.management ? [["Team access", "team"]] : []),
-    ...(gym.role === "owner" ? [["Gym analytics", "analytics"], ["Plans & usage", "plans"], ["Billing", "billing"], ["Integrations", "integrations"], ["Export data", "export"], ["Gym settings", "settings"]] : []),
+    ...(gym.role === "owner" ? [["Gym analytics", "analytics"], ["Plans & usage", "plans"], ["Billing", "billing"], ["Integrations", "integrations"], ["Export data", "export"], ["Privacy requests", "privacy"], ["Gym settings", "settings"]] : []),
   ];
 
   return <div className="mx-auto max-w-7xl">

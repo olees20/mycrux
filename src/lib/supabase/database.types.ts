@@ -12,6 +12,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      "account_deletion_requests": {
+        Row: {
+          "id": string
+          "profile_id": string
+          "status": string
+          "reason": string | null
+          "retention_exceptions": Json
+          "requested_at": string
+          "resolved_at": string | null
+          "created_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "id"?: string
+          "profile_id": string
+          "status"?: string
+          "reason"?: string | null
+          "retention_exceptions"?: Json
+          "requested_at"?: string
+          "resolved_at"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "profile_id"?: string
+          "status"?: string
+          "reason"?: string | null
+          "retention_exceptions"?: Json
+          "requested_at"?: string
+          "resolved_at"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_deletion_requests_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "announcements": {
         Row: {
           "id": string
@@ -1210,6 +1254,44 @@ export type Database = {
             columns: ["gym_id"]
             isOneToOne: false
             referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "consent_records": {
+        Row: {
+          "id": string
+          "profile_id": string
+          "consent_type": string
+          "version": string
+          "granted": boolean
+          "recorded_at": string
+          "source": string
+        }
+        Insert: {
+          "id"?: string
+          "profile_id": string
+          "consent_type": string
+          "version": string
+          "granted": boolean
+          "recorded_at"?: string
+          "source"?: string
+        }
+        Update: {
+          "id"?: string
+          "profile_id"?: string
+          "consent_type"?: string
+          "version"?: string
+          "granted"?: boolean
+          "recorded_at"?: string
+          "source"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_records_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -2884,6 +2966,44 @@ export type Database = {
           }
         ]
       }
+      "profile_privacy_settings": {
+        Row: {
+          "profile_id": string
+          "public_display_name": string | null
+          "profile_visibility": string
+          "social_visibility": string
+          "allow_search": boolean
+          "created_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "profile_id": string
+          "public_display_name"?: string | null
+          "profile_visibility"?: string
+          "social_visibility"?: string
+          "allow_search"?: boolean
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "profile_id"?: string
+          "public_display_name"?: string | null
+          "profile_visibility"?: string
+          "social_visibility"?: string
+          "allow_search"?: boolean
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_privacy_settings_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "profiles": {
         Row: {
           "id": string
@@ -2898,6 +3018,7 @@ export type Database = {
           "deleted_at": string | null
           "created_at": string
           "updated_at": string
+          "deactivated_at": string | null
         }
         Insert: {
           "id": string
@@ -2912,6 +3033,7 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "deactivated_at"?: string | null
         }
         Update: {
           "id"?: string
@@ -2926,6 +3048,7 @@ export type Database = {
           "deleted_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "deactivated_at"?: string | null
         }
         Relationships: [
           {
@@ -4121,6 +4244,10 @@ export type Database = {
       search_gym_content: { Args: { target_gym_id: string; search_query: string; result_limit?: number }; Returns: { result_kind: string; result_id: string; title: string; snippet: string; path: string; rank: number }[] }
       export_my_gym_data: { Args: { target_gym_id: string }; Returns: Json }
       export_gym_operational_data: { Args: { target_gym_id: string }; Returns: Json }
+      save_profile_privacy: { Args: { public_name: string; visibility: string; social_access: string; searchable: boolean; marketing_allowed: boolean }; Returns: undefined }
+      request_account_deletion: { Args: { request_reason: string }; Returns: string }
+      deactivate_my_account: { Args: { deactivation_reason: string }; Returns: undefined }
+      export_member_subject_data: { Args: { target_gym_id: string; target_profile_id: string }; Returns: Json }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
