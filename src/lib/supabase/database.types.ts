@@ -4065,6 +4065,7 @@ export type Database = {
       }
     }
     Functions: {
+      get_chat_channel_summaries: { Args: { target_gym_id: string }; Returns: { id: string; name: string; description: string | null; channel_type: string; is_read_only: boolean; created_at: string; unread: number }[] }
       accept_gym_invitation: {
         Args: { invitation_token_hash: string }
         Returns: string

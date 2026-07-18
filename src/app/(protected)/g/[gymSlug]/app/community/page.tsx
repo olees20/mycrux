@@ -1,2 +1,354 @@
-import Image from"next/image";import{acceptGuidelinesAction,commentAction,createPostAction,deleteContentAction,moderatePostAction,reactionAction,reportContentAction}from"@/features/community/actions";import{requireActiveGymContext}from"@/lib/server/gym-context";import{createServerComponentSupabaseClient}from"@/lib/supabase/server";
-export default async function CommunityPage({params}:{params:Promise<{gymSlug:string}>}){const{gymSlug}=await params,{gym}=await requireActiveGymContext({gymSlug}),supabase=await createServerComponentSupabaseClient(),{data:{user}}=await supabase.auth.getUser();const[{data:accepted},{data:posts}]=await Promise.all([supabase.from("community_guideline_acceptances").select("accepted_at").eq("gym_id",gym.id).eq("profile_id",user?.id??"").eq("version","2026-01").maybeSingle(),supabase.from("community_posts").select("id,author_id,title,body,image_path,is_pinned,locked_at,moderation_status,created_at,comments(id,author_id,body,moderation_status,created_at),reactions(id,profile_id,reaction)").eq("gym_id",gym.id).order("is_pinned",{ascending:false}).order("created_at",{ascending:false}).limit(50)]);let canModerate=gym.role==="owner";if(gym.role==="staff"){const{data:membership}=await supabase.from("gym_memberships").select("staff_role_id").eq("id",gym.membershipId).single(),{data:role}=membership?.staff_role_id?await supabase.from("staff_roles").select("capabilities").eq("id",membership.staff_role_id).single():{data:null};canModerate=role?.capabilities.includes("community.moderate")??false;}const profileIds=[...new Set((posts??[]).flatMap(post=>[post.author_id,...post.comments.map(comment=>comment.author_id)]))],{data:profiles}=profileIds.length?await supabase.from("profiles").select("id,display_name").in("id",profileIds):{data:[]},names=new Map((profiles??[]).map(profile=>[profile.id,profile.display_name]));const cards=await Promise.all((posts??[]).map(async post=>({...post,imageUrl:post.image_path?(await supabase.storage.from("community-images").createSignedUrl(post.image_path,3600)).data?.signedUrl:null})));return <div className="mx-auto max-w-4xl"><p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">Community board</p><h1 className="mt-2 text-4xl font-black">Your climbing people</h1><section className="mt-7 rounded-2xl border bg-amber-50 p-5"><h2 className="font-black">Community guidelines</h2><p className="mt-2 text-sm leading-6">Be kind, keep posts gym-relevant, respect privacy, never harass or discriminate, and report safety concerns. Do not share another person’s contact details or images without consent.</p>{accepted?<p className="mt-3 text-sm font-bold text-emerald-800">Guidelines accepted.</p>:<form action={acceptGuidelinesAction} className="mt-4"><input name="gymSlug" type="hidden" value={gym.slug}/><button className="min-h-12 rounded-xl bg-black px-5 font-bold text-white">I understand and agree</button></form>}</section>{accepted?<section className="mt-7 rounded-2xl border bg-white p-5"><h2 className="text-xl font-black">Create a post</h2><form action={createPostAction} className="mt-4 grid gap-3"><input name="gymSlug" type="hidden" value={gym.slug}/><input className="rounded-lg border p-3" maxLength={200} name="title" placeholder="Optional title"/><textarea className="min-h-28 rounded-lg border p-3" maxLength={10000} name="body" placeholder="Share something with your gym…" required/><input accept="image/png,image/jpeg,image/webp" name="image" type="file"/><button className="min-h-12 rounded-xl bg-black font-bold text-white">Post to community</button></form></section>:null}<div className="mt-7 space-y-5">{cards.map(post=><article className="overflow-hidden rounded-2xl border bg-white" key={post.id}>{post.imageUrl?<Image alt="Community post image" className="h-auto w-full" height={800} src={post.imageUrl} unoptimized width={1200}/>:null}<div className="p-5"><div className="flex flex-wrap justify-between gap-2"><div><p className="text-xs font-bold text-[var(--muted)]">{names.get(post.author_id)??"Gym member"} · {new Intl.DateTimeFormat("en-GB",{dateStyle:"medium"}).format(new Date(post.created_at))}</p>{post.title?<h2 className="mt-1 text-xl font-black">{post.title}</h2>:null}</div><div className="flex gap-2">{post.is_pinned?<span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold">Pinned</span>:null}{post.locked_at?<span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-bold">Locked</span>:null}{post.moderation_status!=="visible"?<span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold">{post.moderation_status}</span>:null}</div></div><p className="mt-4 whitespace-pre-wrap leading-7">{post.body}</p><div className="mt-4 flex flex-wrap gap-2">{["like","love","strong","celebrate","support"].map(reaction=><form action={reactionAction} key={reaction}><input name="gymSlug" type="hidden" value={gym.slug}/><input name="postId" type="hidden" value={post.id}/><input name="reaction" type="hidden" value={reaction}/><button className="min-h-11 rounded-full border px-3 text-xs font-bold">{reaction} {post.reactions.filter(item=>item.reaction===reaction).length||""}</button></form>)}</div><section className="mt-5 border-t pt-4"><h3 className="font-black">Comments</h3><ul className="mt-2 space-y-2">{post.comments.filter(comment=>comment.moderation_status==="visible"||comment.author_id===user?.id||canModerate).map(comment=><li className="rounded-lg bg-stone-50 p-3 text-sm" key={comment.id}><strong>{names.get(comment.author_id)??"Gym member"}</strong><p className="mt-1">{comment.body}</p>{comment.author_id===user?.id?<form action={deleteContentAction} className="mt-2"><input name="gymSlug" type="hidden" value={gym.slug}/><input name="targetId" type="hidden" value={comment.id}/><input name="targetType" type="hidden" value="comment"/><button className="text-xs font-bold text-red-700 underline">Delete comment</button></form>:null}</li>)}</ul>{!post.locked_at&&post.moderation_status==="visible"?<form action={commentAction} className="mt-3 flex gap-2"><input name="gymSlug" type="hidden" value={gym.slug}/><input name="postId" type="hidden" value={post.id}/><input className="min-w-0 flex-1 rounded-lg border p-3" maxLength={5000} name="body" placeholder="Add a comment" required/><button className="min-h-12 rounded-lg border px-4 font-bold">Reply</button></form>:null}</section><div className="mt-4 flex flex-wrap gap-4">{post.author_id===user?.id?<form action={deleteContentAction}><input name="gymSlug" type="hidden" value={gym.slug}/><input name="targetId" type="hidden" value={post.id}/><input name="targetType" type="hidden" value="post"/><button className="text-sm font-bold text-red-700 underline">Delete post</button></form>:null}<details><summary className="cursor-pointer text-sm font-bold underline">Report</summary><form action={reportContentAction} className="mt-2 flex gap-2"><input name="gymSlug" type="hidden" value={gym.slug}/><input name="targetId" type="hidden" value={post.id}/><input name="targetType" type="hidden" value="post"/><input className="rounded-lg border p-2 text-sm" minLength={3} name="reason" placeholder="Reason" required/><button className="font-bold">Send</button></form></details></div>{canModerate?<details className="mt-4 rounded-xl bg-stone-100 p-3"><summary className="cursor-pointer font-bold">Moderate post</summary><form action={moderatePostAction} className="mt-3 grid gap-2 sm:grid-cols-2"><input name="gymSlug" type="hidden" value={gym.slug}/><input name="postId" type="hidden" value={post.id}/><select className="rounded-lg border p-2" defaultValue={post.moderation_status} name="status"><option value="visible">Visible / restore</option><option value="hidden">Hidden</option><option value="removed">Removed</option></select><input className="rounded-lg border p-2" minLength={3} name="reason" placeholder="Required reason" required/><label><input defaultChecked={Boolean(post.locked_at)} name="lockPost" type="checkbox"/> Lock replies</label><label><input defaultChecked={post.is_pinned} name="pinPost" type="checkbox"/> Pin post</label><button className="min-h-11 rounded-lg bg-black text-white sm:col-span-2">Apply moderation</button></form></details>:null}</div></article>)}</div></div>}
+import Image from "next/image";
+import { PaginationNav } from "@/components/pagination-nav";
+import {
+  acceptGuidelinesAction,
+  commentAction,
+  createPostAction,
+  deleteContentAction,
+  moderatePostAction,
+  reactionAction,
+  reportContentAction,
+} from "@/features/community/actions";
+import { requireActiveGymContext } from "@/lib/server/gym-context";
+import { parsePage } from "@/lib/pagination";
+import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
+export default async function CommunityPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ gymSlug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const [{ gymSlug }, search] = await Promise.all([params, searchParams]),
+    { gym } = await requireActiveGymContext({ gymSlug }),
+    supabase = await createServerComponentSupabaseClient(),
+    {
+      data: { user },
+    } = await supabase.auth.getUser();
+  const page = parsePage(search.page), pageSize = 20, offset = (page - 1) * pageSize;
+  const [{ data: accepted }, { data: postRows }] = await Promise.all([
+    supabase
+      .from("community_guideline_acceptances")
+      .select("accepted_at")
+      .eq("gym_id", gym.id)
+      .eq("profile_id", user?.id ?? "")
+      .eq("version", "2026-01")
+      .maybeSingle(),
+    supabase
+      .from("community_posts")
+      .select(
+        "id,author_id,title,body,image_path,is_pinned,locked_at,moderation_status,created_at,comments(id,author_id,body,moderation_status,created_at),reactions(id,profile_id,reaction)",
+      )
+      .eq("gym_id", gym.id)
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .range(offset, offset + pageSize),
+  ]);
+  const hasNext = (postRows?.length ?? 0) > pageSize, posts = (postRows ?? []).slice(0, pageSize);
+  let canModerate = gym.role === "owner";
+  if (gym.role === "staff") {
+    const { data: membership } = await supabase
+        .from("gym_memberships")
+        .select("staff_role_id")
+        .eq("id", gym.membershipId)
+        .single(),
+      { data: role } = membership?.staff_role_id
+        ? await supabase
+            .from("staff_roles")
+            .select("capabilities")
+            .eq("id", membership.staff_role_id)
+            .single()
+        : { data: null };
+    canModerate = role?.capabilities.includes("community.moderate") ?? false;
+  }
+  const profileIds = [
+      ...new Set(
+        posts.flatMap((post) => [
+          post.author_id,
+          ...post.comments.map((comment) => comment.author_id),
+        ]),
+      ),
+    ],
+    { data: profiles } = profileIds.length
+      ? await supabase
+          .from("profiles")
+          .select("id,display_name")
+          .in("id", profileIds)
+      : { data: [] },
+    names = new Map(
+      (profiles ?? []).map((profile) => [profile.id, profile.display_name]),
+    );
+  const imagePaths = posts.flatMap((post) => post.image_path ? [post.image_path] : []);
+  const { data: signedImages } = imagePaths.length ? await supabase.storage.from("community-images").createSignedUrls(imagePaths, 3600) : { data: [] };
+  const imageUrls = new Map((signedImages ?? []).map((item) => [item.path, item.signedUrl]));
+  const cards = posts.map((post) => ({ ...post, imageUrl: post.image_path ? imageUrls.get(post.image_path) ?? null : null }));
+  return (
+    <div className="mx-auto max-w-4xl">
+      <p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">
+        Community board
+      </p>
+      <h1 className="mt-2 text-4xl font-black">Your climbing people</h1>
+      <section className="mt-7 rounded-2xl border bg-amber-50 p-5">
+        <h2 className="font-black">Community guidelines</h2>
+        <p className="mt-2 text-sm leading-6">
+          Be kind, keep posts gym-relevant, respect privacy, never harass or
+          discriminate, and report safety concerns. Do not share another
+          person’s contact details or images without consent.
+        </p>
+        {accepted ? (
+          <p className="mt-3 text-sm font-bold text-emerald-800">
+            Guidelines accepted.
+          </p>
+        ) : (
+          <form action={acceptGuidelinesAction} className="mt-4">
+            <input name="gymSlug" type="hidden" value={gym.slug} />
+            <button className="min-h-12 rounded-xl bg-black px-5 font-bold text-white">
+              I understand and agree
+            </button>
+          </form>
+        )}
+      </section>
+      {accepted ? (
+        <section className="mt-7 rounded-2xl border bg-white p-5">
+          <h2 className="text-xl font-black">Create a post</h2>
+          <form action={createPostAction} className="mt-4 grid gap-3">
+            <input name="gymSlug" type="hidden" value={gym.slug} />
+            <input
+              className="rounded-lg border p-3"
+              maxLength={200}
+              name="title"
+              placeholder="Optional title"
+            />
+            <textarea
+              className="min-h-28 rounded-lg border p-3"
+              maxLength={10000}
+              name="body"
+              placeholder="Share something with your gym…"
+              required
+            />
+            <input
+              accept="image/png,image/jpeg,image/webp"
+              name="image"
+              type="file"
+            />
+            <button className="min-h-12 rounded-xl bg-black font-bold text-white">
+              Post to community
+            </button>
+          </form>
+        </section>
+      ) : null}
+      <div className="mt-7 space-y-5">
+        {cards.map((post) => (
+          <article
+            className="overflow-hidden rounded-2xl border bg-white"
+            key={post.id}
+          >
+            {post.imageUrl ? (
+              <Image
+                alt="Community post image"
+                className="h-auto w-full"
+                height={800}
+                src={post.imageUrl}
+                width={1200}
+              />
+            ) : null}
+            <div className="p-5">
+              <div className="flex flex-wrap justify-between gap-2">
+                <div>
+                  <p className="text-xs font-bold text-[var(--muted)]">
+                    {names.get(post.author_id) ?? "Gym member"} ·{" "}
+                    {new Intl.DateTimeFormat("en-GB", {
+                      dateStyle: "medium",
+                    }).format(new Date(post.created_at))}
+                  </p>
+                  {post.title ? (
+                    <h2 className="mt-1 text-xl font-black">{post.title}</h2>
+                  ) : null}
+                </div>
+                <div className="flex gap-2">
+                  {post.is_pinned ? (
+                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold">
+                      Pinned
+                    </span>
+                  ) : null}
+                  {post.locked_at ? (
+                    <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-bold">
+                      Locked
+                    </span>
+                  ) : null}
+                  {post.moderation_status !== "visible" ? (
+                    <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold">
+                      {post.moderation_status}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+              <p className="mt-4 whitespace-pre-wrap leading-7">{post.body}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {["like", "love", "strong", "celebrate", "support"].map(
+                  (reaction) => (
+                    <form action={reactionAction} key={reaction}>
+                      <input name="gymSlug" type="hidden" value={gym.slug} />
+                      <input name="postId" type="hidden" value={post.id} />
+                      <input name="reaction" type="hidden" value={reaction} />
+                      <button className="min-h-11 rounded-full border px-3 text-xs font-bold">
+                        {reaction}{" "}
+                        {post.reactions.filter(
+                          (item) => item.reaction === reaction,
+                        ).length || ""}
+                      </button>
+                    </form>
+                  ),
+                )}
+              </div>
+              <section className="mt-5 border-t pt-4">
+                <h3 className="font-black">Comments</h3>
+                <ul className="mt-2 space-y-2">
+                  {post.comments
+                    .filter(
+                      (comment) =>
+                        comment.moderation_status === "visible" ||
+                        comment.author_id === user?.id ||
+                        canModerate,
+                    )
+                    .map((comment) => (
+                      <li
+                        className="rounded-lg bg-stone-50 p-3 text-sm"
+                        key={comment.id}
+                      >
+                        <strong>
+                          {names.get(comment.author_id) ?? "Gym member"}
+                        </strong>
+                        <p className="mt-1">{comment.body}</p>
+                        {comment.author_id === user?.id ? (
+                          <form action={deleteContentAction} className="mt-2">
+                            <input
+                              name="gymSlug"
+                              type="hidden"
+                              value={gym.slug}
+                            />
+                            <input
+                              name="targetId"
+                              type="hidden"
+                              value={comment.id}
+                            />
+                            <input
+                              name="targetType"
+                              type="hidden"
+                              value="comment"
+                            />
+                            <button className="text-xs font-bold text-red-700 underline">
+                              Delete comment
+                            </button>
+                          </form>
+                        ) : null}
+                      </li>
+                    ))}
+                </ul>
+                {!post.locked_at && post.moderation_status === "visible" ? (
+                  <form action={commentAction} className="mt-3 flex gap-2">
+                    <input name="gymSlug" type="hidden" value={gym.slug} />
+                    <input name="postId" type="hidden" value={post.id} />
+                    <input
+                      className="min-w-0 flex-1 rounded-lg border p-3"
+                      maxLength={5000}
+                      name="body"
+                      placeholder="Add a comment"
+                      required
+                    />
+                    <button className="min-h-12 rounded-lg border px-4 font-bold">
+                      Reply
+                    </button>
+                  </form>
+                ) : null}
+              </section>
+              <div className="mt-4 flex flex-wrap gap-4">
+                {post.author_id === user?.id ? (
+                  <form action={deleteContentAction}>
+                    <input name="gymSlug" type="hidden" value={gym.slug} />
+                    <input name="targetId" type="hidden" value={post.id} />
+                    <input name="targetType" type="hidden" value="post" />
+                    <button className="text-sm font-bold text-red-700 underline">
+                      Delete post
+                    </button>
+                  </form>
+                ) : null}
+                <details>
+                  <summary className="cursor-pointer text-sm font-bold underline">
+                    Report
+                  </summary>
+                  <form
+                    action={reportContentAction}
+                    className="mt-2 flex gap-2"
+                  >
+                    <input name="gymSlug" type="hidden" value={gym.slug} />
+                    <input name="targetId" type="hidden" value={post.id} />
+                    <input name="targetType" type="hidden" value="post" />
+                    <input
+                      className="rounded-lg border p-2 text-sm"
+                      minLength={3}
+                      name="reason"
+                      placeholder="Reason"
+                      required
+                    />
+                    <button className="font-bold">Send</button>
+                  </form>
+                </details>
+              </div>
+              {canModerate ? (
+                <details className="mt-4 rounded-xl bg-stone-100 p-3">
+                  <summary className="cursor-pointer font-bold">
+                    Moderate post
+                  </summary>
+                  <form
+                    action={moderatePostAction}
+                    className="mt-3 grid gap-2 sm:grid-cols-2"
+                  >
+                    <input name="gymSlug" type="hidden" value={gym.slug} />
+                    <input name="postId" type="hidden" value={post.id} />
+                    <select
+                      className="rounded-lg border p-2"
+                      defaultValue={post.moderation_status}
+                      name="status"
+                    >
+                      <option value="visible">Visible / restore</option>
+                      <option value="hidden">Hidden</option>
+                      <option value="removed">Removed</option>
+                    </select>
+                    <input
+                      className="rounded-lg border p-2"
+                      minLength={3}
+                      name="reason"
+                      placeholder="Required reason"
+                      required
+                    />
+                    <label>
+                      <input
+                        defaultChecked={Boolean(post.locked_at)}
+                        name="lockPost"
+                        type="checkbox"
+                      />{" "}
+                      Lock replies
+                    </label>
+                    <label>
+                      <input
+                        defaultChecked={post.is_pinned}
+                        name="pinPost"
+                        type="checkbox"
+                      />{" "}
+                      Pin post
+                    </label>
+                    <button className="min-h-11 rounded-lg bg-black text-white sm:col-span-2">
+                      Apply moderation
+                    </button>
+                  </form>
+                </details>
+              ) : null}
+            </div>
+          </article>
+        ))}
+      </div>
+      <PaginationNav hasNext={hasNext} page={page} pathname={`/g/${gym.slug}/app/community`} search={search}/>
+    </div>
+  );
+}

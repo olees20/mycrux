@@ -10,6 +10,7 @@ do $$ declare message_id uuid; begin
   message_id:=public.send_chat_message('30000000-0000-4000-8000-000000000001',current_setting('test.chat_channel')::uuid,'Hello gym',null);
   perform set_config('test.chat_message',message_id::text,true);
   if public.mark_channel_read('30000000-0000-4000-8000-000000000001',current_setting('test.chat_channel')::uuid) is null then raise exception 'Read marker missing'; end if;
+  if not exists(select 1 from public.get_chat_channel_summaries('30000000-0000-4000-8000-000000000001') summary where summary.id=current_setting('test.chat_channel')::uuid) then raise exception 'Set-based channel summary missing'; end if;
   begin insert into public.messages(gym_id,channel_id,sender_id,body) values('30000000-0000-4000-8000-000000000001',current_setting('test.chat_channel')::uuid,auth.uid(),'Direct write'); raise exception 'Direct message insert succeeded'; exception when insufficient_privilege then null; end;
 end $$;
 select public.edit_chat_message('30000000-0000-4000-8000-000000000001',current_setting('test.chat_message')::uuid,'Edited hello');

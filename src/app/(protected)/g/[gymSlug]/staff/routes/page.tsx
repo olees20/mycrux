@@ -23,11 +23,14 @@ export default async function StaffRoutesPage({ params }: { params: Promise<{ gy
   const profileIds = memberships?.map(({ profile_id }) => profile_id) ?? [];
   const { data: profiles } = profileIds.length ? await supabase.from("profiles").select("id,display_name").in("id", profileIds) : { data: [] };
   const activeWalls = (walls ?? []).filter((wall) => wall.is_active && !wall.archived_at);
-  const wallOptions = await Promise.all(activeWalls.map(async (wall) => {
-    const current = wall.wall_images.find((image) => image.is_current && !image.archived_at) ?? null;
-    const imageUrl = current ? (await supabase.storage.from("wall-images").createSignedUrl(current.storage_path, 60 * 60)).data?.signedUrl ?? null : null;
-    return { id: wall.id, name: wall.name, imageId: current?.id ?? null, imageUrl, imageAlt: current?.alt_text ?? null, imageWidth: current?.width ?? null, imageHeight: current?.height ?? null };
-  }));
+  const currentImages = new Map(activeWalls.map((wall) => [wall.id, wall.wall_images.find((image) => image.is_current && !image.archived_at) ?? null]));
+  const imagePaths = [...currentImages.values()].flatMap((image) => image ? [image.storage_path] : []);
+  const { data: signedImages } = imagePaths.length ? await supabase.storage.from("wall-images").createSignedUrls(imagePaths, 60 * 60) : { data: [] };
+  const imageUrls = new Map((signedImages ?? []).map((item) => [item.path, item.signedUrl]));
+  const wallOptions = activeWalls.map((wall) => {
+    const current = currentImages.get(wall.id) ?? null;
+    return { id: wall.id, name: wall.name, imageId: current?.id ?? null, imageUrl: current ? imageUrls.get(current.storage_path) ?? null : null, imageAlt: current?.alt_text ?? null, imageWidth: current?.width ?? null, imageHeight: current?.height ?? null };
+  });
   const setters = (profiles ?? []).map((profile) => ({ id: profile.id, label: profile.display_name }));
   const routeValues = (routes ?? []).map((route) => ({ ...route, route_type: route.route_type as "boulder" | "sport" | "top_rope" | "trad" | "training", status: route.status as "draft" | "published" | "retired" | "archived", tags: route.route_tags.map(({ tag }) => tag) }));
 
