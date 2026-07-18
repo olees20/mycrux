@@ -52,6 +52,6 @@ Preview limitations: email delivery may be suppressed, Stripe remains test-only,
 
 ## Cron and custom domain readiness
 
-`vercel.json` schedules only the justified, idempotent due-announcement processor every five minutes. Vercel sends `Authorization: Bearer $CRON_SECRET`; the route uses a constant-time comparison and the database RPC requires service-role access. Check the selected Vercel plan supports the configured frequency. Do not add cleanup jobs until the operation is idempotent, observable, bounded, and has a runbook.
+`vercel.json` schedules only the justified, idempotent due-announcement processor, initially once daily at 08:00 UTC to fit the selected Vercel plan. Vercel sends `Authorization: Bearer $CRON_SECRET`; the route uses a constant-time comparison and the database RPC requires service-role access. This means scheduled announcements are not delivered with minute-level precision until a plan or external scheduler supports a tighter cadence. Do not add cleanup jobs until the operation is idempotent, observable, bounded, and has a runbook.
 
 Before attaching a custom domain, verify ownership/DNS access, add the domain in Vercel, update `NEXT_PUBLIC_SITE_URL`, Supabase Auth redirect allow-lists, Stripe webhook destinations, email links, CSP host allow-lists if narrowed, and monitoring probes. Wait for managed TLS, test both apex and `www` redirect policy, then make the domain canonical. A custom domain is not required for initial launch.
