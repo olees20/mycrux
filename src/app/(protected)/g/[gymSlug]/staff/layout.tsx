@@ -2,6 +2,7 @@ import Link from "next/link";
 import { GymSwitcher } from "@/components/gym-switcher";
 import { GymSearch } from "@/components/gym-search";
 import { requireActiveGymContext } from "@/lib/server/gym-context";
+import { SkipLink } from "@/components/skip-link";
 
 export default async function GymStaffLayout({
   children,
@@ -15,5 +16,5 @@ export default async function GymStaffLayout({
     gymSlug,
     allowedRoles: ["owner", "staff", "route_setter"],
   });
-  return <><header className="border-b border-[var(--border)] bg-white px-5 py-4"><div className="flex items-center justify-between"><Link className="font-black" href={`/g/${gym.slug}/staff`}>CRUX / STAFF</Link><Link className="text-sm font-bold" href={`/g/${gym.slug}/app`}>Member view</Link></div><div className="max-w-md"><GymSwitcher activeGym={gym} destination="/staff" gyms={gyms.filter(({ role }) => role !== "member")} /><GymSearch gymSlug={gym.slug}/></div></header><main className="p-5 md:p-10">{children}</main></>;
+  return <><SkipLink/><header className="border-b border-[var(--border)] bg-white px-5 py-4"><nav aria-label="Staff navigation"><div className="flex items-center justify-between"><Link className="font-black" href={`/g/${gym.slug}/staff`}>CRUX / STAFF</Link><Link className="text-sm font-bold" href={`/g/${gym.slug}/app`}>Member view</Link></div></nav><div className="max-w-md"><GymSwitcher activeGym={gym} destination="/staff" gyms={gyms.filter(({ role }) => role !== "member")} /><GymSearch gymSlug={gym.slug}/></div></header><main className="p-5 md:p-10" id="main-content" tabIndex={-1}>{children}</main></>;
 }

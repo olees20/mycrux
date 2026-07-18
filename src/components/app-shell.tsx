@@ -5,12 +5,8 @@ import { logoutAction } from "@/features/auth/actions";
 import type { AccessibleGym } from "@/lib/server/gym-context-core";
 import { GymSwitcher } from "./gym-switcher";
 import { GymSearch } from "./gym-search";
-
-const navItems = [
-  ["Home", ""], ["Routes", "/routes"], ["Community", "/community"], ["Chat", "/chat"], ["Partners", "/partners"],
-  ["Events", "/events"], ["Competitions", "/competitions"], ["Announcements", "/announcements"],
-  ["Notifications", "/notifications"], ["Logbook", "/logbook"], ["Statistics", "/statistics"], ["Leaderboards", "/leaderboards"], ["Wallet", "/wallet"], ["Waivers", "/waivers"], ["Guests", "/guests"], ["Profile", "/profile"],
-] as const;
+import { MemberNavigation } from "./member-navigation";
+import { SkipLink } from "./skip-link";
 
 export function AppShell({ children, gym, gyms, branding }: Readonly<{
   children: React.ReactNode;
@@ -21,6 +17,7 @@ export function AppShell({ children, gym, gyms, branding }: Readonly<{
   const memberBase = `/g/${gym.slug}/app`;
   return (
     <div className="min-h-screen md:grid md:grid-cols-[15rem_1fr]" style={branding ? { "--foreground": branding.primaryColour, "--background": branding.backgroundColour, "--surface": branding.backgroundColour, "--accent": branding.accentColour, "--accent-foreground": branding.accentForeground } as CSSProperties : undefined}>
+      <SkipLink />
       <header className="border-b border-[var(--border)] bg-[var(--surface)] p-4 md:min-h-screen md:border-b-0 md:border-r">
         <div className="flex items-center justify-between md:block">
           <Link className="flex items-center gap-2 text-xl font-black tracking-tight" href={memberBase}>{branding?.logoUrl ? <Image alt={`${gym.name} logo`} className="h-9 w-auto object-contain" height={36} src={branding.logoUrl} unoptimized width={120} /> : "CRUX"}</Link>
@@ -31,13 +28,9 @@ export function AppShell({ children, gym, gyms, branding }: Readonly<{
         </div>
         <GymSwitcher activeGym={gym} gyms={gyms} />
         <GymSearch gymSlug={gym.slug}/>
-        <nav aria-label="Member navigation" className="mt-4 flex gap-1 overflow-x-auto md:flex-col">
-          {navItems.map(([label, href]) => (
-            <Link className="min-h-11 whitespace-nowrap rounded-lg px-3 py-3 text-sm font-semibold hover:bg-stone-100" href={`${memberBase}${href}`} key={href}>{label}</Link>
-          ))}
-        </nav>
+        <MemberNavigation memberBase={memberBase} />
       </header>
-      <main className="p-5 md:p-10">{children}</main>
+      <main className="p-5 md:p-10" id="main-content" tabIndex={-1}>{children}</main>
     </div>
   );
 }
