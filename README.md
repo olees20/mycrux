@@ -1,13 +1,13 @@
 # Crux climbing gym platform
 
-A production-oriented foundation for a multi-tenant climbing gym platform. This stage intentionally contains application shells and placeholders only; authentication, tenancy, database schema, Stripe billing, and business features are delivered in later roadmap stages.
+A production-oriented, multi-tenant climbing gym platform with authentication, tenant-isolated member and staff journeys, route and wall management, events, community, chat, competitions, waivers, privacy controls, platform administration, and Stripe SaaS billing. External gym-management adapters remain disabled until a provider contract is selected and implemented.
 
 ## Requirements
 
 - Node.js 20.9 or newer
 - npm
 - A development Supabase project
-- Stripe test-mode credentials (required by environment validation, not used yet)
+- Stripe test-mode credentials for gym SaaS billing
 
 ## Local setup
 
@@ -25,6 +25,8 @@ The environment helpers produce a single, readable error listing invalid or miss
 | `npm run lint` | Run ESLint |
 | `npm run type-check` | Check strict TypeScript |
 | `npm test` | Run Vitest once |
+| `npm run test:db` | Apply migrations and run the tenant/RLS SQL suite against a disposable PostgreSQL database |
+| `npm run test:e2e` | Run Playwright browser checks |
 | `npm run build` | Create a production build |
 | `npm start` | Serve a production build |
 | `npm run db:types -- URL` | Regenerate typed Supabase schema from a migrated development database |
@@ -33,11 +35,11 @@ The environment helpers produce a single, readable error listing invalid or miss
 
 - `src/app/(public)` — marketing pages
 - `src/app/(auth)` — authentication entry points
-- `src/app/(protected)` — member and staff shells (authorization is added with auth)
+- `src/app/(protected)` — authenticated, role-aware member, staff, and platform journeys
 - `src/components/ui` — accessible, reusable UI primitives
 - `src/features` — business capabilities grouped by feature
 - `src/lib/server` — server-only utilities
-- `src/lib/supabase` — typed clients (added in the Supabase infrastructure stage)
+- `src/lib/supabase` — typed browser, server, privileged, and business-data clients
 - `src/validation` — shared external-input schemas
 - `src/tests` — test setup and cross-cutting test helpers
 
@@ -53,7 +55,7 @@ Use Stripe test mode locally and separate webhook secrets per environment. Strip
 
 Import the repository into Vercel, select the Next.js framework preset, and configure all variables from `.env.example` for Preview and Production separately. Use a staging Supabase project for Preview deployments. Do not copy production secrets into Preview.
 
-Before deployment, run `npm run lint`, `npm run type-check`, `npm test`, and `npm run build`.
+Before deployment, follow the [go-live checklist](./docs/launch/go-live-checklist.md). The release gate includes application, database, browser, and production-build checks.
 
 ## Architecture
 
