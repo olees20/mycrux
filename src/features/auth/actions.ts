@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getPublicEnvironment } from "@/env/client";
 import { safeRedirectPath } from "@/lib/auth/redirect";
+import { consumeAuthRateLimit } from "@/lib/server/auth-rate-limit";
 import { requireRouteUser } from "@/lib/server/authorization";
 import { logger } from "@/lib/server/logger";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
@@ -37,6 +38,8 @@ export async function loginAction(
 ): Promise<AuthActionState> {
   const parsed = loginSchema.safeParse(formValues(formData));
   if (!parsed.success) return { status: "error", message: validationMessage(parsed.error) };
+  const rateLimit = await consumeAuthRateLimit("login", parsed.data.email);
+  if (!rateLimit.allowed) return { status: "error", message: "Email or password is incorrect" };
 
   const supabase = await createServerComponentSupabaseClient();
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -58,6 +61,10 @@ export async function registerAction(
 ): Promise<AuthActionState> {
   const parsed = registerSchema.safeParse(formValues(formData));
   if (!parsed.success) return { status: "error", message: validationMessage(parsed.error) };
+  const rateLimit = await consumeAuthRateLimit("register", parsed.data.email);
+  if (!rateLimit.allowed) {
+    return { status: "error", message: "We could not create that account. Check the details and try again." };
+  }
 
   const supabase = await createServerComponentSupabaseClient();
   const environment = getPublicEnvironment();
@@ -84,6 +91,10 @@ export async function forgotPasswordAction(
 ): Promise<AuthActionState> {
   const parsed = forgotSchema.safeParse(formValues(formData));
   if (!parsed.success) return { status: "error", message: validationMessage(parsed.error) };
+  const rateLimit = await consumeAuthRateLimit("forgotPassword", parsed.data.email);
+  if (!rateLimit.allowed) {
+    return { status: "success", message: "If an account exists for that email, a reset link is on its way." };
+  }
 
   const supabase = await createServerComponentSupabaseClient();
   const environment = getPublicEnvironment();
