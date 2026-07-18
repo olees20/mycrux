@@ -82,6 +82,10 @@ create table storage.objects (
   unique (bucket_id, name)
 );
 
+-- Supabase Storage owns this table with RLS enabled; mirror that state in plain PostgreSQL.
+alter table storage.objects enable row level security;
+alter table storage.objects force row level security;
+
 grant all on storage.buckets, storage.objects to service_role;
 grant select, insert, update, delete on storage.objects to authenticated;
 

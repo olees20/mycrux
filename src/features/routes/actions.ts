@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireActiveGymContext } from "@/lib/server/gym-context";
+import { discardMedia, uploadMedia } from "@/lib/server/media";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/database.types";
 import type { RouteActionState } from "./state";
-import { hasValidImageSignature, parseOverlay, routeImageSchema } from "./validation";
+import { parseOverlay } from "./validation";
 
 const gymSlug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const optionalDate = z.union([z.iso.date(), z.literal("")]);
@@ -42,17 +43,12 @@ export async function archiveWallAction(formData: FormData) {
 }
 
 export async function uploadWallImageAction(_state: RouteActionState, formData: FormData): Promise<RouteActionState> {
-  const fields = z.object({ gymSlug, wallId: z.uuid(), altText: z.string().trim().min(1).max(500), width: z.coerce.number().int().positive(), height: z.coerce.number().int().positive(), capturedAt: z.string() }).safeParse(Object.fromEntries(formData.entries()));
-  const file = routeImageSchema.safeParse(formData.get("image"));
-  if (!fields.success || !file.success) return { status: "error", message: fields.error?.issues[0]?.message ?? file.error?.issues[0]?.message ?? "Check the image" };
-  if (!(await hasValidImageSignature(file.data))) return { status: "error", message: "The file contents do not match the selected image type." };
+  const fields = z.object({ gymSlug, wallId: z.uuid(), altText: z.string().trim().min(1).max(500), capturedAt: z.string() }).safeParse(Object.fromEntries(formData.entries()));
+  const file=formData.get("image");if(!fields.success||!(file instanceof File))return{status:"error",message:fields.error?.issues[0]?.message??"Choose an image."};
   const { gym } = await context(fields.data.gymSlug); const supabase = await createServerComponentSupabaseClient();
-  const extension = file.data.type === "image/png" ? "png" : file.data.type === "image/webp" ? "webp" : "jpg";
-  const objectPath = `${gym.id}/${crypto.randomUUID()}.${extension}`;
-  const upload = await supabase.storage.from("wall-images").upload(objectPath, file.data, { contentType: file.data.type, upsert: false });
-  if (upload.error) return { status: "error", message: "The wall image could not be uploaded." };
-  const attached = await supabase.rpc("attach_wall_image", { target_gym_id: gym.id, target_wall_id: fields.data.wallId, object_path: objectPath, image_alt_text: fields.data.altText, image_width: fields.data.width, image_height: fields.data.height, image_captured_at: fields.data.capturedAt ? new Date(`${fields.data.capturedAt}T12:00:00Z`).toISOString() : null });
-  if (attached.error) { await supabase.storage.from("wall-images").remove([objectPath]); return { status: "error", message: "The image could not be attached to this wall." }; }
+  const{data:{user}}=await supabase.auth.getUser();if(!user)return{status:"error",message:"Sign in again before uploading."};let media;try{media=await uploadMedia({client:supabase,file,purpose:"wall",gymId:gym.id,ownerProfileId:user.id,targetId:fields.data.wallId});}catch(error){return{status:"error",message:message(error,"The wall image could not be uploaded.")};}
+  const attached = await supabase.rpc("attach_wall_image", { target_gym_id: gym.id, target_wall_id: fields.data.wallId, object_path:media.storagePath, image_alt_text: fields.data.altText, image_width:media.width??1, image_height:media.height??1, image_captured_at: fields.data.capturedAt ? new Date(`${fields.data.capturedAt}T12:00:00Z`).toISOString() : null });
+  if (attached.error) {await discardMedia(supabase,media);return { status: "error", message: "The image could not be attached to this wall." }; }
   refresh(gym.slug); return { status: "success", message: "Current wall image updated; the previous image remains archived." };
 }
 
@@ -82,15 +78,11 @@ export async function saveRouteAction(_state: RouteActionState, formData: FormDa
 
 export async function uploadRouteMediaAction(_state: RouteActionState, formData: FormData): Promise<RouteActionState> {
   const fields = z.object({ gymSlug, routeId: z.uuid(), altText: z.string().trim().max(500) }).safeParse(Object.fromEntries(formData.entries()));
-  const file = routeImageSchema.safeParse(formData.get("image"));
-  if (!fields.success || !file.success) return { status: "error", message: fields.error?.issues[0]?.message ?? file.error?.issues[0]?.message ?? "Check the image" };
-  if (!(await hasValidImageSignature(file.data))) return { status: "error", message: "The uploaded file is not a valid image." };
+  const file=formData.get("image");if(!fields.success||!(file instanceof File))return{status:"error",message:fields.error?.issues[0]?.message??"Choose an image."};
   const { gym } = await context(fields.data.gymSlug); const supabase = await createServerComponentSupabaseClient();
-  const extension = file.data.type === "image/png" ? "png" : file.data.type === "image/webp" ? "webp" : "jpg"; const objectPath = `${gym.id}/${crypto.randomUUID()}.${extension}`;
-  const upload = await supabase.storage.from("route-media").upload(objectPath, file.data, { contentType: file.data.type, upsert: false });
-  if (upload.error) return { status: "error", message: "The media could not be uploaded." };
-  const attached = await supabase.rpc("attach_route_media", { target_gym_id: gym.id, target_route_id: fields.data.routeId, object_path: objectPath, object_media_type: "image", object_alt_text: fields.data.altText || null });
-  if (attached.error) { await supabase.storage.from("route-media").remove([objectPath]); return { status: "error", message: "The media could not be attached to this route." }; }
+  const{data:{user}}=await supabase.auth.getUser();if(!user)return{status:"error",message:"Sign in again before uploading."};let media;try{media=await uploadMedia({client:supabase,file,purpose:"route",gymId:gym.id,ownerProfileId:user.id,targetId:fields.data.routeId});}catch(error){return{status:"error",message:message(error,"The media could not be uploaded.")};}
+  const attached = await supabase.rpc("attach_route_media", { target_gym_id: gym.id, target_route_id: fields.data.routeId, object_path:media.storagePath, object_media_type: "image", object_alt_text: fields.data.altText || null });
+  if (attached.error) {await discardMedia(supabase,media);return { status: "error", message: "The media could not be attached to this route." }; }
   refresh(gym.slug); return { status: "success", message: "Route media uploaded." };
 }
 

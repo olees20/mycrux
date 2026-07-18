@@ -1,14 +1,14 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { gymBrandingSchema, gymDetailsSchema, hasValidLogoSignature, logoFileSchema } from "./validation";
+import { gymBrandingSchema, gymDetailsSchema } from "./validation";
 import type { GymActionState } from "./state";
 import { ACTIVE_GYM_COOKIE, requireActiveGymContext } from "@/lib/server/gym-context";
 import { gymPath, gymSlugSchema } from "@/lib/server/gym-context-core";
 import { logger } from "@/lib/server/logger";
+import { discardMedia, uploadMedia } from "@/lib/server/media";
 import { requireRouteUser } from "@/lib/server/authorization";
 import { privilegedAccess } from "@/lib/supabase/admin";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
@@ -85,19 +85,13 @@ export async function updateGymAction(_state: GymActionState, formData: FormData
 
 export async function uploadGymLogoAction(_state: GymActionState, formData: FormData): Promise<GymActionState> {
   const gymSlug = String(formData.get("gymSlug") ?? "");
-  const parsedFile = logoFileSchema.safeParse(formData.get("logo"));
-  if (!parsedFile.success) return { status: "error", message: parsedFile.error.issues[0]?.message ?? "Choose a valid logo" };
-  if (!await hasValidLogoSignature(parsedFile.data)) return { status: "error", message: "The file contents do not match the selected image type." };
+  const file=formData.get("logo");if(!(file instanceof File))return{status:"error",message:"Choose a valid logo."};
   const { gym } = await requireActiveGymContext({ gymSlug, allowedRoles: ["owner"] });
   const supabase = await createServerComponentSupabaseClient();
-  const extension = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" }[parsedFile.data.type];
-  if (!extension) return { status: "error", message: "Unsupported logo type." };
-  const objectPath = `${gym.id}/${randomUUID()}.${extension}`;
-  const { error: uploadError } = await supabase.storage.from("gym-branding").upload(objectPath, parsedFile.data, { contentType: parsedFile.data.type, upsert: false });
-  if (uploadError) return { status: "error", message: "The logo upload failed." };
-  const { error } = await supabase.rpc("set_gym_logo_path", { target_gym_id: gym.id, object_path: objectPath });
+  const user=await requireRouteUser(supabase);let media;try{media=await uploadMedia({client:supabase,file,purpose:"logo",gymId:gym.id,ownerProfileId:user.id,targetId:gym.id});}catch(error){return{status:"error",message:error instanceof Error?error.message:"The logo upload failed."};}
+  const { error } = await supabase.rpc("set_gym_logo_path", { target_gym_id: gym.id, object_path:media.storagePath });
   if (error) {
-    await supabase.storage.from("gym-branding").remove([objectPath]);
+    await discardMedia(supabase,media);
     return { status: "error", message: "The uploaded logo could not be attached to the gym." };
   }
   revalidatePath(`/g/${gym.slug}`, "layout");

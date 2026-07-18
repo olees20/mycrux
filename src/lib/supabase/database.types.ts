@@ -2101,6 +2101,136 @@ export type Database = {
           }
         ]
       }
+      "media_abuse_reports": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "media_asset_id": string
+          "reporter_profile_id": string
+          "reason": string
+          "status": string
+          "created_at": string
+          "resolved_at": string | null
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "media_asset_id": string
+          "reporter_profile_id": string
+          "reason": string
+          "status"?: string
+          "created_at"?: string
+          "resolved_at"?: string | null
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "media_asset_id"?: string
+          "reporter_profile_id"?: string
+          "reason"?: string
+          "status"?: string
+          "created_at"?: string
+          "resolved_at"?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_abuse_reports_asset_fkey"
+            columns: ["media_asset_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id","gym_id"]
+          },
+          {
+            foreignKeyName: "media_abuse_reports_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_abuse_reports_reporter_profile_id_fkey"
+            columns: ["reporter_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "media_assets": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "owner_profile_id": string
+          "bucket_id": string
+          "storage_path": string
+          "thumbnail_path": string | null
+          "purpose": string
+          "target_id": string | null
+          "mime_type": string
+          "byte_size": number
+          "width": number | null
+          "height": number | null
+          "status": string
+          "retention_until": string | null
+          "deleted_at": string | null
+          "created_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "owner_profile_id": string
+          "bucket_id": string
+          "storage_path": string
+          "thumbnail_path"?: string | null
+          "purpose": string
+          "target_id"?: string | null
+          "mime_type": string
+          "byte_size": number
+          "width"?: number | null
+          "height"?: number | null
+          "status"?: string
+          "retention_until"?: string | null
+          "deleted_at"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "owner_profile_id"?: string
+          "bucket_id"?: string
+          "storage_path"?: string
+          "thumbnail_path"?: string | null
+          "purpose"?: string
+          "target_id"?: string | null
+          "mime_type"?: string
+          "byte_size"?: number
+          "width"?: number | null
+          "height"?: number | null
+          "status"?: string
+          "retention_until"?: string | null
+          "deleted_at"?: string | null
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_assets_owner_profile_id_fkey"
+            columns: ["owner_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "member_achievements": {
         Row: {
           "id": string
@@ -3987,6 +4117,7 @@ export type Database = {
       add_platform_support_note: { Args: { actor_profile_id: string; target_gym_id: string; note_body: string }; Returns: string }
       suspend_platform_gym: { Args: { actor_profile_id: string; target_gym_id: string; reason: string }; Returns: undefined }
       restore_platform_gym: { Args: { actor_profile_id: string; target_gym_id: string; reason: string }; Returns: undefined }
+      report_media_asset: { Args: { target_gym_id: string; target_media_id: string; report_reason: string }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

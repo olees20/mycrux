@@ -365,6 +365,7 @@ ${renderRelations(views, relationshipsByTable, "Views")}
       add_platform_support_note: { Args: { actor_profile_id: string; target_gym_id: string; note_body: string }; Returns: string }
       suspend_platform_gym: { Args: { actor_profile_id: string; target_gym_id: string; reason: string }; Returns: undefined }
       restore_platform_gym: { Args: { actor_profile_id: string; target_gym_id: string; reason: string }; Returns: undefined }
+      report_media_asset: { Args: { target_gym_id: string; target_media_id: string; report_reason: string }; Returns: string }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { zonedDateTimeToIso } from "@/features/announcements/schedule";
-import { hasValidImageSignature, routeImageSchema } from "@/features/routes/validation";
 import { requireActiveGymContext } from "@/lib/server/gym-context";
+import { discardMedia, uploadMedia } from "@/lib/server/media";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 import type { Json, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types";
 import type { EventActionState } from "./state";
@@ -54,17 +54,14 @@ export async function saveEventAction(_state: EventActionState, formData: FormDa
   if (!roles.length) return { status: "error", message: "Choose at least one eligible role." };
   const { gym } = await requireActiveGymContext({ gymSlug: parsed.data.gymSlug, allowedRoles: ["owner", "staff"] });
   const supabase = await createServerComponentSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if(!user)return{status:"error",message:"Sign in again before saving the event."};
   let imagePath: string | undefined;
+  let media:Awaited<ReturnType<typeof uploadMedia>>|null=null;
   const image = formData.get("image");
   if (image instanceof File && image.size > 0) {
-    const valid = routeImageSchema.safeParse(image);
-    if (!valid.success || !(await hasValidImageSignature(image))) return { status: "error", message: valid.error?.issues[0]?.message ?? "Event image is invalid." };
-    const extension = image.type === "image/png" ? "png" : image.type === "image/webp" ? "webp" : "jpg";
-    imagePath = `${gym.id}/${crypto.randomUUID()}.${extension}`;
-    const uploaded = await supabase.storage.from("event-images").upload(imagePath, image, { contentType: image.type });
-    if (uploaded.error) return { status: "error", message: "Event image upload failed." };
+    try{media=await uploadMedia({client:supabase,file:image,purpose:"event",gymId:gym.id,ownerProfileId:user.id,targetId:parsed.data.eventId||null});imagePath=media.storagePath;}catch(error){return{status:"error",message:error instanceof Error?error.message:"Event image upload failed."};}
   }
-  const { data: { user } } = await supabase.auth.getUser();
   const values: TablesUpdate<"events"> = {
     event_type: parsed.data.eventType, title: parsed.data.title, description: parsed.data.description || null,
     location: parsed.data.location || null, organiser_id: parsed.data.organiserId || null, starts_at: starts, ends_at: ends,
@@ -78,7 +75,7 @@ export async function saveEventAction(_state: EventActionState, formData: FormDa
     ? await supabase.from("events").update(values).eq("id", parsed.data.eventId).eq("gym_id", gym.id).select("id").single()
     : await supabase.from("events").insert({ ...values, gym_id: gym.id, created_by: user?.id ?? "", title: parsed.data.title, starts_at: starts, ends_at: ends } satisfies TablesInsert<"events">).select("id").single();
   if (result.error) {
-    if (imagePath) await supabase.storage.from("event-images").remove([imagePath]);
+    if (media) await discardMedia(supabase,media);
     return { status: "error", message: "The event could not be saved. Check dates, permission and booking windows." };
   }
   refresh(gym.slug, result.data.id);
