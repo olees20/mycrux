@@ -1786,6 +1786,9 @@ export type Database = {
           "day_pass_valid_hours": number
           "day_pass_information": string | null
           "membership_source": string
+          "suspended_at": string | null
+          "suspension_reason": string | null
+          "status_before_suspension": string | null
         }
         Insert: {
           "id"?: string
@@ -1812,6 +1815,9 @@ export type Database = {
           "day_pass_valid_hours"?: number
           "day_pass_information"?: string | null
           "membership_source"?: string
+          "suspended_at"?: string | null
+          "suspension_reason"?: string | null
+          "status_before_suspension"?: string | null
         }
         Update: {
           "id"?: string
@@ -1838,6 +1844,9 @@ export type Database = {
           "day_pass_valid_hours"?: number
           "day_pass_information"?: string | null
           "membership_source"?: string
+          "suspended_at"?: string | null
+          "suspension_reason"?: string | null
+          "status_before_suspension"?: string | null
         }
         Relationships: []
       }
@@ -2674,10 +2683,76 @@ export type Database = {
         ]
       }
       "platform_plans": {
-        Row: { "plan_key": string; "name": string; "description": string; "features": Json; "display_order": number; "active": boolean; "created_at": string; "updated_at": string }
-        Insert: { "plan_key": string; "name": string; "description": string; "features": Json; "display_order": number; "active"?: boolean; "created_at"?: string; "updated_at"?: string }
-        Update: { "plan_key"?: string; "name"?: string; "description"?: string; "features"?: Json; "display_order"?: number; "active"?: boolean; "created_at"?: string; "updated_at"?: string }
+        Row: {
+          "plan_key": string
+          "name": string
+          "description": string
+          "features": Json
+          "display_order": number
+          "active": boolean
+          "created_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "plan_key": string
+          "name": string
+          "description": string
+          "features": Json
+          "display_order": number
+          "active"?: boolean
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "plan_key"?: string
+          "name"?: string
+          "description"?: string
+          "features"?: Json
+          "display_order"?: number
+          "active"?: boolean
+          "created_at"?: string
+          "updated_at"?: string
+        }
         Relationships: []
+      }
+      "platform_support_notes": {
+        Row: {
+          "id": string
+          "gym_id": string
+          "author_profile_id": string
+          "note": string
+          "created_at": string
+        }
+        Insert: {
+          "id"?: string
+          "gym_id": string
+          "author_profile_id": string
+          "note": string
+          "created_at"?: string
+        }
+        Update: {
+          "id"?: string
+          "gym_id"?: string
+          "author_profile_id"?: string
+          "note"?: string
+          "created_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_support_notes_author_profile_id_fkey"
+            columns: ["author_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_support_notes_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       "profiles": {
         Row: {
@@ -3348,6 +3423,7 @@ export type Database = {
           "last_stripe_event_id": string | null
           "created_at": string
           "updated_at": string
+          "grace_ends_at": string | null
         }
         Insert: {
           "id"?: string
@@ -3365,6 +3441,7 @@ export type Database = {
           "last_stripe_event_id"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "grace_ends_at"?: string | null
         }
         Update: {
           "id"?: string
@@ -3382,6 +3459,7 @@ export type Database = {
           "last_stripe_event_id"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "grace_ends_at"?: string | null
         }
         Relationships: [
           {
@@ -3904,6 +3982,11 @@ export type Database = {
       apply_stripe_subscription_event: { Args: { event_id: string; event_type: string; event_livemode: boolean; customer_id: string; subscription_id: string; price_id: string; subscription_status: string; period_start?: string; period_end?: string; cancel_period_end: boolean; cancelled_at?: string; trial_end?: string; plan_name: string }; Returns: boolean }
       get_plan_usage: { Args: { target_gym_id: string }; Returns: { plan_key: string; plan_name: string; subscription_status: string; grace_ends_at: string | null; feature_key: string; enabled: boolean; limit_value: number | null; usage_value: number; restricted: boolean }[] }
       has_feature_entitlement: { Args: { target_gym_id: string; target_feature: string }; Returns: boolean }
+      platform_list_gyms: { Args: { actor_profile_id: string; search_term?: string; result_limit?: number }; Returns: Json }
+      platform_gym_support_view: { Args: { actor_profile_id: string; target_gym_id: string }; Returns: Json }
+      add_platform_support_note: { Args: { actor_profile_id: string; target_gym_id: string; note_body: string }; Returns: string }
+      suspend_platform_gym: { Args: { actor_profile_id: string; target_gym_id: string; reason: string }; Returns: undefined }
+      restore_platform_gym: { Args: { actor_profile_id: string; target_gym_id: string; reason: string }; Returns: undefined }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
