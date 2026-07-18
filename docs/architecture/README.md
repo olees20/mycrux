@@ -107,7 +107,7 @@ Client-provided `gym_id`, role names, prices, and ownership fields are untrusted
 ## Cross-cutting non-goals and deferred work
 
 - Native iOS and Android applications; the initial client is a responsive web app/PWA.
-- Full 3D wall scanning, computer-vision route recognition, and AI route grading.
+- Full 3D wall scanning and computer-vision route recognition; these remain isolated discovery work under the [phase-two 3D/AI plan](../discovery/phase-two-3d-ai.md), not production architecture. AI route grading is not proposed.
 - Processing gym membership, class, retail, or day-pass payments through the platform Stripe account.
 - Mature direct messaging before reporting, blocking, safeguarding, and moderation controls exist.
 - Enterprise identity federation, offline-first mutation queues, custom domains, and multi-region active-active operation.
