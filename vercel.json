@@ -1,5 +1,8 @@
 {
   "crons": [
-    { "path": "/api/jobs/due-announcements", "schedule": "*/5 * * * *" }
+    {
+      "path": "/api/jobs/due-announcements",
+      "schedule": "0 8 * * *"
+    }
   ]
 }
