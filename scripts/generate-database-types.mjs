@@ -367,6 +367,8 @@ ${renderRelations(views, relationshipsByTable, "Views")}
       restore_platform_gym: { Args: { actor_profile_id: string; target_gym_id: string; reason: string }; Returns: undefined }
       report_media_asset: { Args: { target_gym_id: string; target_media_id: string; report_reason: string }; Returns: string }
       search_gym_content: { Args: { target_gym_id: string; search_query: string; result_limit?: number }; Returns: { result_kind: string; result_id: string; title: string; snippet: string; path: string; rank: number }[] }
+      export_my_gym_data: { Args: { target_gym_id: string }; Returns: Json }
+      export_gym_operational_data: { Args: { target_gym_id: string }; Returns: Json }
       resend_staff_invitation: {
         Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string

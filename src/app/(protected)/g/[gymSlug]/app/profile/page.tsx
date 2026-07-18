@@ -1,5 +1,2 @@
-import { PlaceholderPage } from "@/components/placeholder-page";
-
-export default function ProfilePage() {
-  return <PlaceholderPage eyebrow="Profile" title="Your climbing identity." description="Account, preferences and personal activity will live here." />;
-}
+import Link from"next/link";import{requireActiveGymContext}from"@/lib/server/gym-context";
+export default async function ProfilePage({params}:{params:Promise<{gymSlug:string}>}){const{gymSlug}=await params,{gym}=await requireActiveGymContext({gymSlug});return <div className="mx-auto max-w-3xl"><p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">Profile and privacy</p><h1 className="mt-2 text-4xl font-black">Your climbing identity</h1><section className="mt-7 rounded-2xl border bg-white p-6"><h2 className="text-2xl font-black">Download your data</h2><p className="mt-2 text-[var(--muted)]">Get your profile, membership, ascent history and accepted-waiver references for {gym.name}. The export does not include anyone else’s information.</p><Link className="mt-5 inline-flex min-h-12 items-center rounded-xl bg-black px-5 font-bold text-white" href={`/g/${gym.slug}/app/profile/export`}>Download JSON export</Link></section></div>}
