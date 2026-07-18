@@ -297,8 +297,8 @@ select set_config('request.jwt.claim.sub', '', true);
 
 do $$
 begin
-  if (select count(*) from public.gyms) <> 2 then
-    raise exception 'Service role should see both test gyms';
+  if (select count(*) from public.gyms) <> 3 then
+    raise exception 'Service role should see the two seeded gyms and transactional isolation fixture';
   end if;
 end;
 $$;
