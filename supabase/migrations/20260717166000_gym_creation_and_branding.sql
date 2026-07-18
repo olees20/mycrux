@@ -159,7 +159,6 @@ insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values('gym-branding','gym-branding',false,2097152,array['image/png','image/jpeg','image/webp'])
 on conflict(id) do update set public=false,file_size_limit=excluded.file_size_limit,allowed_mime_types=excluded.allowed_mime_types;
 
-alter table storage.objects enable row level security;
 create policy gym_branding_objects_select on storage.objects for select to authenticated
 using(bucket_id='gym-branding' and private.current_membership_id((storage.foldername(name))[1]::uuid) is not null);
 create policy gym_branding_objects_insert on storage.objects for insert to authenticated
