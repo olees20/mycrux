@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import { logoutAction } from "@/features/auth/actions";
 import type { AccessibleGym } from "@/lib/server/gym-context-core";
 import { GymSwitcher } from "./gym-switcher";
+import { GymSearch } from "./gym-search";
 
 const navItems = [
   ["Home", ""], ["Routes", "/routes"], ["Community", "/community"], ["Chat", "/chat"], ["Partners", "/partners"],
@@ -29,6 +30,7 @@ export function AppShell({ children, gym, gyms, branding }: Readonly<{
           </div>
         </div>
         <GymSwitcher activeGym={gym} gyms={gyms} />
+        <GymSearch gymSlug={gym.slug}/>
         <nav aria-label="Member navigation" className="mt-4 flex gap-1 overflow-x-auto md:flex-col">
           {navItems.map(([label, href]) => (
             <Link className="min-h-11 whitespace-nowrap rounded-lg px-3 py-3 text-sm font-semibold hover:bg-stone-100" href={`${memberBase}${href}`} key={href}>{label}</Link>
