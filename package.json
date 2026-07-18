@@ -13,6 +13,9 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:db": "bash scripts/run-database-tests.sh",
+    "test:e2e": "playwright test",
+    "test:ci": "npm run lint && npm run type-check && npm test",
     "db:types": "node scripts/generate-database-types.mjs"
   },
   "dependencies": {
@@ -30,6 +33,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

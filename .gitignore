@@ -2,6 +2,9 @@ node_modules/
 .next/
 out/
 coverage/
+playwright-report/
+test-results/
+supabase/.temp/
 *.tsbuildinfo
 .env
 .env.local
