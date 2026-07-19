@@ -19,6 +19,9 @@ declare
   first_result jsonb;
   second_result jsonb;
 begin
+  if not public.check_administrative_reset_access() then
+    raise exception 'Service-role reset preflight failed';
+  end if;
   first_result := public.administrative_reset_application_data();
   if exists(
     select 1 from pg_tables table_info

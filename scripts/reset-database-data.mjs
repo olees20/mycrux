@@ -153,6 +153,17 @@ export async function runReset({
     global: { headers: { "X-Client-Info": "mycrux-administrative-reset" } },
   });
 
+  // Verify the database migration and service-role grant before touching Storage.
+  // Supabase secret keys are opaque `sb_secret_...` values, so authorization is
+  // enforced by the RPC's EXECUTE grant rather than by decoding a legacy JWT.
+  const accessCheck = await client.rpc("check_administrative_reset_access");
+  if (accessCheck.error || accessCheck.data !== true) {
+    throw new Error(
+      "Database reset preflight failed: "
+      + (accessCheck.error?.message ?? "service-role access was not confirmed"),
+    );
+  }
+
   // Delete blobs through the Storage API first. If this fails, database truncation
   // does not begin and the idempotent command can be safely retried.
   const storage = await clearManagedStorage(client);

@@ -4116,6 +4116,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      check_administrative_reset_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       get_chat_channel_summaries: { Args: { target_gym_id: string }; Returns: { id: string; name: string; description: string | null; channel_type: string; is_read_only: boolean; created_at: string; unread: number }[] }
       get_gym_join_status: {
         Args: { join_reference: string; reference_kind: string }

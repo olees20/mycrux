@@ -190,6 +190,10 @@ ${renderRelations(tables, relationshipsByTable, "Tables")}
 ${renderRelations(views, relationshipsByTable, "Views")}
     }
     Functions: {
+      check_administrative_reset_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       create_gym_tenant: {
         Args: { actor_profile_id: string; owner_profile_id: string; configuration: Json; branding: Json }
         Returns: string

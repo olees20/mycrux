@@ -30,7 +30,11 @@ The command requires:
 - **SUPABASE_SERVICE_ROLE_KEY**;
 - **ALLOW_DATABASE_RESET=true**.
 
-The service-role key is used only by the Node.js operator script. Never prefix it with **NEXT_PUBLIC_** and never expose it to browser code.
+The service-role key is used only by the Node.js operator script. Both legacy
+service-role JWTs and current `sb_secret_...` Supabase secret keys are supported.
+Never prefix it with **NEXT_PUBLIC_** and never expose it to browser code. Before
+touching Storage, the tool calls a non-destructive RPC whose execute permission is
+granted only to the database `service_role`.
 
 If **NODE_ENV=production**, the tool also refuses to continue unless:
 
