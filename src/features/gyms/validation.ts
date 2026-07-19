@@ -12,6 +12,39 @@ export const gymSlugInput = z.string().trim().toLowerCase()
 
 const optionalText = (length: number) => z.string().trim().max(length).optional().transform((value) => value || null);
 
+const optionalEmail = z.string().trim().max(320).optional().transform((value, context) => {
+  if (!value) return null;
+  const parsed = z.email().safeParse(value.toLowerCase());
+  if (!parsed.success) {
+    context.addIssue({ code: "custom", message: "Enter a valid contact email" });
+    return z.NEVER;
+  }
+  return parsed.data;
+});
+
+const optionalWebsite = z.string().trim().max(2_048).optional().transform((value, context) => {
+  if (!value) return null;
+  const parsed = z.url({ protocol: /^https?$/ }).safeParse(value);
+  if (!parsed.success) {
+    context.addIssue({ code: "custom", message: "Enter a complete http:// or https:// website address" });
+    return z.NEVER;
+  }
+  return parsed.data;
+});
+
+export const firstGymDetailsSchema = z.object({
+  name: z.string().trim().min(2, "Enter a gym name").max(120),
+  slug: gymSlugInput,
+  contactEmail: optionalEmail,
+  contactPhone: optionalText(40),
+  websiteUrl: optionalWebsite,
+  addressLine1: optionalText(160),
+  addressLine2: optionalText(160),
+  city: optionalText(100),
+  postcode: optionalText(20),
+  countryCode: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/, "Use a two-letter country code").default("GB"),
+});
+
 export const gymDetailsSchema = z.object({
   name: z.string().trim().min(2).max(120),
   slug: gymSlugInput,
@@ -71,3 +104,4 @@ export async function hasValidLogoSignature(file: File) {
 
 export type GymDetails = z.infer<typeof gymDetailsSchema>;
 export type GymBranding = z.infer<typeof gymBrandingSchema>;
+export type FirstGymDetails = z.infer<typeof firstGymDetailsSchema>;

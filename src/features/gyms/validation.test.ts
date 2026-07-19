@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contrastRatio, gymBrandingSchema, gymSlugInput, hasValidLogoSignature, logoFileSchema, readableForeground } from "./validation";
+import { contrastRatio, firstGymDetailsSchema, gymBrandingSchema, gymSlugInput, hasValidLogoSignature, logoFileSchema, readableForeground } from "./validation";
 
 describe("gym onboarding validation", () => {
   it("normalises safe slugs and rejects reserved or malformed paths", () => {
@@ -13,6 +13,16 @@ describe("gym onboarding validation", () => {
     expect(gymBrandingSchema.safeParse({ primaryColour: "#777777", accentColour: "#D9FF45", backgroundColour: "#888888", welcomeMessage: "Welcome" }).success).toBe(false);
     expect(readableForeground("#17211B")).toBe("#FFFFFF");
     expect(readableForeground("#D9FF45")).toBe("#000000");
+  });
+
+  it("validates the small first-gym form and normalises optional contact details", () => {
+    expect(firstGymDetailsSchema.parse({
+      name: " North Wall ", slug: "north-wall", contactEmail: "", contactPhone: "",
+      websiteUrl: "https://north.example", addressLine1: "", addressLine2: "",
+      city: "", postcode: "", countryCode: "gb",
+    })).toMatchObject({ name: "North Wall", contactEmail: null, websiteUrl: "https://north.example", countryCode: "GB" });
+    expect(firstGymDetailsSchema.safeParse({ name: "North Wall", slug: "north-wall", websiteUrl: "javascript:alert(1)", countryCode: "GB" }).success).toBe(false);
+    expect(firstGymDetailsSchema.safeParse({ name: "North Wall", slug: "north-wall", contactEmail: "invalid", countryCode: "GB" }).success).toBe(false);
   });
 
   it("allow-lists raster logo types and caps files at two megabytes", () => {

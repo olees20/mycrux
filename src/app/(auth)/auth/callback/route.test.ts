@@ -26,6 +26,11 @@ describe("auth callback", () => {
     expect(response.headers.get("location")).toBe("https://crux.example/onboarding");
   });
 
+  it("preserves an invitation token through email confirmation", async () => {
+    const response = await GET(new Request("https://crux.example/auth/callback?code=valid&next=%2Fonboarding%3Ftoken%3Dopaque-token"));
+    expect(response.headers.get("location")).toBe("https://crux.example/onboarding?token=opaque-token");
+  });
+
   it("rejects an external redirect destination", async () => {
     const response = await GET(new Request(
       "https://crux.example/auth/callback?code=valid&next=https://attacker.example/steal",

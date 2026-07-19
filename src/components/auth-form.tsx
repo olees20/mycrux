@@ -49,9 +49,9 @@ export function AuthForm({
         </button>
       </form>
       {mode === "login" ? (
-        <div className="mt-6 flex justify-between text-sm"><Link className="font-bold underline" href="/register">Create account</Link><Link className="underline" href="/forgot-password">Forgot password?</Link></div>
+        <div className="mt-6 flex justify-between text-sm"><Link className="font-bold underline" href={next ? `/register?next=${encodeURIComponent(next)}` : "/register"}>Create account</Link><Link className="underline" href="/forgot-password">Forgot password?</Link></div>
       ) : null}
-      {mode === "register" ? <p className="mt-6 text-sm">Already registered? <Link className="font-bold underline" href="/login">Sign in</Link></p> : null}
+      {mode === "register" ? <p className="mt-6 text-sm">Already registered? <Link className="font-bold underline" href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}>Sign in</Link></p> : null}
       {mode === "forgot" ? <p className="mt-6 text-sm"><Link className="font-bold underline" href="/login">Back to sign in</Link></p> : null}
     </section>
   );

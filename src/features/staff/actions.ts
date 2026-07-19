@@ -13,7 +13,7 @@ import type { StaffActionState } from "./state";
 const gymSlug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const staffRole = z.enum(staffRoleKeys);
 const uuid = z.uuid();
-const inviteSchema = z.object({ gymSlug, email: z.email().trim().toLowerCase().max(320), role: staffRole });
+const inviteSchema = z.object({ gymSlug, email: z.email().trim().toLowerCase().max(320), role: z.union([z.literal("member"), staffRole]) });
 const invitationSchema = z.object({ gymSlug, invitationId: uuid });
 const accessSchema = z.object({
   gymSlug,

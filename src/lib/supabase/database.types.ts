@@ -1862,6 +1862,7 @@ export type Database = {
           "postcode": string | null
           "contact_email": string | null
           "contact_phone": string | null
+          "website_url": string | null
           "disciplines": string[]
           "opening_hours_text": string | null
           "day_pass_registration_enabled": boolean
@@ -1871,6 +1872,8 @@ export type Database = {
           "suspended_at": string | null
           "suspension_reason": string | null
           "status_before_suspension": string | null
+          "setup_current_step": number
+          "setup_completed_at": string | null
         }
         Insert: {
           "id"?: string
@@ -1891,6 +1894,7 @@ export type Database = {
           "postcode"?: string | null
           "contact_email"?: string | null
           "contact_phone"?: string | null
+          "website_url"?: string | null
           "disciplines"?: string[]
           "opening_hours_text"?: string | null
           "day_pass_registration_enabled"?: boolean
@@ -1900,6 +1904,8 @@ export type Database = {
           "suspended_at"?: string | null
           "suspension_reason"?: string | null
           "status_before_suspension"?: string | null
+          "setup_current_step"?: number
+          "setup_completed_at"?: string | null
         }
         Update: {
           "id"?: string
@@ -1920,6 +1926,7 @@ export type Database = {
           "postcode"?: string | null
           "contact_email"?: string | null
           "contact_phone"?: string | null
+          "website_url"?: string | null
           "disciplines"?: string[]
           "opening_hours_text"?: string | null
           "day_pass_registration_enabled"?: boolean
@@ -1929,6 +1936,8 @@ export type Database = {
           "suspended_at"?: string | null
           "suspension_reason"?: string | null
           "status_before_suspension"?: string | null
+          "setup_current_step"?: number
+          "setup_completed_at"?: string | null
         }
         Relationships: []
       }
@@ -4070,6 +4079,10 @@ export type Database = {
         Args: { invitation_token_hash: string }
         Returns: string
       }
+      get_gym_invitation_status: {
+        Args: { invitation_token_hash: string }
+        Returns: { state: string; gym_id: string | null; gym_slug: string | null; gym_name: string | null; invitation_role: string | null }[]
+      }
       create_staff_invitation: {
         Args: { target_gym_id: string; invite_email: string; target_role_key: string; invitation_token_hash: string; invitation_expires_at: string }
         Returns: string
@@ -4077,6 +4090,14 @@ export type Database = {
       create_gym_tenant: {
         Args: { actor_profile_id: string; owner_profile_id: string; configuration: Json; branding: Json }
         Returns: string
+      }
+      create_my_first_gym: {
+        Args: { configuration: Json }
+        Returns: string
+      }
+      is_gym_slug_available: {
+        Args: { requested_slug: string }
+        Returns: boolean
       }
       attach_wall_image: {
         Args: { target_gym_id: string; target_wall_id: string; object_path: string; image_alt_text: string; image_width: number; image_height: number; image_captured_at?: string | null }
@@ -4264,6 +4285,10 @@ export type Database = {
       update_gym_configuration: {
         Args: { target_gym_id: string; gym_name: string; gym_slug: string; gym_timezone: string; gym_country_code: string; gym_address_line_1: string; gym_address_line_2: string; gym_city: string; gym_postcode: string; gym_contact_email: string; gym_contact_phone: string; gym_disciplines: string[]; gym_opening_hours_text: string; allow_public_join_requests: boolean; brand_primary_colour: string; brand_accent_colour: string; brand_background_colour: string; brand_welcome_message: string }
         Returns: string
+      }
+      save_gym_setup_step: {
+        Args: { target_gym_id: string; target_step: number; configuration?: Json }
+        Returns: number
       }
       set_gym_logo_path: {
         Args: { target_gym_id: string; object_path: string }

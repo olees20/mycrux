@@ -26,9 +26,13 @@ function RoleOptions({ canAssignManager }: { canAssignManager: boolean }) {
   return <>{(Object.entries(roleLabels) as Array<[StaffRoleKey, string]>).filter(([key]) => canAssignManager || key !== "gym_manager").map(([key, label]) => <option key={key} value={key}>{label}</option>)}</>;
 }
 
+function InvitationRoleOptions({ canAssignManager }: { canAssignManager: boolean }) {
+  return <><option value="member">Member</option><RoleOptions canAssignManager={canAssignManager} /></>;
+}
+
 export function InviteStaffForm({ gymSlug, canAssignManager }: { gymSlug: string; canAssignManager: boolean }) {
   const [state, action, pending] = useActionState(inviteStaffAction, initialStaffActionState);
-  return <form action={action} className="mt-5 grid gap-4 md:grid-cols-[1fr_14rem_auto] md:items-end"><input name="gymSlug" type="hidden" value={gymSlug} /><label className="text-sm font-semibold">Email<input className="mt-2 min-h-11 w-full rounded-lg border border-[var(--border)] px-3 font-normal" name="email" required type="email" /></label><label className="text-sm font-semibold">Role<select className="mt-2 min-h-11 w-full rounded-lg border border-[var(--border)] bg-white px-3 font-normal" name="role"><RoleOptions canAssignManager={canAssignManager} /></select></label><button className="min-h-11 rounded-lg bg-[var(--foreground)] px-5 text-sm font-bold text-white disabled:opacity-60" disabled={pending}>{pending ? "Creating…" : "Create invitation"}</button><div className="md:col-span-3"><ActionResult state={state} /></div></form>;
+  return <form action={action} className="mt-5 grid gap-4 md:grid-cols-[1fr_14rem_auto] md:items-end"><input name="gymSlug" type="hidden" value={gymSlug} /><label className="text-sm font-semibold">Email<input className="mt-2 min-h-11 w-full rounded-lg border border-[var(--border)] px-3 font-normal" name="email" required type="email" /></label><label className="text-sm font-semibold">Access<select className="mt-2 min-h-11 w-full rounded-lg border border-[var(--border)] bg-white px-3 font-normal" name="role"><InvitationRoleOptions canAssignManager={canAssignManager} /></select></label><button className="min-h-11 rounded-lg bg-[var(--foreground)] px-5 text-sm font-bold text-white disabled:opacity-60" disabled={pending}>{pending ? "Creating…" : "Create invitation"}</button><div className="md:col-span-3"><ActionResult state={state} /></div></form>;
 }
 
 export function InvitationControls({ gymSlug, invitationId }: { gymSlug: string; invitationId: string }) {

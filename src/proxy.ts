@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getPublicEnvironment } from "@/env/client";
+import { isGymMembershipProtectedPath, shouldRedirectToOnboarding } from "@/lib/auth/onboarding-redirect";
 import type { Database } from "@/lib/supabase/database.types";
 
 function redirectWithCookies(request: NextRequest, response: NextResponse, path: string, correlationId: string) {
@@ -38,7 +39,7 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getUser();
   const user = data.user;
   const pathname = request.nextUrl.pathname;
-  const protectedPage = pathname.startsWith("/app") || pathname.startsWith("/staff") || pathname.startsWith("/g/");
+  const protectedPage = isGymMembershipProtectedPath(pathname);
   const onboarding = pathname.startsWith("/onboarding");
   const resetPassword = pathname.startsWith("/reset-password");
   const platformPage = pathname.startsWith("/platform/");
@@ -53,16 +54,22 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && protectedPage) {
-    const { data: memberships } = await supabase
+    const { data: memberships, error: membershipError } = await supabase
       .from("gym_memberships")
       .select("role")
       .eq("profile_id", user.id)
       .eq("status", "active")
       .limit(10);
 
-    if (!memberships?.length) return redirectWithCookies(request, response, "/onboarding", correlationId);
+    if (shouldRedirectToOnboarding({
+      activeMembershipCount: memberships?.length ?? 0,
+      lookupFailed: Boolean(membershipError),
+      pathname,
+    })) return redirectWithCookies(request, response, "/onboarding", correlationId);
     if (
       (pathname.startsWith("/staff") || /^\/g\/[^/]+\/staff(?:\/|$)/.test(pathname))
+      && !membershipError
+      && memberships
       && !memberships.some(({ role }) => ["owner", "staff", "route_setter"].includes(role))
     ) {
       return redirectWithCookies(request, response, "/app", correlationId);

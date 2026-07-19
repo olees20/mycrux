@@ -27,7 +27,7 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
   const { gym } = await requireActiveGymContext({ gymSlug, allowedRoles: ["owner", "staff", "route_setter"] });
   const supabase = await createServerComponentSupabaseClient();
   const [{ data: settings }, { data: membership }] = await Promise.all([
-    supabase.from("gyms").select("timezone").eq("id", gym.id).single(),
+    supabase.from("gyms").select("timezone,setup_current_step,setup_completed_at").eq("id", gym.id).single(),
     supabase.from("gym_memberships").select("staff_role_id").eq("id", gym.membershipId).single(),
   ]);
   const { data: staffRole } = membership?.staff_role_id
@@ -89,6 +89,7 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
   ];
 
   return <div className="mx-auto max-w-7xl">
+    {gym.role === "owner" && !settings?.setup_completed_at ? <section className="mb-8 rounded-3xl border border-lime-300 bg-lime-50 p-6" aria-labelledby="setup-heading"><p className="text-sm font-bold uppercase tracking-[0.2em] text-lime-900">Setup in progress</p><h2 className="mt-2 text-2xl font-black text-lime-950" id="setup-heading">Finish preparing {gym.name}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-lime-950">Your progress is saved. Complete the remaining essentials so routes, staff, and member access start with the right defaults.</p><Link className="mt-5 inline-flex min-h-11 items-center rounded-full bg-[var(--foreground)] px-5 text-sm font-bold text-[var(--surface)] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2" href={`/g/${gym.slug}/staff/setup?step=${settings?.setup_current_step ?? 1}`}>Continue setup</Link></section> : null}
     <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">{roleName} command centre</p><h1 className="mt-2 text-4xl font-black">Today at {gym.name}</h1><p className="mt-2 text-sm text-[var(--muted)]">{range.label} · {timezone}</p></div><div className="flex max-w-2xl flex-wrap gap-2">{quickActions.map(([label, path]) => <Link className="inline-flex min-h-12 items-center rounded-xl bg-[var(--foreground)] px-5 text-sm font-bold text-white" href={`/g/${gym.slug}/staff/${path}`} key={path}>{label}</Link>)}</div></div>
 
     <section aria-label="Today's operational KPIs" className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

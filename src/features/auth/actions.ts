@@ -10,6 +10,7 @@ import { requireRouteUser } from "@/lib/server/authorization";
 import { logger } from "@/lib/server/logger";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 import type { AuthActionState } from "./state";
+import { invitationFailureMessage } from "./invitations";
 
 const email = z.string().trim().toLowerCase().email().max(320);
 const password = z.string().min(12, "Use at least 12 characters").max(128);
@@ -18,6 +19,7 @@ const registerSchema = z.object({
   email,
   password,
   displayName: z.string().trim().min(1).max(80),
+  next: z.string().optional(),
 });
 const forgotSchema = z.object({ email });
 const resetSchema = z.object({ password });
@@ -68,12 +70,13 @@ export async function registerAction(
 
   const supabase = await createServerComponentSupabaseClient();
   const environment = getPublicEnvironment();
+  const next = safeRedirectPath(parsed.data.next, "/onboarding");
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { display_name: parsed.data.displayName },
-      emailRedirectTo: `${environment.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/onboarding`,
+      emailRedirectTo: `${environment.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 
@@ -145,16 +148,20 @@ export async function acceptInvitationAction(
   const supabase = await createServerComponentSupabaseClient();
   await requireRouteUser(supabase);
   const invitationTokenHash = createHash("sha256").update(parsed.data.token).digest("hex");
-  const { error } = await supabase.rpc("accept_gym_invitation", {
+  const { data: membershipId, error } = await supabase.rpc("accept_gym_invitation", {
     invitation_token_hash: invitationTokenHash,
   });
 
   if (error) {
     logger.write({ level: "warn", event: "invitation_acceptance_failed", error });
-    return { status: "error", message: "This invitation is invalid, expired, or belongs to another account." };
+    return { status: "error", message: invitationFailureMessage(error) };
   }
 
-  redirect("/app");
+  const { data: membership } = await supabase.from("gym_memberships").select("gym_id,role").eq("id", membershipId).single();
+  if (!membership) redirect("/app");
+  const { data: gym } = await supabase.from("gyms").select("slug").eq("id", membership.gym_id).single();
+  if (!gym) redirect("/app");
+  redirect(`/g/${gym.slug}/${["owner", "staff", "route_setter"].includes(membership.role) ? "staff" : "app"}`);
 }
 
 export async function requestMembershipAction(
