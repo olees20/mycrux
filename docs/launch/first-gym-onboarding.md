@@ -13,7 +13,7 @@ This checklist is for the onboarding lead and the gym owner. Use synthetic data 
 ## Configure with synthetic data
 
 - [ ] Create the gym with its final name, unique slug, timezone and accessible brand colours; verify the canonical URL.
-- [ ] Invite one owner backup, route setter and front-desk/staff account; verify least-privilege navigation and remove unused invitations.
+- [ ] Have one backup administrator, route setter and front-desk worker join through Member access, assign their least-privilege roles in Team, and verify navigation boundaries.
 - [ ] Create walls/sectors and at least two representative routes, including image alt text and a usable non-visual route description.
 - [ ] Configure an event, announcement, community moderation flow, competition and notification preferences.
 - [ ] Add the legally approved waiver as a new version, review effective/required dates and test accept/decline/guest paths. Never reuse the demo waiver.
@@ -40,6 +40,6 @@ This checklist is for the onboarding lead and the gym owner. Use synthetic data 
 ## First week
 
 - [ ] Review failed sign-ins, check-ins, waiver blocks, subscription/webhook state, upload errors and support requests daily using minimum necessary data.
-- [ ] Confirm staff roles and outstanding invitations after day one and day seven.
+- [ ] Confirm staff roles and member-access QR/code availability after day one and day seven.
 - [ ] Hold a day-seven review covering adoption, accessibility, support load, privacy requests, incidents, billing and whether pilot scope should expand.
 - [ ] Assign every follow-up a severity, named owner and due date; keep provider adapters, member commerce and 3D/AI disabled unless separately approved.

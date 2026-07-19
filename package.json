@@ -16,7 +16,8 @@
     "test:db": "bash scripts/run-database-tests.sh",
     "test:e2e": "playwright test",
     "test:ci": "npm run lint && npm run type-check && npm test",
-    "db:types": "node scripts/generate-database-types.mjs"
+    "db:types": "node scripts/generate-database-types.mjs",
+    "db:reset-data": "node scripts/reset-database-data.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

@@ -65,7 +65,6 @@ export async function requireActiveGymContext(options?: Readonly<{
 }>): Promise<Readonly<{ gym: AccessibleGym; gyms: AccessibleGym[] }>> {
   const supabase = options?.client ?? await createServerComponentSupabaseClient();
   const user = await requireUser({ redirectTo: "/app", client: supabase });
-  if (!user.email_confirmed_at) redirect("/verify-email");
 
   const gyms = await listAccessibleGyms(user.id, supabase);
   if (!gyms.length) redirect("/onboarding");

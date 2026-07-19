@@ -15,7 +15,6 @@ export async function GET(request: Request) {
   const supabase = await createRouteHandlerSupabaseClient();
   const { data, error: authError } = await supabase.auth.getUser();
   if (authError || !data.user) return response({ error: "Authentication is required" }, correlationId, 401);
-  if (!data.user.email_confirmed_at) return response({ error: "A verified email is required" }, correlationId, 403);
 
   const candidate = new URL(request.url).searchParams.get("slug") ?? "";
   const parsed = gymSlugInput.safeParse(candidate);

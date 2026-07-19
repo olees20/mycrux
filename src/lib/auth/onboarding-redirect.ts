@@ -6,6 +6,15 @@ export function isGymMembershipProtectedPath(pathname: string) {
     || /^\/g\/[^/]+\/(?:app|staff)(?:\/|$)/.test(pathname);
 }
 
+export function isAuthenticationProtectedPath(pathname: string) {
+  return isGymMembershipProtectedPath(pathname)
+    || pathname.startsWith("/onboarding")
+    || pathname.startsWith("/reset-password")
+    || pathname.startsWith("/platform/")
+    || pathname === "/join"
+    || pathname.startsWith("/join/");
+}
+
 export function shouldRedirectToOnboarding({
   activeMembershipCount,
   lookupFailed,

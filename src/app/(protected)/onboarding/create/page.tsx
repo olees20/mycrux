@@ -7,7 +7,6 @@ import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 export default async function CreateFirstGymPage() {
   const supabase = await createServerComponentSupabaseClient();
   const user = await requireUser({ redirectTo: "/onboarding/create", client: supabase });
-  if (!user.email_confirmed_at) redirect("/verify-email");
   const { data: memberships, error } = await supabase
     .from("gym_memberships")
     .select("id")
@@ -23,7 +22,7 @@ export default async function CreateFirstGymPage() {
       <p className="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-[var(--muted)]">Create a gym</p>
       <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Set up your organisation</h1>
       <p className="mt-4 mb-8 max-w-3xl text-lg leading-8 text-[var(--muted)]">
-        Start with the essentials. You will become the first owner and can finish branding, opening hours, routes, billing, and team invitations from the gym dashboard.
+        Start with the essentials. You will become the first owner and can finish branding, opening hours, routes, member access, billing, and team roles from the gym dashboard.
       </p>
       <FirstGymForm defaultEmail={user.email ?? ""} />
     </div>

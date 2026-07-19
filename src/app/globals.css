@@ -50,3 +50,14 @@ body {
 @media (forced-colors: active) {
   :focus-visible { outline-color: Highlight; }
 }
+
+@media print {
+  body * { visibility: hidden; }
+  .member-access-print-header,
+  .member-access-print-header *,
+  .member-access-print-card,
+  .member-access-print-card * { visibility: visible; }
+  .member-access-print-header { position: absolute; inset: 0 auto auto 0; width: 100%; padding: 1rem; text-align: center; }
+  .member-access-print-card { position: absolute; inset: 7rem auto auto 50%; width: min(90vw, 45rem); transform: translateX(-50%); border: 0; box-shadow: none; }
+  .member-access-screen-only { display: none !important; }
+}

@@ -87,7 +87,6 @@ export async function createFirstGymAction(
   const supabase = await createServerComponentSupabaseClient();
   const user = await getVerifiedUser(supabase);
   if (!user) return { status: "error", message: "Your session has expired. Sign in and try again.", values };
-  if (!user.email_confirmed_at) redirect("/verify-email");
 
   const { error } = await supabase.rpc("create_my_first_gym", { configuration: parsed.data });
   if (error) {
@@ -96,7 +95,7 @@ export async function createFirstGymAction(
       return { status: "error", message: "That gym address is already in use. Choose another slug.", fieldErrors: { slug: "Choose a different gym address" }, values };
     }
     if (error.code === "42501") {
-      return { status: "error", message: "Only a verified account without an active gym can create its first organisation.", values };
+      return { status: "error", message: "Only an active account without an active gym can create its first organisation.", values };
     }
     return { status: "error", message: "The gym could not be created. Your information is still here—check it and try again.", values };
   }

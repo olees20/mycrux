@@ -1,4 +1,4 @@
--- Self-service onboarding remains caller-bound, verified, atomic, one-time and audited.
+-- Self-service onboarding remains caller-bound, atomic, one-time and audited.
 begin;
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data)
@@ -78,10 +78,19 @@ $$;
 
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000008', true);
 do $$
+declare created_gym_id uuid;
 begin
-  perform public.create_my_first_gym('{"name":"Unverified Gym","slug":"unverified-onboarding-gym","countryCode":"GB"}');
-  raise exception 'An unverified account created a gym';
-exception when insufficient_privilege then null; end;
+  created_gym_id := public.create_my_first_gym('{"name":"Immediate Access Gym","slug":"immediate-access-gym","countryCode":"GB"}');
+  if not exists (
+    select 1 from public.gym_memberships
+    where gym_id = created_gym_id
+      and profile_id = auth.uid()
+      and role = 'owner'
+      and status = 'active'
+  ) then
+    raise exception 'Account without confirmation did not become the new gym owner';
+  end if;
+end;
 $$;
 
 set local role anon;

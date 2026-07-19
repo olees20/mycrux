@@ -27,22 +27,6 @@ function validateHash(hash: string) {
   return sha256Hash.parse(hash);
 }
 
-async function findInvitationByTokenHash(hash: string) {
-  const client = createPrivilegedSupabaseClient();
-  const { data, error } = await client
-    .from("invitations")
-    .select("*")
-    .eq("token_hash", validateHash(hash))
-    .maybeSingle();
-
-  if (error) {
-    logger.write({ level: "error", event: "privileged_token_lookup_failed", context: { table: "invitations" }, error });
-    throw normalizeDatabaseError(error, "The signed access lookup failed");
-  }
-
-  return data;
-}
-
 async function findGuestInviteByTokenHash(hash: string) {
   const client = createPrivilegedSupabaseClient();
   const { data, error } = await client
@@ -161,7 +145,6 @@ async function getIntegrationDeliveryHealth(){
 }
 
 export const privilegedAccess = Object.freeze({
-  findInvitationByTokenHash,
   findGuestInviteByTokenHash,
   findPassByReferenceHash,
   createGymTenant,

@@ -190,14 +190,6 @@ ${renderRelations(tables, relationshipsByTable, "Tables")}
 ${renderRelations(views, relationshipsByTable, "Views")}
     }
     Functions: {
-      accept_gym_invitation: {
-        Args: { invitation_token_hash: string }
-        Returns: string
-      }
-      create_staff_invitation: {
-        Args: { target_gym_id: string; invite_email: string; target_role_key: string; invitation_token_hash: string; invitation_expires_at: string }
-        Returns: string
-      }
       create_gym_tenant: {
         Args: { actor_profile_id: string; owner_profile_id: string; configuration: Json; branding: Json }
         Returns: string
@@ -373,14 +365,6 @@ ${renderRelations(views, relationshipsByTable, "Views")}
       request_account_deletion: { Args: { request_reason: string }; Returns: string }
       deactivate_my_account: { Args: { deactivation_reason: string }; Returns: undefined }
       export_member_subject_data: { Args: { target_gym_id: string; target_profile_id: string }; Returns: Json }
-      resend_staff_invitation: {
-        Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
-        Returns: string
-      }
-      revoke_staff_invitation: {
-        Args: { target_invitation_id: string }
-        Returns: string
-      }
       update_staff_access: {
         Args: { target_membership_id: string; target_role_key: string; target_status: string }
         Returns: string

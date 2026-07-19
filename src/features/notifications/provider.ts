@@ -2,7 +2,7 @@ import "server-only";
 
 export type DeliveryEnvelope = Readonly<{
   gymId: string;
-  category: "announcement" | "event" | "invitation";
+  category: "announcement" | "event";
   sourceId: string;
 }>;
 

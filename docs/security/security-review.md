@@ -7,7 +7,7 @@ Reviewed 18 July 2026. This is a repository-level review, not a claim of complia
 - Added a site-wide Content Security Policy, clickjacking protection, MIME-sniffing protection, a restrictive permissions policy, referrer policy, and production HSTS.
 - Added fixed-window authentication throttles for login, registration, and password-reset requests. Keys combine action, source address, and normalized email and are SHA-256 hashed before storage. Responses remain generic to resist account enumeration.
 - Expanded structured-log redaction to cover credentials, sessions, signatures, bearer values, JWT-shaped values, sensitive URL query parameters, nested data, and oversized strings.
-- Confirmed local-only redirect validation, webhook raw-body signature verification, request size limits, cryptographically secure QR/invitation tokens, centralized media validation, server-only privileged clients, and tenant-scoped RLS/RPC authorization.
+- Confirmed local-only redirect validation, webhook raw-body signature verification, request size limits, cryptographically secure QR and guest-access tokens, centralized media validation, server-only privileged clients, and tenant-scoped RLS/RPC authorization.
 - Confirmed there is no rich-text or raw-HTML rendering surface. React escaping is the current XSS boundary for user-authored text.
 
 ## Prioritized residual risks

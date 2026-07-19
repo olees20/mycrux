@@ -1,6 +1,5 @@
 "use server";
 
-import { createHash } from "node:crypto";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getPublicEnvironment } from "@/env/client";
@@ -10,7 +9,6 @@ import { requireRouteUser } from "@/lib/server/authorization";
 import { logger } from "@/lib/server/logger";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
 import type { AuthActionState } from "./state";
-import { invitationFailureMessage } from "./invitations";
 
 const email = z.string().trim().toLowerCase().email().max(320);
 const password = z.string().min(12, "Use at least 12 characters").max(128);
@@ -23,8 +21,6 @@ const registerSchema = z.object({
 });
 const forgotSchema = z.object({ email });
 const resetSchema = z.object({ password });
-const invitationSchema = z.object({ token: z.string().trim().min(16).max(512) });
-const membershipRequestSchema = z.object({ gymId: z.uuid() });
 
 function formValues(formData: FormData) {
   return Object.fromEntries(formData.entries());
@@ -52,9 +48,19 @@ export async function loginAction(
   if (error || !data.user) {
     return { status: "error", message: "Email or password is incorrect" };
   }
-  if (!data.user.email_confirmed_at) redirect("/verify-email");
 
   redirect(safeRedirectPath(parsed.data.next));
+}
+
+function registrationErrorMessage(error: Readonly<{ code?: string; message?: string }>) {
+  const description = `${error.code ?? ""} ${error.message ?? ""}`.toLowerCase();
+  if (description.includes("password") && (description.includes("weak") || description.includes("invalid"))) {
+    return "Choose a stronger password with at least 12 characters.";
+  }
+  if (description.includes("already") || description.includes("exists") || description.includes("registered")) {
+    return "An account may already use that email. Try signing in or reset your password.";
+  }
+  return "We could not create that account. Check the details and try again.";
 }
 
 export async function registerAction(
@@ -69,23 +75,28 @@ export async function registerAction(
   }
 
   const supabase = await createServerComponentSupabaseClient();
-  const environment = getPublicEnvironment();
   const next = safeRedirectPath(parsed.data.next, "/onboarding");
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { display_name: parsed.data.displayName },
-      emailRedirectTo: `${environment.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 
   if (error) {
     logger.write({ level: "warn", event: "registration_failed", error });
-    return { status: "error", message: "We could not create that account. Check the details and try again." };
+    return { status: "error", message: registrationErrorMessage(error) };
+  }
+  if (!data.user || !data.session) {
+    logger.write({ level: "warn", event: "registration_session_missing" });
+    return {
+      status: "error",
+      message: "Your account could not be signed in automatically. Try signing in or contact support.",
+    };
   }
 
-  redirect("/verify-email");
+  redirect(next);
 }
 
 export async function forgotPasswordAction(
@@ -136,57 +147,4 @@ export async function logoutAction() {
   const supabase = await createServerComponentSupabaseClient();
   await supabase.auth.signOut();
   redirect("/login");
-}
-
-export async function acceptInvitationAction(
-  _state: AuthActionState,
-  formData: FormData,
-): Promise<AuthActionState> {
-  const parsed = invitationSchema.safeParse(formValues(formData));
-  if (!parsed.success) return { status: "error", message: validationMessage(parsed.error) };
-
-  const supabase = await createServerComponentSupabaseClient();
-  await requireRouteUser(supabase);
-  const invitationTokenHash = createHash("sha256").update(parsed.data.token).digest("hex");
-  const { data: membershipId, error } = await supabase.rpc("accept_gym_invitation", {
-    invitation_token_hash: invitationTokenHash,
-  });
-
-  if (error) {
-    logger.write({ level: "warn", event: "invitation_acceptance_failed", error });
-    return { status: "error", message: invitationFailureMessage(error) };
-  }
-
-  const { data: membership } = await supabase.from("gym_memberships").select("gym_id,role").eq("id", membershipId).single();
-  if (!membership) redirect("/app");
-  const { data: gym } = await supabase.from("gyms").select("slug").eq("id", membership.gym_id).single();
-  if (!gym) redirect("/app");
-  redirect(`/g/${gym.slug}/${["owner", "staff", "route_setter"].includes(membership.role) ? "staff" : "app"}`);
-}
-
-export async function requestMembershipAction(
-  _state: AuthActionState,
-  formData: FormData,
-): Promise<AuthActionState> {
-  const parsed = membershipRequestSchema.safeParse(formValues(formData));
-  if (!parsed.success) return { status: "error", message: validationMessage(parsed.error) };
-
-  const supabase = await createServerComponentSupabaseClient();
-  const user = await requireRouteUser(supabase);
-  const { error } = await supabase.from("gym_memberships").insert({
-    gym_id: parsed.data.gymId,
-    profile_id: user.id,
-    role: "member",
-    status: "invited",
-  });
-
-  if (error?.code === "23505") {
-    return { status: "success", message: "Your request is already with this gym." };
-  }
-  if (error) {
-    logger.write({ level: "warn", event: "membership_request_failed", context: { gymId: parsed.data.gymId }, error });
-    return { status: "error", message: "The request could not be sent. Check the gym and try again." };
-  }
-
-  return { status: "success", message: "Request sent. The gym will review your membership." };
 }

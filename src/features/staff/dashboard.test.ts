@@ -4,18 +4,18 @@ import { gymDayRange, resolveDashboardPermissions } from "./dashboard";
 describe("staff dashboard permissions", () => {
   it("limits front desk staff to reception and event work", () => {
     expect(resolveDashboardPermissions("staff", ["events.manage", "guests.check_in", "waivers.manage"])).toEqual({
-      frontDesk: true, routeSetting: false, management: false, events: true, announcements: false, invitations: false,
+      frontDesk: true, routeSetting: false, management: false, events: true, announcements: false,
     });
   });
 
   it("limits route setters to their operational queue", () => {
     expect(resolveDashboardPermissions("route_setter", ["routes.manage", "route_feedback.read"])).toEqual({
-      frontDesk: false, routeSetting: true, management: false, events: false, announcements: false, invitations: false,
+      frontDesk: false, routeSetting: true, management: false, events: false, announcements: false,
     });
   });
 
   it("gives owners all dashboard sections", () => {
-    expect(Object.values(resolveDashboardPermissions("owner", []))).toEqual([true, true, true, true, true, true]);
+    expect(Object.values(resolveDashboardPermissions("owner", []))).toEqual([true, true, true, true, true]);
   });
 });
 

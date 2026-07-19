@@ -15,9 +15,6 @@ erDiagram
   GYMS ||--o{ GYM_MEMBERSHIPS : has
   PROFILES ||--o{ GYM_MEMBERSHIPS : joins
   STAFF_ROLES o|--o{ GYM_MEMBERSHIPS : refines
-  GYMS ||--o{ INVITATIONS : issues
-  STAFF_ROLES o|--o{ INVITATIONS : proposes
-  PROFILES ||--o{ INVITATIONS : creates
 ```
 
 ## Gym operations ER diagram
@@ -94,7 +91,8 @@ erDiagram
 | `gym_slug_history` | Append-only record of controlled tenant slug changes. |
 | `staff_roles` | Gym-specific named capability bundles; archived rather than reused. |
 | `gym_memberships` | User-to-gym role and invited/active/suspended/left lifecycle. |
-| `invitations` | Hashed, expiring member/staff invitations and acceptance history. |
+| `gym_join_credentials` | Current QR identifier and unambiguous short code for authenticated, member-only gym joining. |
+| `invitations` | Inaccessible historical member/staff invitation records retained pending a separately reviewed retention migration. No current application flow reads or writes this table. |
 
 ### Content, routes, and operations
 
@@ -157,7 +155,7 @@ The three billing tables represent **gym-to-platform software billing only**. Gy
 
 ## Migration and seed order
 
-1. `20260717160000_foundation.sql` creates identity, tenant, membership, and invitations.
+1. `20260717160000_foundation.sql` creates identity, tenant, membership, and the now-deprecated historical invitation table.
 2. `20260717161000_gym_operations.sql` creates gym content, routes, events, waivers, guests, and passes.
 3. `20260717162000_engagement_and_commercial.sql` creates engagement, competitions, notifications, audit, and B2B billing.
 4. `supabase/seed.sql` inserts one fictional gym; platform-admin, owner, staff, route-setter, and member profiles; and a guest invitation with deterministic UUIDs.

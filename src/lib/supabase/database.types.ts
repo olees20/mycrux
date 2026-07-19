@@ -1941,6 +1941,44 @@ export type Database = {
         }
         Relationships: []
       }
+      "gym_join_credentials": {
+        Row: {
+          "gym_id": string
+          "join_identifier": string
+          "join_code": string
+          "enabled": boolean
+          "rotated_at": string
+          "created_at": string
+          "updated_at": string
+        }
+        Insert: {
+          "gym_id": string
+          "join_identifier"?: string
+          "join_code": string
+          "enabled"?: boolean
+          "rotated_at"?: string
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Update: {
+          "gym_id"?: string
+          "join_identifier"?: string
+          "join_code"?: string
+          "enabled"?: boolean
+          "rotated_at"?: string
+          "created_at"?: string
+          "updated_at"?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_join_credentials_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: true
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       "integration_connections": {
         Row: {
           "id": string
@@ -4074,18 +4112,30 @@ export type Database = {
       }
     }
     Functions: {
+      administrative_reset_application_data: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_chat_channel_summaries: { Args: { target_gym_id: string }; Returns: { id: string; name: string; description: string | null; channel_type: string; is_read_only: boolean; created_at: string; unread: number }[] }
-      accept_gym_invitation: {
-        Args: { invitation_token_hash: string }
+      get_gym_join_status: {
+        Args: { join_reference: string; reference_kind: string }
+        Returns: { state: string; gym_id: string | null; gym_slug: string | null; gym_name: string | null }[]
+      }
+      join_gym_as_member: {
+        Args: { join_reference: string; reference_kind: string }
         Returns: string
       }
-      get_gym_invitation_status: {
-        Args: { invitation_token_hash: string }
-        Returns: { state: string; gym_id: string | null; gym_slug: string | null; gym_name: string | null; invitation_role: string | null }[]
+      get_gym_join_credentials: {
+        Args: { target_gym_id: string }
+        Returns: { join_identifier: string; join_code: string; enabled: boolean; rotated_at: string }[]
       }
-      create_staff_invitation: {
-        Args: { target_gym_id: string; invite_email: string; target_role_key: string; invitation_token_hash: string; invitation_expires_at: string }
-        Returns: string
+      rotate_gym_join_credentials: {
+        Args: { target_gym_id: string }
+        Returns: { join_identifier: string; join_code: string; enabled: boolean; rotated_at: string }[]
+      }
+      set_gym_join_enabled: {
+        Args: { target_gym_id: string; access_enabled: boolean }
+        Returns: boolean
       }
       create_gym_tenant: {
         Args: { actor_profile_id: string; owner_profile_id: string; configuration: Json; branding: Json }
@@ -4270,14 +4320,6 @@ export type Database = {
       request_account_deletion: { Args: { request_reason: string }; Returns: string }
       deactivate_my_account: { Args: { deactivation_reason: string }; Returns: undefined }
       export_member_subject_data: { Args: { target_gym_id: string; target_profile_id: string }; Returns: Json }
-      resend_staff_invitation: {
-        Args: { target_invitation_id: string; invitation_token_hash: string; invitation_expires_at: string }
-        Returns: string
-      }
-      revoke_staff_invitation: {
-        Args: { target_invitation_id: string }
-        Returns: string
-      }
       update_staff_access: {
         Args: { target_membership_id: string; target_role_key: string; target_status: string }
         Returns: string

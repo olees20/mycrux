@@ -7,7 +7,6 @@ export type DashboardPermissions = Readonly<{
   management: boolean;
   events: boolean;
   announcements: boolean;
-  invitations: boolean;
 }>;
 
 export function resolveDashboardPermissions(role: GymRole, capabilities: readonly string[]): DashboardPermissions {
@@ -19,7 +18,6 @@ export function resolveDashboardPermissions(role: GymRole, capabilities: readonl
     management: owner || has("staff.manage"),
     events: has("events.manage"),
     announcements: has("announcements.manage"),
-    invitations: owner || has("staff.manage"),
   };
 }
 

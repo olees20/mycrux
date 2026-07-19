@@ -15,9 +15,9 @@ The complete synthetic inventory, role credentials, guided stakeholder journey a
 
 Row Level Security is enabled and forced by the Prompt 4 migration. Policy intent and the privileged service-role boundary are documented in [`docs/security/rls-policies.md`](../docs/security/rls-policies.md). Run `tests/rls_security.sql` after migrations and seed when reviewing security changes.
 
-Authentication profile creation, public join requests, and single-use invitation acceptance are covered by `tests/auth_onboarding.sql`.
+Authentication profile creation and direct-membership denial are covered by `tests/auth_onboarding.sql`. QR/manual member joining, rotation, disablement, role isolation and rate limiting are covered by `tests/gym_member_access.sql`.
 
-Canonical staff-role delegation, audited invitation management, suspension, and denied permission boundaries are covered by `tests/staff_permissions.sql`.
+Canonical post-join staff-role delegation, suspension, auditing, and denied permission boundaries are covered by `tests/staff_permissions.sql`.
 
 Gym creation, owner configuration, accessible branding, controlled slugs, and tenant-scoped Storage policies are covered by `tests/gym_branding.sql`.
 

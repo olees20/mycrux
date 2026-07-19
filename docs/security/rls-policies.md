@@ -9,7 +9,7 @@ All exposed base tables have RLS enabled and forced by `20260717163000_row_level
 - An active membership is required for gym access. `invited`, `suspended`, and `left` memberships grant no tenant access.
 - Owners implicitly have all gym capabilities. Staff capabilities come from their active `staff_roles` record. Route setters receive only route, feedback, and competition-scoring capabilities.
 - Platform admins do not receive a JWT/RLS bypass. Cross-tenant administration must go through a server-only `service_role` path, and the action must create an audit event.
-- Guest invitation, waiver, and pass tokens are verified by narrow server-only handlers. Tokens are stored as hashes and anonymous callers cannot query their tables.
+- Guest preregistration, waiver, and pass tokens are verified by narrow server-only handlers. Tokens are stored as hashes and anonymous callers cannot query their tables. These guest flows are separate from gym membership joining.
 - Gym URL slugs and the remembered active-gym cookie are routing hints only. Server layouts resolve them against the caller's active memberships, and tenant queries use only the resulting validated gym UUID.
 
 ## Protected columns
@@ -26,8 +26,9 @@ Update triggers reject changes to `gym_id` and identity/ownership columns such a
 | `gym_branding` | Active gym members. | Owners manage branding. |
 | `gym_slug_history` | Owners of the associated gym. | Append-only through the audited owner configuration RPC. |
 | `staff_roles` | Active gym members. | Canonical system bundles are database-provisioned and immutable to authenticated clients; owners manage only future custom roles. |
-| `gym_memberships` | Self and active members of the same gym. | Audited RPCs enforce owner/manager staff-role boundaries and suspension; public join requests remain constrained to the caller's own `member`/`invited` row. |
-| `invitations` | Owners and gym managers. | Direct authenticated mutation is revoked. Audited RPCs issue, rotate, and revoke hashed links within delegation boundaries; verified users accept through the atomic single-use RPC. |
+| `gym_memberships` | Self and active members of the same gym. | The QR/code join RPC derives the caller and creates only standard member access; audited RPCs enforce owner/manager staff-role boundaries and suspension. |
+| `gym_join_credentials` | Owners and staff with `staff.manage`. | Direct mutation is revoked. Authenticated security-definer RPCs resolve/join while rotation, disablement, history and brute-force limits are enforced server-side. |
+| `invitations` | No application role; RLS has no policies and table privileges are revoked. | No application writes. Historical rows are retained pending a separately reviewed retention migration. |
 | `announcements` | Active members see only due, unexpired published posts for their audience; permitted staff see drafts and schedules. | Staff with `announcements.manage`; author and tenant remain immutable. |
 | `walls` | Active members see active, unarchived walls. | Staff with `routes.manage`. |
 | `wall_images` | Active members see current, unarchived images. | Staff with `routes.manage`; wall and tenant remain immutable. |
@@ -72,4 +73,4 @@ Gym creation is the only Prompt 9 service-role mutation. A normal session first 
 
 ## Verification
 
-`supabase/tests/rls_security.sql` uses real `anon`, `authenticated`, and `BYPASSRLS service_role` roles. It verifies own-gym reads and writes, denied cross-gym reads/writes, denied membership/platform-admin escalation, protected-column enforcement, route-setter scope, platform-admin JWT isolation, anonymous denial, and service-role cross-tenant access. `supabase/tests/auth_onboarding.sql` verifies automatic profile creation, atomic single-use invitation acceptance, correct staff-role assignment, constrained public membership requests, and denial for unverified accounts.
+`supabase/tests/rls_security.sql` uses real `anon`, `authenticated`, and `BYPASSRLS service_role` roles. It verifies own-gym reads and writes, denied cross-gym reads/writes, denied membership/platform-admin escalation, protected-column enforcement, route-setter scope, platform-admin JWT isolation, anonymous denial, and service-role cross-tenant access. `supabase/tests/auth_onboarding.sql` verifies automatic profile creation and removal of direct public membership insertion. `supabase/tests/gym_member_access.sql` covers current QR/code joining and credential management.

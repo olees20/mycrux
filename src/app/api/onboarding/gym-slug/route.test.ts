@@ -21,7 +21,7 @@ describe("gym slug availability endpoint", () => {
   });
 
   it("validates input before performing an authenticated availability lookup", async () => {
-    supabaseMocks.getUser.mockResolvedValue({ data: { user: { id: "user-1", email_confirmed_at: "2026-07-19T00:00:00Z" } }, error: null });
+    supabaseMocks.getUser.mockResolvedValue({ data: { user: { id: "user-1", email_confirmed_at: null } }, error: null });
     const invalid = await GET(new Request("http://localhost/api/onboarding/gym-slug?slug=admin"));
     expect(await invalid.json()).toMatchObject({ available: false, valid: false });
     expect(supabaseMocks.rpc).not.toHaveBeenCalled();

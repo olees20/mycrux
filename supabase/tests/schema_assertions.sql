@@ -74,7 +74,7 @@ begin
     where id = '55000000-0000-4000-8000-000000000001'
       and status = 'pending'
   ) then
-    raise exception 'Expected the representative guest invitation';
+    raise exception 'Expected the representative guest preregistration';
   end if;
 end;
 $$;

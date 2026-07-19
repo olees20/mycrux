@@ -8,7 +8,6 @@ type GuestItem = { id: string; guest_name: string; status: string; expires_at: s
 type CheckInItem = { id: string; checked_in_at: string; source: string; member: { display_name: string } | null; guest_invites: { guest_name: string } | null };
 type RouteIssue = { id: string; feedback_kind: string; issue_status: string; created_at: string; comment: string | null; routes: { name: string | null; colour: string; grade: string } | null };
 type AnnouncementItem = { id: string; title: string; status: string; published_at: string | null };
-type InvitationItem = { id: string; email: string; role: string; expires_at: string };
 
 function Kpi({ value, label, definition }: { value: number; label: string; definition: string }) {
   return <article className="rounded-2xl border border-[var(--border)] bg-white p-5"><p className="text-4xl font-black tabular-nums">{value}</p><h2 className="mt-2 font-black">{label}</h2><p className="mt-1 text-xs leading-5 text-[var(--muted)]">{definition}</p></article>;
@@ -42,7 +41,6 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
   let checkIns: CheckInItem[] = [];
   let routeIssues: RouteIssue[] = [];
   let announcements: AnnouncementItem[] = [];
-  let invitations: InvitationItem[] = [];
   let waiverExceptionIds = new Set<string>();
 
   if (permissions.events) {
@@ -72,11 +70,6 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
     const { data } = await supabase.from("announcements").select("id,title,status,published_at").eq("gym_id", gym.id).in("status", ["draft", "published"]).is("archived_at", null).order("created_at", { ascending: false });
     announcements = data ?? [];
   }
-  if (permissions.invitations) {
-    const { data } = await supabase.from("invitations").select("id,email,role,expires_at").eq("gym_id", gym.id).eq("status", "pending").order("expires_at");
-    invitations = data ?? [];
-  }
-
   const roleName = gym.role === "owner" ? "Owner" : staffRole?.name ?? (gym.role === "route_setter" ? "Route setter" : "Staff");
   const time = (value: string) => new Intl.DateTimeFormat("en-GB", { timeZone: timezone, timeStyle: "short" }).format(new Date(value));
   const quickActions = [
@@ -84,7 +77,7 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
     ...(permissions.routeSetting ? [["Routes", "routes"], ["Route issues", "route-feedback"], ["Route analytics", "route-analytics"]] : []),
     ...(permissions.events ? [["Events", "events"]] : []),
     ...(permissions.announcements ? [["Announcements", "announcements"]] : []),
-    ...(permissions.management ? [["Team access", "team"]] : []),
+    ...(permissions.management ? [["Member access", "member-access"], ["Team access", "team"]] : []),
     ...(gym.role === "owner" ? [["Gym analytics", "analytics"], ["Plans & usage", "plans"], ["Billing", "billing"], ["Integrations", "integrations"], ["Export data", "export"], ["Privacy requests", "privacy"], ["Gym settings", "settings"]] : []),
   ];
 
@@ -98,7 +91,6 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
       {permissions.frontDesk ? <Kpi definition={`Pending or registered guest passes expiring during ${range.label}.`} label="Guest arrivals due" value={guests.length} /> : null}
       {permissions.frontDesk ? <Kpi definition="Today's due guests missing at least one currently required waiver." label="Waiver exceptions" value={waiverExceptionIds.size} /> : null}
       {permissions.routeSetting ? <Kpi definition="Open or under-review spinning hold, dirty hold and other route issues; all dates." label="Open route issues" value={routeIssues.length} /> : null}
-      {permissions.invitations ? <Kpi definition="Pending staff invitations that have not yet been accepted, revoked or expired by workflow state." label="Pending invitations" value={invitations.length} /> : null}
       {permissions.announcements ? <Kpi definition="Current announcement records in draft state; all creation dates." label="Draft announcements" value={announcements.filter(({ status }) => status === "draft").length} /> : null}
     </section>
 
@@ -109,7 +101,7 @@ export default async function StaffPage({ params }: { params: Promise<{ gymSlug:
 
       {permissions.routeSetting ? <Queue description="Oldest unresolved safety and maintenance feedback first." title="Route-setting queue"><div className="space-y-3">{routeIssues.slice(0, 10).map((issue) => <Link className="block min-h-14 rounded-xl bg-stone-50 p-4" href={`/g/${gym.slug}/staff/route-feedback`} key={issue.id}><span className="text-xs font-bold uppercase text-amber-800">{issue.feedback_kind.replaceAll("_", " ")} · {issue.issue_status}</span><strong className="mt-1 block">{issue.routes?.name || `${issue.routes?.colour ?? "Route"} ${issue.routes?.grade ?? ""}`}</strong>{issue.comment ? <span className="mt-1 line-clamp-2 block text-sm text-[var(--muted)]">{issue.comment}</span> : null}</Link>)}{routeIssues.length ? null : <Empty>No unresolved route issues.</Empty>}</div></Queue> : null}
 
-      {permissions.management ? <Queue description="Publishing and access work that needs management attention." title="Manager queue"><div className="space-y-5">{permissions.announcements ? <div><div className="flex items-center justify-between"><h3 className="font-black">Announcements</h3><Link className="text-sm font-bold underline" href={`/g/${gym.slug}/staff/announcements`}>Manage</Link></div><ul className="mt-2 space-y-2">{announcements.slice(0, 4).map((item) => <li className="rounded-lg bg-stone-50 p-3 text-sm" key={item.id}><strong>{item.title}</strong><span className="ml-2 text-xs uppercase text-[var(--muted)]">{item.status}</span></li>)}</ul></div> : null}{permissions.invitations ? <div><div className="flex items-center justify-between"><h3 className="font-black">Pending invitations</h3><Link className="text-sm font-bold underline" href={`/g/${gym.slug}/staff/team`}>Manage</Link></div><ul className="mt-2 space-y-2">{invitations.slice(0, 8).map((item) => <li className="rounded-lg bg-stone-50 p-3 text-sm" key={item.id}><strong>{item.email}</strong><span className="block text-xs text-[var(--muted)]">{item.role} · expires {new Intl.DateTimeFormat("en-GB", { timeZone: timezone, dateStyle: "medium" }).format(new Date(item.expires_at))}</span></li>)}</ul></div> : null}</div></Queue> : null}
+      {permissions.management ? <Queue description="Publishing and access work that needs management attention." title="Manager queue"><div className="space-y-5">{permissions.announcements ? <div><div className="flex items-center justify-between"><h3 className="font-black">Announcements</h3><Link className="text-sm font-bold underline" href={`/g/${gym.slug}/staff/announcements`}>Manage</Link></div><ul className="mt-2 space-y-2">{announcements.slice(0, 4).map((item) => <li className="rounded-lg bg-stone-50 p-3 text-sm" key={item.id}><strong>{item.title}</strong><span className="ml-2 text-xs uppercase text-[var(--muted)]">{item.status}</span></li>)}</ul></div> : null}<div><h3 className="font-black">Member access</h3><p className="mt-1 text-sm text-[var(--muted)]">Display or print the gym QR and short code.</p><Link className="mt-3 inline-flex min-h-11 items-center font-bold underline" href={`/g/${gym.slug}/staff/member-access`}>Manage member access</Link></div></div></Queue> : null}
     </div>
   </div>;
 }

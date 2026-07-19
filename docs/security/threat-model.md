@@ -25,7 +25,7 @@ The primary assets are member identities and privacy choices, gym tenancy data, 
 - User-provided redirect destinations pass through the local-path allow-list. Provider-created Stripe URLs are accepted only from the authenticated server-side Stripe SDK.
 - SQL is parameterized through Supabase queries and RPCs. Security-definer routines set an empty `search_path`, qualify objects, and check actor and tenant context. RLS integration tests exercise two tenants.
 - Media processing checks declared type, extension, file signature, decoded image dimensions and pixel count, then re-encodes images to strip metadata. Database storage-path and quota controls provide a second boundary.
-- Invitation, guest, member check-in, and QR references use cryptographically secure random bytes. Sensitive references are hashed at rest and time-bounded where appropriate.
+- Guest preregistration, member check-in, and QR references use cryptographically secure random bytes. Sensitive references are hashed at rest and time-bounded where appropriate.
 
 ## Security assumptions
 

@@ -155,7 +155,7 @@ export function FirstGymForm({ defaultEmail = "" }: { defaultEmail?: string }) {
         <Button className="min-h-12 px-7" disabled={pending || availability === "checking" || availability === "unavailable"} type="submit">
           {pending ? "Creating your gym…" : "Create gym"}
         </Button>
-        <p className="text-sm leading-6 text-[var(--muted)]">You will become the gym owner and can invite your team next.</p>
+        <p className="text-sm leading-6 text-[var(--muted)]">You will become the gym owner and can publish the member QR and assign team roles next.</p>
       </div>
     </form>
   );

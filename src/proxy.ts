@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getPublicEnvironment } from "@/env/client";
-import { isGymMembershipProtectedPath, shouldRedirectToOnboarding } from "@/lib/auth/onboarding-redirect";
+import { isAuthenticationProtectedPath, isGymMembershipProtectedPath, shouldRedirectToOnboarding } from "@/lib/auth/onboarding-redirect";
 import type { Database } from "@/lib/supabase/database.types";
 
 function redirectWithCookies(request: NextRequest, response: NextResponse, path: string, correlationId: string) {
@@ -40,17 +40,10 @@ export async function proxy(request: NextRequest) {
   const user = data.user;
   const pathname = request.nextUrl.pathname;
   const protectedPage = isGymMembershipProtectedPath(pathname);
-  const onboarding = pathname.startsWith("/onboarding");
-  const resetPassword = pathname.startsWith("/reset-password");
-  const platformPage = pathname.startsWith("/platform/");
 
-  if ((protectedPage || onboarding || resetPassword || platformPage) && !user) {
+  if (isAuthenticationProtectedPath(pathname) && !user) {
     const next = encodeURIComponent(`${pathname}${request.nextUrl.search}`);
     return redirectWithCookies(request, response, `/login?next=${next}`, correlationId);
-  }
-
-  if (user && !user.email_confirmed_at && (protectedPage || onboarding || platformPage)) {
-    return redirectWithCookies(request, response, "/verify-email", correlationId);
   }
 
   if (user && protectedPage) {

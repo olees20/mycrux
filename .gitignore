@@ -12,3 +12,5 @@ supabase/.temp/
 !.env.example
 .DS_Store
 npm-debug.log*
+.vercel
+.env*

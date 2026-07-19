@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isGymMembershipProtectedPath, shouldRedirectToOnboarding } from "./onboarding-redirect";
+import { isAuthenticationProtectedPath, isGymMembershipProtectedPath, shouldRedirectToOnboarding } from "./onboarding-redirect";
 
 describe("membership-empty onboarding redirects", () => {
+  it("requires authentication for QR and manual gym join destinations", () => {
+    expect(isAuthenticationProtectedPath("/join/123e4567-e89b-42d3-a456-426614174000")).toBe(true);
+    expect(isAuthenticationProtectedPath("/join")).toBe(true);
+  });
+
   it.each(["/app", "/app/routes", "/staff", "/staff/team", "/g/demo/app", "/g/demo/staff/routes"])(
     "protects gym application path %s",
     (pathname) => expect(isGymMembershipProtectedPath(pathname)).toBe(true),

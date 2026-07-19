@@ -23,7 +23,7 @@ The repeatable seed creates two unrelated tenants:
 ### 1. Gym owner — configuration and business state
 
 1. Sign in as the gym owner and open the staff dashboard. Point out gym-scoped navigation, member/staff switching, and role/capability boundaries.
-2. Open Team to show canonical roles and invitations. Do not send email; copy only synthetic invitation links.
+2. Open Member access to show the QR code and short gym code, then open Team to show how an owner assigns canonical staff roles after a person joins as a member.
 3. Open Walls and routes. Show Demo Slab, Demo Overhang, the two published routes, bulk publish/retire controls, and the 2D overlay workflow. Upload a disposable synthetic wall image if demonstrating media processing.
 4. Open Events, create a draft event, then inspect the seeded Demo Technique Social and attendee export.
 5. Open Waivers and inspect the explicitly fictional optional version. Explain immutable versions and the required real-world legal review.
