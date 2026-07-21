@@ -15,6 +15,9 @@ erDiagram
   GYMS ||--o{ GYM_MEMBERSHIPS : has
   PROFILES ||--o{ GYM_MEMBERSHIPS : joins
   STAFF_ROLES o|--o{ GYM_MEMBERSHIPS : refines
+  GYMS ||--|| GYM_FLOORPLANS : maps
+  GYM_FLOORPLANS ||--o{ WALL_STRUCTURES : contains
+  WALL_STRUCTURES o|--o{ WALLS : supports_future_faces
 ```
 
 ## Gym operations ER diagram
@@ -93,15 +96,22 @@ erDiagram
 | `gym_memberships` | User-to-gym role and invited/active/suspended/left lifecycle. |
 | `gym_join_credentials` | Current QR identifier and unambiguous short code for authenticated, member-only gym joining. |
 | `invitations` | Inaccessible historical member/staff invitation records retained pending a separately reviewed retention migration. No current application flow reads or writes this table. |
+| `gym_floorplans` | The gym's metre-coordinate navigation canvas, grid preferences, and optimistic save revision. |
+| `wall_structures` | Physical wall segments with metre endpoints, thickness, generated length, face revision, and soft-deletion history. |
 
 ### Content, routes, and operations
 
 | Table | Purpose and retention |
 | --- | --- |
 | `announcements` | Audience-scoped gym notices with publication/archive state. |
-| `walls` | Stable physical wall/area records. |
+| `walls` | Ordered climbing faces attached to wall structures, with width, height, angle, notes, and permanent wall-canvas configuration. Legacy unstructured wall/area records remain supported. Routes already reference these stable face IDs. |
+| `wall_holds` | Reusable physical holds and volumes positioned in face-local metre coordinates, with safe icon keys, transforms, and bounded metadata. Holds deliberately have no route relationship. |
+| `hold_inventory_events` | Append-only physical hold details, placement, wall, condition, and route-assignment history. Current state remains on the single canonical `wall_holds` record. |
+| `route_holds` | Current many-to-many mapping from a route to reusable holds on the same measured face. Hold-side edits update this table transactionally; no hold-owned route list is duplicated. |
 | `wall_images` | Versioned wall photographs with dimensions and private storage paths. |
 | `routes` | Gym climbs, grades, lifecycle, setter, wall, and normalized image overlay JSON. |
+| `route_versions` | Immutable route-definition snapshot for every create, edit, lifecycle, hold, tag, or wall modification. It stores set/planned-removal/actual-removal dates, setter, grade, wall measurements, field-level changes, and analytical before/after values. |
+| `route_version_holds` | Immutable hold membership and physical transform snapshots for an exact route revision. |
 | `route_tags` | Normalized labels attached to a route. |
 | `route_media` | Route image/video metadata and processing status. |
 | `route_feedback` | One climber's grade/quality/comment feedback per route. |

@@ -10,7 +10,7 @@ The reset preserves:
 - the **platform_plans** application reference data;
 - Auth users and their **profiles** in the default application-data-only mode.
 
-It removes all tenant and user-generated application records, including gyms, memberships, walls, routes, ascents, invitations, subscriptions, billing projections, integration records, notifications, audit records, privacy records and private rate-limit records. It uses one transactional **TRUNCATE ... RESTART IDENTITY CASCADE** over the explicitly audited application-table inventory. Uploaded files are removed through the Supabase Storage API from the six application-managed buckets; the buckets themselves remain.
+It removes all tenant and user-generated application records, including gyms, memberships, floorplans, wall structures, walls, routes, ascents, invitations, subscriptions, billing projections, integration records, notifications, audit records, privacy records and private rate-limit records. It uses one transactional **TRUNCATE ... RESTART IDENTITY CASCADE** over every public base table except the explicitly preserved `profiles` and `platform_plans` roots, plus private operational-state tables. Uploaded files are removed through the Supabase Storage API from the six application-managed buckets; the buckets themselves remain.
 
 The optional **--include-auth-users** flag additionally deletes every Supabase Auth user through the supported Admin API. The corresponding profiles then disappear through the existing Auth foreign-key cascade.
 

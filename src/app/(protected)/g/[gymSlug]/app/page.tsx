@@ -1,26 +1,50 @@
-import Link from "next/link";
-import { loadGymHomeData } from "@/features/home/data";
+import { MemberGymMap } from "@/components/member-gym-map";
+import type { MemberMapStructure } from "@/features/floorplan/member-map";
 import { requireActiveGymContext } from "@/lib/server/gym-context";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
-
-function Empty({ children }: { children: React.ReactNode }) { return <p className="rounded-xl bg-black/5 p-4 text-sm text-[var(--muted)]">{children}</p>; }
-function Failed() { return <p className="rounded-xl bg-red-50 p-4 text-sm text-red-800">This section could not be loaded. Refresh to try again.</p>; }
-function Section({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
-  const destination = title === "Latest announcements" ? href?.replace(/\/community$/, "/announcements") : href;
-  return <section className="rounded-2xl border border-black/10 bg-[var(--surface)] p-5 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-xl font-black">{title}</h2>{destination ? <Link className="text-sm font-bold underline underline-offset-4" href={destination}>View all</Link> : null}</div>{children}</section>;
-}
 
 export default async function GymHome({ params }: { params: Promise<{ gymSlug: string }> }) {
   const { gymSlug } = await params;
   const { gym } = await requireActiveGymContext({ gymSlug });
   const supabase = await createServerComponentSupabaseClient();
-  const { data: details } = await supabase.from("gyms").select("name,timezone,status,opening_hours_text,city").eq("id", gym.id).single();
-  const { data: branding } = await supabase.from("gym_branding").select("welcome_message").eq("gym_id", gym.id).maybeSingle();
-  const timezone = details?.timezone ?? "Europe/London";
-  const home = await loadGymHomeData(gym.id, timezone, new Date(), gym.role !== "member");
-  const base = `/g/${gym.slug}/app`;
-  const names = new Map((home.profiles.data ?? []).map((profile) => [profile.id, profile.display_name]));
-  const dateTime = (value: string) => new Intl.DateTimeFormat("en-GB", { timeZone: timezone, dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  const [{ data: details }, { data: floorplan }, { data: structureRows }, { data: faceRows }] = await Promise.all([
+    supabase.from("gyms").select("name").eq("id", gym.id).single(),
+    supabase.from("gym_floorplans").select("id,width_metres,height_metres,grid_size_metres,show_grid").eq("gym_id", gym.id).maybeSingle(),
+    supabase.from("wall_structures").select("id,floorplan_id,name,start_x_metres,start_y_metres,end_x_metres,end_y_metres,thickness_metres").eq("gym_id", gym.id).is("archived_at", null).order("created_at"),
+    supabase.from("walls").select("id,wall_structure_id,name,width_metres,height_metres,climbing_angle_degrees").eq("gym_id", gym.id).eq("is_active", true).is("archived_at", null).not("wall_structure_id", "is", null).order("sort_order").order("id"),
+  ]);
 
-  return <div className="mx-auto max-w-7xl"><header className="rounded-3xl bg-[var(--foreground)] p-6 text-[var(--background)] md:p-10"><p className="text-sm font-bold uppercase tracking-[0.2em] opacity-70">{details?.name ?? gym.name}</p><h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">{branding?.welcome_message ?? "Ready for your next climb?"}</h1><div className="mt-6 flex flex-wrap gap-3"><Link className="rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-black text-[var(--accent-foreground)]" href={`${base}/routes`}>Browse routes</Link><Link className="rounded-full border border-current px-5 py-3 text-sm font-bold" href={`${base}/events`}>Upcoming events</Link>{gym.role !== "member" ? <Link className="rounded-full border border-current px-5 py-3 text-sm font-bold" href={`/g/${gym.slug}/staff`}>Staff dashboard</Link> : null}</div></header><div className="mt-6 grid gap-6 lg:grid-cols-3"><div className="space-y-6 lg:col-span-2"><Section href={`${base}/community`} title="Latest announcements">{home.announcements.error ? <Failed /> : home.announcements.data?.length ? <ul className="space-y-3">{home.announcements.data.map((item) => <li className="rounded-xl border border-black/10 p-4" key={item.id}><h3 className="font-bold">{item.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--muted)]">{item.body}</p></li>)}</ul> : <Empty>No current announcements. Important gym updates will appear here.</Empty>}</Section><Section href={`${base}/routes`} title="Set today">{home.routes.error ? <Failed /> : home.routes.data?.length ? <ul className="grid gap-3 sm:grid-cols-2">{home.routes.data.map((route) => <li className="rounded-xl border border-black/10 p-4" key={route.id}><p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{route.colour}</p><h3 className="mt-1 font-black">{route.name ?? "Unnamed route"}</h3><p className="mt-1 text-sm">{route.grade}</p></li>)}</ul> : <Empty>No routes have been published as set today. Browse the full route list for current climbs.</Empty>}</Section><Section href={`${base}/community`} title="Community preview">{home.community.error || home.profiles.error ? <Failed /> : home.community.data?.length ? <ul className="space-y-3">{home.community.data.map((post) => <li className="rounded-xl border border-black/10 p-4" key={post.id}><p className="text-xs font-bold text-[var(--muted)]">{names.get(post.author_id) ?? "Gym member"}</p><h3 className="mt-1 font-bold">{post.title ?? post.post_type}</h3><p className="mt-2 line-clamp-2 text-sm leading-6">{post.body}</p></li>)}</ul> : <Empty>The community is quiet for now. Start a conversation from the community page.</Empty>}</Section></div><aside className="space-y-6"><Section href={`${base}/events`} title="Coming up">{home.events.error ? <Failed /> : home.events.data?.length ? <ul className="space-y-3">{home.events.data.map((event) => <li className="rounded-xl border border-black/10 p-4" key={event.id}><h3 className="font-bold">{event.title}</h3><p className="mt-1 text-sm text-[var(--muted)]">{dateTime(event.starts_at)}</p>{event.location ? <p className="mt-1 text-sm">{event.location}</p> : null}</li>)}</ul> : <Empty>No upcoming published events.</Empty>}</Section><Section title="Opening information"><p className="whitespace-pre-line text-sm leading-6">{details?.opening_hours_text ?? "Opening hours have not been added yet."}</p><p className="mt-3 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{details?.city ? `${details.city} · ` : ""}Gym account: {details?.status ?? "active"}</p></Section>{home.occupancyEnabled ? <Section title="Live occupancy"><Empty>Occupancy integration is enabled, but no live source is connected. No count is being estimated.</Empty></Section> : null}<Section title={home.competition.data?.name ?? "Leaderboard preview"}>{home.competition.error || home.leaderboard.error ? <Failed /> : home.leaderboard.data?.length ? <ol className="space-y-2">{home.leaderboard.data.map((entry, index) => <li className="flex justify-between rounded-lg bg-black/5 p-3 text-sm" key={`${entry.profile_id}-${index}`}><span><strong className="mr-2">{entry.rank ?? index + 1}</strong>{entry.profile_id ? names.get(entry.profile_id) ?? "Climber" : "Guest climber"}</span><span className="font-bold">{entry.total_score ?? 0}</span></li>)}</ol> : <Empty>No active competition scores to preview.</Empty>}</Section></aside></div></div>;
+  const facesByStructure = new Map<string, MemberMapStructure["faces"]>();
+  for (const face of faceRows ?? []) {
+    if (!face.wall_structure_id || face.width_metres === null || face.height_metres === null || face.climbing_angle_degrees === null) continue;
+    facesByStructure.set(face.wall_structure_id, [...(facesByStructure.get(face.wall_structure_id) ?? []), {
+      id: face.id,
+      name: face.name,
+      widthMetres: Number(face.width_metres),
+      heightMetres: Number(face.height_metres),
+      angleDegrees: Number(face.climbing_angle_degrees),
+      routeCount: 0,
+    }]);
+  }
+  const structures: MemberMapStructure[] = (structureRows ?? []).filter((structure) => !floorplan || structure.floorplan_id === floorplan.id).map((structure) => ({
+    id: structure.id,
+    name: structure.name,
+    start: { x: Number(structure.start_x_metres), y: Number(structure.start_y_metres) },
+    end: { x: Number(structure.end_x_metres), y: Number(structure.end_y_metres) },
+    thicknessMetres: Number(structure.thickness_metres),
+    faces: facesByStructure.get(structure.id) ?? [],
+  }));
+
+  return <MemberGymMap
+    configuration={{
+      widthMetres: Number(floorplan?.width_metres ?? 60),
+      heightMetres: Number(floorplan?.height_metres ?? 40),
+      gridSizeMetres: Number(floorplan?.grid_size_metres ?? 1),
+      showGrid: floorplan?.show_grid ?? true,
+    }}
+    gymName={details?.name ?? gym.name}
+    gymSlug={gym.slug}
+    role={gym.role}
+    structures={structures}
+  />;
 }

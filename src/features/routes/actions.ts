@@ -64,7 +64,7 @@ export async function saveRouteAction(_state: RouteActionState, formData: FormDa
     grade_system: parsed.data.gradeSystem, grade: parsed.data.grade, route_type: parsed.data.discipline, setter_id: parsed.data.setterId || null,
     set_on: parsed.data.setOn || null, retire_on: parsed.data.retireOn || null, description: parsed.data.description || null, overlay,
     status: parsed.data.status, published_at: parsed.data.status === "published" ? now : null,
-    retired_at: parsed.data.status === "retired" ? now : null, archived_at: parsed.data.status === "archived" ? now : null,
+    retired_at: parsed.data.status === "retired" || parsed.data.status === "archived" ? now : null, archived_at: parsed.data.status === "archived" ? now : null,
   };
   const result = parsed.data.routeId
     ? await supabase.from("routes").update(values).eq("id", parsed.data.routeId).eq("gym_id", gym.id).select("id").single()

@@ -18,6 +18,13 @@ These records define the initial architecture for Crux, a shared multi-tenant cl
 | [010](./010-audit-logging.md) | Append-only audit trail | Accepted |
 | [011](./011-testing-strategy.md) | Layered automated testing | Accepted |
 | [012](./012-vercel-deployment.md) | Vercel deployments with isolated environments | Accepted |
+| [015](./015-interactive-gym-floorplan.md) | Metre-based interactive floorplan and wall-structure boundary | Accepted |
+| [016](./016-wall-structure-faces.md) | Reuse route-linked walls as measured climbing faces | Accepted |
+| [017](./017-scalable-wall-canvas.md) | Permanent metre-coordinate canvas for every measured face | Accepted |
+| [018](./018-route-independent-hold-library.md) | Reusable route-independent holds on measured wall faces | Accepted |
+| [019](./019-hold-based-route-history.md) | Routes as versioned many-to-many collections of physical holds | Accepted |
+| [020](./020-physical-hold-inventory.md) | Canonical physical hold inventory with derived assignments and append-only history | Accepted |
+| [021](./021-climber-digital-twin-map.md) | Read-only, progressively loaded digital-twin map for climbers | Accepted |
 
 ## System context
 

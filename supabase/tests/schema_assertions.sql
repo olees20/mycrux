@@ -6,12 +6,12 @@ declare
     'announcements', 'ascent_logs', 'audit_logs', 'billing_customers',
     'channel_members', 'chat_channels', 'comments', 'community_posts',
     'competition_routes', 'competitions', 'event_registrations', 'events',
-    'favourites', 'feature_entitlements', 'guest_invites', 'gym_branding',
-    'gym_domains', 'gym_memberships', 'gyms', 'invitations', 'messages',
+    'favourites', 'feature_entitlements', 'guest_invites', 'gym_branding', 'hold_inventory_events',
+    'gym_domains', 'gym_floorplans', 'gym_memberships', 'gyms', 'invitations', 'messages',
     'notification_preferences', 'notifications', 'partner_requests', 'passes',
-    'profiles', 'reactions', 'route_feedback', 'route_media', 'route_tags',
-    'routes', 'score_entries', 'staff_roles', 'subscriptions',
-    'waiver_acceptances', 'waiver_versions', 'waivers', 'wall_images', 'walls'
+    'profiles', 'reactions', 'route_feedback', 'route_holds', 'route_media', 'route_tags',
+    'route_version_holds', 'route_versions', 'routes', 'score_entries', 'staff_roles', 'subscriptions',
+    'waiver_acceptances', 'waiver_versions', 'waivers', 'wall_holds', 'wall_images', 'wall_structures', 'walls'
   ];
   missing_tables text[];
   missing_gym_ids text[];
@@ -75,6 +75,28 @@ begin
       and status = 'pending'
   ) then
     raise exception 'Expected the representative guest preregistration';
+  end if;
+end;
+$$;
+
+-- Advanced hold edits must remain server-authorized transactional operations.
+do $$
+begin
+  if to_regprocedure('public.save_hold_route_assignments(uuid,uuid,jsonb,jsonb)') is null
+    or to_regprocedure('public.replace_physical_hold(uuid,uuid,uuid,bigint)') is null
+    or to_regprocedure('public.retire_physical_hold(uuid,uuid,bigint)') is null
+    or to_regprocedure('public.get_route_history_analytics(uuid,date,date,uuid,uuid,text)') is null then
+    raise exception 'Advanced hold editing RPCs are missing';
+  end if;
+  if has_function_privilege('anon','public.save_hold_route_assignments(uuid,uuid,jsonb,jsonb)','execute')
+    or has_function_privilege('anon','public.replace_physical_hold(uuid,uuid,uuid,bigint)','execute')
+    or has_function_privilege('anon','public.retire_physical_hold(uuid,uuid,bigint)','execute')
+    or has_function_privilege('anon','public.get_route_history_analytics(uuid,date,date,uuid,uuid,text)','execute') then
+    raise exception 'Anonymous users can execute advanced hold editing RPCs';
+  end if;
+  if not exists(select 1 from information_schema.columns where table_schema='public' and table_name='route_versions' and column_name='changes')
+    or not exists(select 1 from information_schema.columns where table_schema='public' and table_name='route_versions' and column_name='retired_at') then
+    raise exception 'Complete route history columns are missing';
   end if;
 end;
 $$;

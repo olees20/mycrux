@@ -1727,6 +1727,14 @@ export type Database = {
           }
         ]
       }
+      "gym_floorplans": {
+        Row: { "id": string; "gym_id": string; "name": string; "width_metres": number; "height_metres": number; "grid_size_metres": number; "show_grid": boolean; "snap_to_grid": boolean; "revision": number; "created_at": string; "updated_at": string }
+        Insert: { "id"?: string; "gym_id": string; "name"?: string; "width_metres"?: number; "height_metres"?: number; "grid_size_metres"?: number; "show_grid"?: boolean; "snap_to_grid"?: boolean; "revision"?: number; "created_at"?: string; "updated_at"?: string }
+        Update: { "id"?: string; "gym_id"?: string; "name"?: string; "width_metres"?: number; "height_metres"?: number; "grid_size_metres"?: number; "show_grid"?: boolean; "snap_to_grid"?: boolean; "revision"?: number; "created_at"?: string; "updated_at"?: string }
+        Relationships: [
+          { foreignKeyName: "gym_floorplans_gym_id_fkey"; columns: ["gym_id"]; isOneToOne: true; referencedRelation: "gyms"; referencedColumns: ["id"] }
+        ]
+      }
       "gym_memberships": {
         Row: {
           "id": string
@@ -3309,6 +3317,36 @@ export type Database = {
           }
         ]
       }
+      "hold_inventory_events": {
+        Row: { "id": number; "gym_id": string; "hold_id": string; "event_type": string; "wall_id": string | null; "route_id": string | null; "snapshot": Json; "actor_profile_id": string | null; "created_at": string }
+        Insert: { "id"?: never; "gym_id": string; "hold_id": string; "event_type": string; "wall_id"?: string | null; "route_id"?: string | null; "snapshot": Json; "actor_profile_id"?: string | null; "created_at"?: string }
+        Update: { "id"?: never; "gym_id"?: string; "hold_id"?: string; "event_type"?: string; "wall_id"?: string | null; "route_id"?: string | null; "snapshot"?: Json; "actor_profile_id"?: string | null; "created_at"?: string }
+        Relationships: [
+          { foreignKeyName: "hold_inventory_events_hold_fkey"; columns: ["hold_id","gym_id"]; isOneToOne: false; referencedRelation: "wall_holds"; referencedColumns: ["id","gym_id"] },
+          { foreignKeyName: "hold_inventory_events_route_fkey"; columns: ["route_id","gym_id"]; isOneToOne: false; referencedRelation: "routes"; referencedColumns: ["id","gym_id"] }
+        ]
+      }
+      "route_holds": {
+        Row: { "gym_id": string; "route_id": string; "hold_id": string; "assigned_by": string | null; "assigned_at": string }
+        Insert: { "gym_id": string; "route_id": string; "hold_id": string; "assigned_by"?: string | null; "assigned_at"?: string }
+        Update: { "gym_id"?: string; "route_id"?: string; "hold_id"?: string; "assigned_by"?: string | null; "assigned_at"?: string }
+        Relationships: [
+          { foreignKeyName: "route_holds_route_fkey"; columns: ["route_id","gym_id"]; isOneToOne: false; referencedRelation: "routes"; referencedColumns: ["id","gym_id"] },
+          { foreignKeyName: "route_holds_hold_fkey"; columns: ["hold_id","gym_id"]; isOneToOne: false; referencedRelation: "wall_holds"; referencedColumns: ["id","gym_id"] }
+        ]
+      }
+      "route_versions": {
+        Row: { "id": string; "gym_id": string; "route_id": string; "version": number; "change_kind": string; "name": string | null; "colour": string; "grade_system": string; "grade": string; "route_type": string; "status": string; "wall_id": string; "wall_name": string; "wall_width_metres": number | null; "wall_height_metres": number | null; "wall_angle_degrees": number | null; "setter_id": string | null; "setter_name": string | null; "set_on": string | null; "retire_on": string | null; "published_at": string | null; "retired_at": string | null; "archived_at": string | null; "description": string | null; "overlay": Json | null; "tags": Json; "hold_count": number; "changed_fields": string[]; "changes": Json; "changed_by": string | null; "changed_at": string }
+        Insert: { "id"?: string; "gym_id": string; "route_id": string; "version": number; "change_kind": string; "name"?: string | null; "colour": string; "grade_system": string; "grade": string; "route_type": string; "status": string; "wall_id": string; "wall_name": string; "wall_width_metres"?: number | null; "wall_height_metres"?: number | null; "wall_angle_degrees"?: number | null; "setter_id"?: string | null; "setter_name"?: string | null; "set_on"?: string | null; "retire_on"?: string | null; "published_at"?: string | null; "retired_at"?: string | null; "archived_at"?: string | null; "description"?: string | null; "overlay"?: Json | null; "tags"?: Json; "hold_count"?: number; "changed_fields"?: string[]; "changes"?: Json; "changed_by"?: string | null; "changed_at"?: string }
+        Update: { "id"?: string; "gym_id"?: string; "route_id"?: string; "version"?: number; "change_kind"?: string; "name"?: string | null; "colour"?: string; "grade_system"?: string; "grade"?: string; "route_type"?: string; "status"?: string; "wall_id"?: string; "wall_name"?: string; "wall_width_metres"?: number | null; "wall_height_metres"?: number | null; "wall_angle_degrees"?: number | null; "setter_id"?: string | null; "setter_name"?: string | null; "set_on"?: string | null; "retire_on"?: string | null; "published_at"?: string | null; "retired_at"?: string | null; "archived_at"?: string | null; "description"?: string | null; "overlay"?: Json | null; "tags"?: Json; "hold_count"?: number; "changed_fields"?: string[]; "changes"?: Json; "changed_by"?: string | null; "changed_at"?: string }
+        Relationships: [{ foreignKeyName: "route_versions_route_fkey"; columns: ["route_id","gym_id"]; isOneToOne: false; referencedRelation: "routes"; referencedColumns: ["id","gym_id"] }]
+      }
+      "route_version_holds": {
+        Row: { "gym_id": string; "route_version_id": string; "hold_id": string; "category": string; "icon_key": string; "position_x_metres": number; "position_y_metres": number; "rotation_degrees": number; "scale_factor": number; "metadata": Json }
+        Insert: { "gym_id": string; "route_version_id": string; "hold_id": string; "category": string; "icon_key": string; "position_x_metres": number; "position_y_metres": number; "rotation_degrees": number; "scale_factor": number; "metadata": Json }
+        Update: { "gym_id"?: string; "route_version_id"?: string; "hold_id"?: string; "category"?: string; "icon_key"?: string; "position_x_metres"?: number; "position_y_metres"?: number; "rotation_degrees"?: number; "scale_factor"?: number; "metadata"?: Json }
+        Relationships: [{ foreignKeyName: "route_version_holds_version_fkey"; columns: ["route_version_id","gym_id"]; isOneToOne: false; referencedRelation: "route_versions"; referencedColumns: ["id","gym_id"] }]
+      }
       "route_tags": {
         Row: {
           "id": string
@@ -3380,6 +3418,9 @@ export type Database = {
           "archived_at": string | null
           "created_at": string
           "updated_at": string
+          "history_revision": number
+          "history_ready": boolean
+          "duplicated_from_route_id": string | null
         }
         Insert: {
           "id"?: string
@@ -3402,6 +3443,9 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "history_revision"?: number
+          "history_ready"?: boolean
+          "duplicated_from_route_id"?: string | null
         }
         Update: {
           "id"?: string
@@ -3424,6 +3468,9 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "history_revision"?: number
+          "history_ready"?: boolean
+          "duplicated_from_route_id"?: string | null
         }
         Relationships: [
           {
@@ -4050,6 +4097,25 @@ export type Database = {
           }
         ]
       }
+      "wall_holds": {
+        Row: { "id": string; "gym_id": string; "wall_id": string; "category": string; "icon_key": string; "position_x_metres": number; "position_y_metres": number; "rotation_degrees": number; "scale_factor": number; "metadata": Json; "manufacturer": string | null; "model": string | null; "colour": string; "purchased_on": string | null; "condition": string; "archived_at": string | null; "created_by": string | null; "created_at": string; "updated_at": string }
+        Insert: { "id": string; "gym_id": string; "wall_id": string; "category": string; "icon_key": string; "position_x_metres": number; "position_y_metres": number; "rotation_degrees"?: number; "scale_factor"?: number; "metadata"?: Json; "manufacturer"?: string | null; "model"?: string | null; "colour"?: string; "purchased_on"?: string | null; "condition"?: string; "archived_at"?: string | null; "created_by"?: string | null; "created_at"?: string; "updated_at"?: string }
+        Update: { "id"?: string; "gym_id"?: string; "wall_id"?: string; "category"?: string; "icon_key"?: string; "position_x_metres"?: number; "position_y_metres"?: number; "rotation_degrees"?: number; "scale_factor"?: number; "metadata"?: Json; "manufacturer"?: string | null; "model"?: string | null; "colour"?: string; "purchased_on"?: string | null; "condition"?: string; "archived_at"?: string | null; "created_by"?: string | null; "created_at"?: string; "updated_at"?: string }
+        Relationships: [
+          { foreignKeyName: "wall_holds_gym_id_fkey"; columns: ["gym_id"]; isOneToOne: false; referencedRelation: "gyms"; referencedColumns: ["id"] },
+          { foreignKeyName: "wall_holds_wall_fkey"; columns: ["wall_id","gym_id"]; isOneToOne: false; referencedRelation: "walls"; referencedColumns: ["id","gym_id"] },
+          { foreignKeyName: "wall_holds_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }
+        ]
+      }
+      "wall_structures": {
+        Row: { "id": string; "gym_id": string; "floorplan_id": string; "name": string; "start_x_metres": number; "start_y_metres": number; "end_x_metres": number; "end_y_metres": number; "thickness_metres": number; "length_metres": number; "faces_revision": number; "archived_at": string | null; "created_at": string; "updated_at": string }
+        Insert: { "id": string; "gym_id": string; "floorplan_id": string; "name": string; "start_x_metres": number; "start_y_metres": number; "end_x_metres": number; "end_y_metres": number; "thickness_metres"?: number; "length_metres"?: never; "faces_revision"?: number; "archived_at"?: string | null; "created_at"?: string; "updated_at"?: string }
+        Update: { "id"?: string; "gym_id"?: string; "floorplan_id"?: string; "name"?: string; "start_x_metres"?: number; "start_y_metres"?: number; "end_x_metres"?: number; "end_y_metres"?: number; "thickness_metres"?: number; "length_metres"?: never; "faces_revision"?: number; "archived_at"?: string | null; "created_at"?: string; "updated_at"?: string }
+        Relationships: [
+          { foreignKeyName: "wall_structures_gym_id_fkey"; columns: ["gym_id"]; isOneToOne: false; referencedRelation: "gyms"; referencedColumns: ["id"] },
+          { foreignKeyName: "wall_structures_floorplan_fkey"; columns: ["floorplan_id","gym_id"]; isOneToOne: false; referencedRelation: "gym_floorplans"; referencedColumns: ["id","gym_id"] }
+        ]
+      }
       "walls": {
         Row: {
           "id": string
@@ -4061,6 +4127,15 @@ export type Database = {
           "archived_at": string | null
           "created_at": string
           "updated_at": string
+          "wall_structure_id": string | null
+          "width_metres": number | null
+          "height_metres": number | null
+          "climbing_angle_degrees": number | null
+          "canvas_grid_size_metres": number
+          "canvas_show_grid": boolean
+          "canvas_snap_to_grid": boolean
+          "canvas_revision": number
+          "holds_revision": number
         }
         Insert: {
           "id"?: string
@@ -4072,6 +4147,15 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "wall_structure_id"?: string | null
+          "width_metres"?: number | null
+          "height_metres"?: number | null
+          "climbing_angle_degrees"?: number | null
+          "canvas_grid_size_metres"?: number
+          "canvas_show_grid"?: boolean
+          "canvas_snap_to_grid"?: boolean
+          "canvas_revision"?: number
+          "holds_revision"?: number
         }
         Update: {
           "id"?: string
@@ -4083,6 +4167,15 @@ export type Database = {
           "archived_at"?: string | null
           "created_at"?: string
           "updated_at"?: string
+          "wall_structure_id"?: string | null
+          "width_metres"?: number | null
+          "height_metres"?: number | null
+          "climbing_angle_degrees"?: number | null
+          "canvas_grid_size_metres"?: number
+          "canvas_show_grid"?: boolean
+          "canvas_snap_to_grid"?: boolean
+          "canvas_revision"?: number
+          "holds_revision"?: number
         }
         Relationships: [
           {
@@ -4091,6 +4184,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "gyms"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "walls_structure_fkey"
+            columns: ["wall_structure_id","gym_id"]
+            isOneToOne: false
+            referencedRelation: "wall_structures"
+            referencedColumns: ["id","gym_id"]
           }
         ]
       }
@@ -4119,6 +4219,41 @@ export type Database = {
       check_administrative_reset_access: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      ensure_gym_floorplan: {
+        Args: { target_gym_id: string }
+        Returns: string
+      }
+      save_gym_floorplan: {
+        Args: { target_gym_id: string; target_floorplan_id: string; expected_revision: number; floorplan_configuration: Json; wall_payload: Json }
+        Returns: Json
+      }
+      save_wall_structure_faces: {
+        Args: { target_gym_id: string; target_structure_id: string; expected_revision: number; face_payload: Json }
+        Returns: Json
+      }
+      save_wall_canvas_settings: {
+        Args: { target_gym_id: string; target_face_id: string; expected_revision: number; grid_size_metres: number; show_grid: boolean; snap_to_grid: boolean }
+        Returns: Json
+      }
+      save_wall_holds: {
+        Args: { target_gym_id: string; target_face_id: string; expected_revision: number; hold_payload: Json }
+        Returns: Json
+      }
+      save_hold_route_assignments: { Args: { target_gym_id:string; target_face_id:string; expected_route_revisions:Json; assignment_payload:Json }; Returns:Json }
+      replace_physical_hold: { Args: { target_gym_id:string; target_hold_id:string; replacement_hold_id:string; expected_holds_revision:number }; Returns:Json }
+      retire_physical_hold: { Args: { target_gym_id:string; target_hold_id:string; expected_holds_revision:number }; Returns:Json }
+      save_hold_based_route: {
+        Args: { target_gym_id: string; target_route_id: string | null; expected_revision: number; target_wall_id: string; definition: Json; selected_hold_ids: string[] }
+        Returns: Json
+      }
+      archive_hold_based_route: {
+        Args: { target_gym_id: string; target_route_id: string; expected_revision: number }
+        Returns: Json
+      }
+      duplicate_hold_based_route: {
+        Args: { target_gym_id: string; source_route_id: string; expected_revision: number }
+        Returns: Json
       }
       get_chat_channel_summaries: { Args: { target_gym_id: string }; Returns: { id: string; name: string; description: string | null; channel_type: string; is_read_only: boolean; created_at: string; unread: number }[] }
       get_gym_join_status: {
@@ -4303,6 +4438,7 @@ export type Database = {
       submit_competition_score: { Args: { target_gym_id: string; target_competition_id: string; target_competition_route_id: string; target_profile_id: string; top_achieved: boolean; zone_achieved: boolean; attempt_count: number; correction_reason?: string }; Returns: string }
       finalize_competition: { Args: { target_gym_id: string; target_competition_id: string }; Returns: string }
       get_route_setting_analytics: { Args: { target_gym_id: string; date_from: string; date_to: string; target_wall_id?: string; target_setter_id?: string; target_route_type?: string }; Returns: { route_id: string; route_name: string; colour: string; grade: string; grade_system: string; route_type: string; wall_name: string; setter_name: string; set_on: string | null; age_days: number; styles: string[]; activity_count: number; send_count: number; attempt_count: number; send_ratio: number | null; grade_soft: number; grade_right: number; grade_hard: number; open_issues: number; sample_size: number; low_sample: boolean; reset_priority: string }[] }
+      get_route_history_analytics: { Args: { target_gym_id: string; date_from: string; date_to: string; target_wall_id?: string; target_setter_id?: string; target_route_type?: string }; Returns: { route_id: string; route_name: string; version: number; change_kind: string; changed_at: string; changed_by_name: string; changed_fields: string[]; changes: Json; grade: string; grade_system: string; setter_name: string; wall_name: string; set_on: string | null; date_removed: string | null; date_archived: string | null; hold_count: number }[] }
       get_gym_operational_analytics: { Args: { target_gym_id: string; date_from: string; date_to: string }; Returns: { period: string; metric_key: string; metric_label: string; metric_value: number; definition: string }[] }
       get_integration_statuses: { Args: { target_gym_id: string }; Returns: { id: string; provider_key: string; provider_category: string; status: string; last_sync_at: string | null; last_error_code: string | null; updated_at: string; queued: number; dead_letter: number }[] }
       ingest_integration_delivery: { Args: { target_integration_id: string; target_provider_key: string; event_key: string; event_payload: Json }; Returns: string }
