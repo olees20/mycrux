@@ -4107,10 +4107,19 @@ export type Database = {
           { foreignKeyName: "wall_holds_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }
         ]
       }
+      "wall_face_vertices": {
+        Row: { "id": string; "gym_id": string; "face_id": string; "vertex_order": number; "local_u_metres": number; "local_v_metres": number; "local_depth_metres": number; "connection_key": string | null; "created_at": string }
+        Insert: { "id"?: string; "gym_id": string; "face_id": string; "vertex_order": number; "local_u_metres": number; "local_v_metres": number; "local_depth_metres"?: number; "connection_key"?: string | null; "created_at"?: string }
+        Update: { "id"?: string; "gym_id"?: string; "face_id"?: string; "vertex_order"?: number; "local_u_metres"?: number; "local_v_metres"?: number; "local_depth_metres"?: number; "connection_key"?: string | null; "created_at"?: string }
+        Relationships: [
+          { foreignKeyName: "wall_face_vertices_face_fkey"; columns: ["face_id","gym_id"]; isOneToOne: false; referencedRelation: "walls"; referencedColumns: ["id","gym_id"] },
+          { foreignKeyName: "wall_face_vertices_gym_id_fkey"; columns: ["gym_id"]; isOneToOne: false; referencedRelation: "gyms"; referencedColumns: ["id"] }
+        ]
+      }
       "wall_structures": {
-        Row: { "id": string; "gym_id": string; "floorplan_id": string; "name": string; "start_x_metres": number; "start_y_metres": number; "end_x_metres": number; "end_y_metres": number; "thickness_metres": number; "length_metres": number; "faces_revision": number; "archived_at": string | null; "created_at": string; "updated_at": string }
-        Insert: { "id": string; "gym_id": string; "floorplan_id": string; "name": string; "start_x_metres": number; "start_y_metres": number; "end_x_metres": number; "end_y_metres": number; "thickness_metres"?: number; "length_metres"?: never; "faces_revision"?: number; "archived_at"?: string | null; "created_at"?: string; "updated_at"?: string }
-        Update: { "id"?: string; "gym_id"?: string; "floorplan_id"?: string; "name"?: string; "start_x_metres"?: number; "start_y_metres"?: number; "end_x_metres"?: number; "end_y_metres"?: number; "thickness_metres"?: number; "length_metres"?: never; "faces_revision"?: number; "archived_at"?: string | null; "created_at"?: string; "updated_at"?: string }
+        Row: { "id": string; "gym_id": string; "floorplan_id": string; "name": string; "start_x_metres": number; "start_y_metres": number; "end_x_metres": number; "end_y_metres": number; "thickness_metres": number; "length_metres": number; "faces_revision": number; "base_elevation_metres": number; "archived_at": string | null; "created_at": string; "updated_at": string }
+        Insert: { "id": string; "gym_id": string; "floorplan_id": string; "name": string; "start_x_metres": number; "start_y_metres": number; "end_x_metres": number; "end_y_metres": number; "thickness_metres"?: number; "length_metres"?: never; "faces_revision"?: number; "base_elevation_metres"?: number; "archived_at"?: string | null; "created_at"?: string; "updated_at"?: string }
+        Update: { "id"?: string; "gym_id"?: string; "floorplan_id"?: string; "name"?: string; "start_x_metres"?: number; "start_y_metres"?: number; "end_x_metres"?: number; "end_y_metres"?: number; "thickness_metres"?: number; "length_metres"?: never; "faces_revision"?: number; "base_elevation_metres"?: number; "archived_at"?: string | null; "created_at"?: string; "updated_at"?: string }
         Relationships: [
           { foreignKeyName: "wall_structures_gym_id_fkey"; columns: ["gym_id"]; isOneToOne: false; referencedRelation: "gyms"; referencedColumns: ["id"] },
           { foreignKeyName: "wall_structures_floorplan_fkey"; columns: ["floorplan_id","gym_id"]; isOneToOne: false; referencedRelation: "gym_floorplans"; referencedColumns: ["id","gym_id"] }
@@ -4136,6 +4145,13 @@ export type Database = {
           "canvas_snap_to_grid": boolean
           "canvas_revision": number
           "holds_revision": number
+          "surface_kind": string
+          "profile_preset": string
+          "facing_direction": number
+          "local_offset_u_metres": number
+          "local_offset_v_metres": number
+          "local_offset_depth_metres": number
+          "material_colour": string
         }
         Insert: {
           "id"?: string
@@ -4156,6 +4172,13 @@ export type Database = {
           "canvas_snap_to_grid"?: boolean
           "canvas_revision"?: number
           "holds_revision"?: number
+          "surface_kind"?: string
+          "profile_preset"?: string
+          "facing_direction"?: number
+          "local_offset_u_metres"?: number
+          "local_offset_v_metres"?: number
+          "local_offset_depth_metres"?: number
+          "material_colour"?: string
         }
         Update: {
           "id"?: string
@@ -4176,6 +4199,13 @@ export type Database = {
           "canvas_snap_to_grid"?: boolean
           "canvas_revision"?: number
           "holds_revision"?: number
+          "surface_kind"?: string
+          "profile_preset"?: string
+          "facing_direction"?: number
+          "local_offset_u_metres"?: number
+          "local_offset_v_metres"?: number
+          "local_offset_depth_metres"?: number
+          "material_colour"?: string
         }
         Relationships: [
           {

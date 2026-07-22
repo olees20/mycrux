@@ -25,6 +25,7 @@ These records define the initial architecture for Crux, a shared multi-tenant cl
 | [019](./019-hold-based-route-history.md) | Routes as versioned many-to-many collections of physical holds | Accepted |
 | [020](./020-physical-hold-inventory.md) | Canonical physical hold inventory with derived assignments and append-only history | Accepted |
 | [021](./021-climber-digital-twin-map.md) | Read-only, progressively loaded digital-twin map for climbers | Accepted |
+| [022](./022-production-3d-digital-twin.md) | Metre-based production 3D member experience over the canonical 2D authoring model | Accepted |
 
 ## System context
 

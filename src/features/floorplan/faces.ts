@@ -1,3 +1,5 @@
+import type { SurfaceKind, SurfaceVertex, WallProfile } from "@/features/digital-twin/geometry";
+
 export type ClimbingFace = {
   id: string;
   structureId: string;
@@ -9,6 +11,12 @@ export type ClimbingFace = {
   sortOrder: number;
   createdAt: string;
   routeCount: number;
+  surfaceKind: SurfaceKind;
+  profile: WallProfile;
+  facingDirection: -1 | 1;
+  localOffset: { x: number; y: number; z: number };
+  materialColour: string;
+  vertices: SurfaceVertex[];
 };
 
 export function normalizeFaceOrder(faces: ClimbingFace[]) {
@@ -41,5 +49,13 @@ export function serializeFace(face: ClimbingFace) {
     climbingAngleDegrees: face.climbingAngleDegrees,
     notes: face.notes,
     sortOrder: face.sortOrder,
+    surfaceKind: face.surfaceKind,
+    profile: face.profile,
+    facingDirection: face.facingDirection,
+    localOffsetU: face.localOffset.x,
+    localOffsetV: face.localOffset.y,
+    localOffsetDepth: face.localOffset.z,
+    materialColour: face.materialColour,
+    vertices: face.vertices.map((vertex, order) => ({ ...vertex, order, connectionKey: null })),
   };
 }

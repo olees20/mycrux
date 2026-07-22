@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { faceInclineLabel, moveFace, type ClimbingFace } from "./faces";
 
-const faces: ClimbingFace[] = ["North", "South", "Roof"].map((name, sortOrder) => ({ id: name, structureId: "wall", name, widthMetres: 5, heightMetres: 4, climbingAngleDegrees: 0, notes: "", sortOrder, createdAt: "2026-07-19T00:00:00Z", routeCount: 0 }));
+const faces: ClimbingFace[] = ["North", "South", "Roof"].map((name, sortOrder) => ({ id: name, structureId: "wall", name, widthMetres: 5, heightMetres: 4, climbingAngleDegrees: 0, notes: "", sortOrder, createdAt: "2026-07-19T00:00:00Z", routeCount: 0, surfaceKind:"rectangle",profile:"vertical",facingDirection:1,localOffset:{x:0,y:0,z:0},materialColour:"#e7e5e4",vertices:[] }));
 
 describe("wall structure faces", () => {
   it("reorders and normalizes face positions", () => expect(moveFace(faces, "South", -1).map(({ name, sortOrder }) => [name, sortOrder])).toEqual([["South", 0], ["North", 1], ["Roof", 2]]));

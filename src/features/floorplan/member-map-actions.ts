@@ -47,16 +47,21 @@ export async function loadMemberFaceAction(input: z.input<typeof inputSchema>): 
   }
 
   const routeIds = routeRows.map(({ id }) => id);
-  const holdIds = [...new Set(assignments.map(({ hold_id }) => hold_id))];
   const setterIds = [...new Set(routeRows.flatMap(({ setter_id }) => setter_id ? [setter_id] : []))];
-  const [holdResults, setterResults, favouriteResults, feedbackResults] = await Promise.all([
-    Promise.all(chunks(holdIds).map((ids) => supabase.from("wall_holds").select("id,category,icon_key,position_x_metres,position_y_metres,rotation_degrees,scale_factor,colour,metadata").eq("gym_id", gym.id).eq("wall_id", face.id).is("archived_at", null).in("id", ids))),
+  const [firstHolds, setterResults, favouriteResults, feedbackResults] = await Promise.all([
+    supabase.from("wall_holds").select("id,category,icon_key,position_x_metres,position_y_metres,rotation_degrees,scale_factor,colour,metadata").eq("gym_id", gym.id).eq("wall_id", face.id).is("archived_at", null).order("created_at").order("id").range(0,pageSize-1),
     Promise.all(chunks(setterIds).map((ids) => supabase.from("profiles").select("id,display_name").in("id", ids))),
     Promise.all(chunks(routeIds).map((ids) => supabase.from("favourites").select("route_id").eq("gym_id", gym.id).eq("profile_id", user.id).in("route_id", ids))),
     Promise.all(chunks(routeIds).map((ids) => supabase.from("route_feedback").select("route_id,feedback_kind").eq("gym_id", gym.id).eq("profile_id", user.id).is("archived_at", null).in("route_id", ids))),
   ]);
-  if ([...holdResults, ...setterResults, ...favouriteResults, ...feedbackResults].some(({ error }) => error)) return { status: "error", message: "This wall’s details could not be loaded. Try again." };
-  const holdRows = holdResults.flatMap(({ data }) => data ?? []);
+  if (firstHolds.error || [...setterResults, ...favouriteResults, ...feedbackResults].some(({ error }) => error)) return { status: "error", message: "This wall’s details could not be loaded. Try again." };
+  const holdRows = [...(firstHolds.data ?? [])];
+  for (let from=pageSize;holdRows.length===from;from+=pageSize) {
+    const page=await supabase.from("wall_holds").select("id,category,icon_key,position_x_metres,position_y_metres,rotation_degrees,scale_factor,colour,metadata").eq("gym_id",gym.id).eq("wall_id",face.id).is("archived_at",null).order("created_at").order("id").range(from,from+pageSize-1);
+    if(page.error)return {status:"error",message:"This wall’s holds could not be loaded. Try again."};
+    holdRows.push(...(page.data??[]));
+    if((page.data?.length??0)<pageSize)break;
+  }
   const setters = setterResults.flatMap(({ data }) => data ?? []);
   const favourites = favouriteResults.flatMap(({ data }) => data ?? []);
   const feedback = feedbackResults.flatMap(({ data }) => data ?? []);
