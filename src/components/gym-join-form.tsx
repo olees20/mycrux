@@ -26,12 +26,12 @@ export function GymJoinConfirmation({
   const valid = joinState === "valid";
   const alreadyMember = joinState === "already_member" && gymSlug;
   return (
-    <section aria-labelledby="join-confirmation-heading" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm sm:p-8">
-      <p className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--muted)]">Member access</p>
+    <section aria-labelledby="join-confirmation-heading" className="rounded-[var(--radius-panel)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm sm:p-8">
+      <p className="app-eyebrow text-[var(--muted)]">Member access</p>
       <h1 className="mt-3 text-3xl font-black sm:text-4xl" id="join-confirmation-heading">
         {valid ? `Join ${gymName ?? "this gym"}` : "Gym access status"}
       </h1>
-      <p className={`mt-5 rounded-2xl p-4 font-semibold ${valid || alreadyMember ? "bg-emerald-50 text-emerald-950" : "bg-amber-50 text-amber-950"}`} role="status">
+      <p className={`mt-5 rounded-[var(--radius-lg)] p-4 font-semibold ${valid || alreadyMember ? "bg-emerald-50 text-emerald-950" : "bg-amber-50 text-amber-950"}`} role="status">
         {gymJoinStatusMessage(joinState, gymName)}
       </p>
       {valid ? <form action={action} className="mt-6">

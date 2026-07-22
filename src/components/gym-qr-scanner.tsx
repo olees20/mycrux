@@ -79,10 +79,10 @@ export function GymQrScanner() {
     }
   }
 
-  if (supported === false) return <p className="mt-4 rounded-xl bg-stone-50 p-4 text-sm text-[var(--muted)]">In-app scanning is not supported by this browser. Scan with your phone camera or enter the gym code below.</p>;
+  if (supported === false) return <p className="mt-4 rounded-[var(--radius-md)] bg-[var(--surface-subtle)] p-4 text-sm text-[var(--muted)]">In-app scanning is not supported by this browser. Scan with your phone camera or enter the gym code below.</p>;
   return (
     <div className="mt-5">
-      <div className={`overflow-hidden rounded-2xl bg-black ${active ? "block" : "hidden"}`}>
+      <div className={`overflow-hidden rounded-[var(--radius-lg)] bg-[var(--primary)] ${active ? "block" : "hidden"}`}>
         <video aria-label="Live camera preview for gym QR scanning" className="aspect-[4/3] w-full object-cover" muted playsInline ref={video} />
       </div>
       <p aria-live="polite" className="mt-3 text-sm text-[var(--muted)]">{message}</p>

@@ -1,3 +1,4 @@
+import { Select } from "@/components/ui/form-controls";
 import Image from "next/image";
 import { PaginationNav } from "@/components/pagination-nav";
 import {
@@ -84,11 +85,11 @@ export default async function CommunityPage({
   const cards = posts.map((post) => ({ ...post, imageUrl: post.image_path ? imageUrls.get(post.image_path) ?? null : null }));
   return (
     <div className="mx-auto max-w-4xl">
-      <p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">
+      <p className="app-eyebrow text-[var(--muted)]">
         Community board
       </p>
-      <h1 className="mt-2 text-4xl font-black">Your climbing people</h1>
-      <section className="mt-7 rounded-2xl border bg-amber-50 p-5">
+      <h1 className="mt-2 text-4xl font-extrabold tracking-[-.035em]">Your climbing people</h1>
+      <section className="mt-7 rounded-[var(--radius-lg)] border bg-amber-50 p-5">
         <h2 className="font-black">Community guidelines</h2>
         <p className="mt-2 text-sm leading-6">
           Be kind, keep posts gym-relevant, respect privacy, never harass or
@@ -102,25 +103,25 @@ export default async function CommunityPage({
         ) : (
           <form action={acceptGuidelinesAction} className="mt-4">
             <input name="gymSlug" type="hidden" value={gym.slug} />
-            <button className="min-h-12 rounded-xl bg-black px-5 font-bold text-white">
+            <button className="min-h-12 rounded-[var(--radius-md)] bg-[var(--primary)] px-5 font-bold text-white">
               I understand and agree
             </button>
           </form>
         )}
       </section>
       {accepted ? (
-        <section className="mt-7 rounded-2xl border bg-white p-5">
+        <section className="mt-7 rounded-[var(--radius-lg)] border bg-[var(--surface)] p-5">
           <h2 className="text-xl font-black">Create a post</h2>
           <form action={createPostAction} className="mt-4 grid gap-3">
             <input name="gymSlug" type="hidden" value={gym.slug} />
             <input
-              className="rounded-lg border p-3"
+              className="rounded-[var(--radius-sm)] border p-3"
               maxLength={200}
               name="title"
               placeholder="Optional title"
             />
             <textarea
-              className="min-h-28 rounded-lg border p-3"
+              className="min-h-28 rounded-[var(--radius-sm)] border p-3"
               maxLength={10000}
               name="body"
               placeholder="Share something with your gym…"
@@ -131,7 +132,7 @@ export default async function CommunityPage({
               name="image"
               type="file"
             />
-            <button className="min-h-12 rounded-xl bg-black font-bold text-white">
+            <button className="min-h-12 rounded-[var(--radius-md)] bg-[var(--primary)] font-bold text-white">
               Post to community
             </button>
           </form>
@@ -140,7 +141,7 @@ export default async function CommunityPage({
       <div className="mt-7 space-y-5">
         {cards.map((post) => (
           <article
-            className="overflow-hidden rounded-2xl border bg-white"
+            className="overflow-hidden rounded-[var(--radius-lg)] border bg-[var(--surface)]"
             key={post.id}
           >
             {post.imageUrl ? (
@@ -172,7 +173,7 @@ export default async function CommunityPage({
                     </span>
                   ) : null}
                   {post.locked_at ? (
-                    <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-bold">
+                    <span className="rounded-full bg-[var(--surface-subtle)] px-3 py-1 text-xs font-bold">
                       Locked
                     </span>
                   ) : null}
@@ -191,7 +192,7 @@ export default async function CommunityPage({
                       <input name="gymSlug" type="hidden" value={gym.slug} />
                       <input name="postId" type="hidden" value={post.id} />
                       <input name="reaction" type="hidden" value={reaction} />
-                      <button className="min-h-11 rounded-full border px-3 text-xs font-bold">
+                      <button className="min-h-11 rounded-[var(--radius-md)] border px-3 text-xs font-bold">
                         {reaction}{" "}
                         {post.reactions.filter(
                           (item) => item.reaction === reaction,
@@ -213,7 +214,7 @@ export default async function CommunityPage({
                     )
                     .map((comment) => (
                       <li
-                        className="rounded-lg bg-stone-50 p-3 text-sm"
+                        className="rounded-[var(--radius-sm)] bg-[var(--surface-subtle)] p-3 text-sm"
                         key={comment.id}
                       >
                         <strong>
@@ -250,13 +251,13 @@ export default async function CommunityPage({
                     <input name="gymSlug" type="hidden" value={gym.slug} />
                     <input name="postId" type="hidden" value={post.id} />
                     <input
-                      className="min-w-0 flex-1 rounded-lg border p-3"
+                      className="min-w-0 flex-1 rounded-[var(--radius-sm)] border p-3"
                       maxLength={5000}
                       name="body"
                       placeholder="Add a comment"
                       required
                     />
-                    <button className="min-h-12 rounded-lg border px-4 font-bold">
+                    <button className="min-h-12 rounded-[var(--radius-sm)] border px-4 font-bold">
                       Reply
                     </button>
                   </form>
@@ -285,7 +286,7 @@ export default async function CommunityPage({
                     <input name="targetId" type="hidden" value={post.id} />
                     <input name="targetType" type="hidden" value="post" />
                     <input
-                      className="rounded-lg border p-2 text-sm"
+                      className="rounded-[var(--radius-sm)] border p-2 text-sm"
                       minLength={3}
                       name="reason"
                       placeholder="Reason"
@@ -296,7 +297,7 @@ export default async function CommunityPage({
                 </details>
               </div>
               {canModerate ? (
-                <details className="mt-4 rounded-xl bg-stone-100 p-3">
+                <details className="mt-4 rounded-[var(--radius-md)] bg-[var(--surface-subtle)] p-3">
                   <summary className="cursor-pointer font-bold">
                     Moderate post
                   </summary>
@@ -306,17 +307,17 @@ export default async function CommunityPage({
                   >
                     <input name="gymSlug" type="hidden" value={gym.slug} />
                     <input name="postId" type="hidden" value={post.id} />
-                    <select
-                      className="rounded-lg border p-2"
+                    <Select
+                      className="rounded-[var(--radius-sm)] border p-2"
                       defaultValue={post.moderation_status}
                       name="status"
                     >
                       <option value="visible">Visible / restore</option>
                       <option value="hidden">Hidden</option>
                       <option value="removed">Removed</option>
-                    </select>
+                    </Select>
                     <input
-                      className="rounded-lg border p-2"
+                      className="rounded-[var(--radius-sm)] border p-2"
                       minLength={3}
                       name="reason"
                       placeholder="Required reason"
@@ -338,7 +339,7 @@ export default async function CommunityPage({
                       />{" "}
                       Pin post
                     </label>
-                    <button className="min-h-11 rounded-lg bg-black text-white sm:col-span-2">
+                    <button className="min-h-11 rounded-[var(--radius-sm)] bg-[var(--primary)] text-white sm:col-span-2">
                       Apply moderation
                     </button>
                   </form>

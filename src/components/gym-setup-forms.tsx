@@ -1,17 +1,19 @@
 "use client";
 
+import { Select } from "@/components/ui/form-controls";
+
 import { useActionState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { continueSetupAction, saveSetupClimbingAction, saveSetupDetailsAction, saveSetupLocationAction } from "@/features/gyms/setup-actions";
 import { initialGymSetupActionState, type GymSetupActionState } from "@/features/gyms/setup-state";
 
-const input = "mt-2 min-h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 font-normal focus:outline-none focus:ring-2 focus:ring-[var(--foreground)] focus:ring-offset-2";
+const input = "mt-2 min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-3 font-normal focus:outline-none focus:ring-2 focus:ring-[var(--foreground)] focus:ring-offset-2";
 const disciplines = [["bouldering", "Bouldering"], ["sport", "Sport climbing"], ["trad", "Trad"], ["speed", "Speed"], ["training", "Training"]] as const;
 
 function Result({ state }: { state: GymSetupActionState }) {
   const result = useRef<HTMLDivElement>(null);
   useEffect(() => { if (state.message) result.current?.focus(); }, [state.message]);
-  return state.message ? <div aria-live="assertive" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800 outline-none" ref={result} role="alert" tabIndex={-1}>{state.message}</div> : null;
+  return state.message ? <div aria-live="assertive" className="rounded-[var(--radius-md)] border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800 outline-none" ref={result} role="alert" tabIndex={-1}>{state.message}</div> : null;
 }
 
 function ErrorText({ state, name }: { state: GymSetupActionState; name: string }) {
@@ -35,7 +37,7 @@ export function SetupLocationForm({ gymSlug, values }: { gymSlug: string; values
 
 export function SetupClimbingForm({ gymSlug, values }: { gymSlug: string; values: { disciplines: string[]; gradeSystems: string[]; defaultRouteType: string; defaultGrade: string } }) {
   const [state, action, pending] = useActionState(saveSetupClimbingAction, initialGymSetupActionState);
-  return <form action={action} className="space-y-6"><input name="gymSlug" type="hidden" value={gymSlug} /><fieldset><legend className="text-sm font-bold">Disciplines offered</legend><div className="mt-3 flex flex-wrap gap-3">{disciplines.map(([value, label]) => <label className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-semibold" key={value}><input defaultChecked={values.disciplines.includes(value)} name="disciplines" type="checkbox" value={value} />{label}</label>)}</div><ErrorText name="disciplines" state={state} /></fieldset><div className="grid gap-5 md:grid-cols-2"><label className="text-sm font-bold md:col-span-2">Grading systems<input className={input} defaultValue={values.gradeSystems.join(", ")} name="gradeSystems" placeholder="Font, V Scale" required /><span className="mt-1 block text-xs text-[var(--muted)]">Separate multiple systems with commas. The first becomes the default.</span><ErrorText name="gradeSystems" state={state} /></label><label className="text-sm font-bold">Default climb type<select className={input} defaultValue={values.defaultRouteType} name="defaultRouteType"><option value="boulder">Boulder</option><option value="sport">Sport</option><option value="top_rope">Top rope</option><option value="trad">Trad</option><option value="training">Training</option></select></label><label className="text-sm font-bold">Default grade<input className={input} defaultValue={values.defaultGrade} maxLength={20} name="defaultGrade" required /></label></div><Footer pending={pending} state={state} /></form>;
+  return <form action={action} className="space-y-6"><input name="gymSlug" type="hidden" value={gymSlug} /><fieldset><legend className="text-sm font-bold">Disciplines offered</legend><div className="mt-3 flex flex-wrap gap-3">{disciplines.map(([value, label]) => <label className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 text-sm font-semibold" key={value}><input defaultChecked={values.disciplines.includes(value)} name="disciplines" type="checkbox" value={value} />{label}</label>)}</div><ErrorText name="disciplines" state={state} /></fieldset><div className="grid gap-5 md:grid-cols-2"><label className="text-sm font-bold md:col-span-2">Grading systems<input className={input} defaultValue={values.gradeSystems.join(", ")} name="gradeSystems" placeholder="Font, V Scale" required /><span className="mt-1 block text-xs text-[var(--muted)]">Separate multiple systems with commas. The first becomes the default.</span><ErrorText name="gradeSystems" state={state} /></label><label className="text-sm font-bold">Default climb type<Select className={input} defaultValue={values.defaultRouteType} name="defaultRouteType"><option value="boulder">Boulder</option><option value="sport">Sport</option><option value="top_rope">Top rope</option><option value="trad">Trad</option><option value="training">Training</option></Select></label><label className="text-sm font-bold">Default grade<input className={input} defaultValue={values.defaultGrade} maxLength={20} name="defaultGrade" required /></label></div><Footer pending={pending} state={state} /></form>;
 }
 
 export function SetupContinueForm({ gymSlug, step, children, complete = false }: { gymSlug: string; step: 4 | 5 | 6; children?: React.ReactNode; complete?: boolean }) {

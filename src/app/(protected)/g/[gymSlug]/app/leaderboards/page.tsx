@@ -1,3 +1,4 @@
+import { Select } from "@/components/ui/form-controls";
 import Link from "next/link";
 import { saveLeaderboardPreferenceAction } from "@/features/leaderboards/actions";
 import { dateInTimezone } from "@/features/home/data-core";
@@ -76,16 +77,16 @@ export default async function LeaderboardsPage({
   const base = `/g/${gym.slug}/app/leaderboards`;
   return (
     <div className="mx-auto max-w-5xl">
-      <p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">
+      <p className="app-eyebrow text-[var(--muted)]">
         Friendly competition
       </p>
-      <h1 className="mt-2 text-4xl font-black">Gym leaderboards</h1>
+      <h1 className="mt-2 text-4xl font-extrabold tracking-[-.035em]">Gym leaderboards</h1>
       <p className="mt-2 max-w-3xl text-sm text-[var(--muted)]">
         Community rankings are optional and never use age, gender, weight,
         disability or other sensitive traits. Formal competition results follow
         their published rules and do not require community opt-in.
       </p>
-      <section className="mt-7 rounded-2xl border bg-white p-5">
+      <section className="mt-7 rounded-[var(--radius-lg)] border bg-[var(--surface)] p-5">
         <h2 className="text-xl font-black">Community privacy</h2>
         <form
           action={saveLeaderboardPreferenceAction}
@@ -94,36 +95,36 @@ export default async function LeaderboardsPage({
           <input name="gymSlug" type="hidden" value={gym.slug} />
           <label className="text-sm font-bold">
             Participate
-            <select
-              className="mt-1 w-full rounded-lg border p-3 font-normal"
+            <Select
+              className="mt-1 w-full rounded-[var(--radius-sm)] border p-3 font-normal"
               defaultValue={preference?.opted_in ? "yes" : "no"}
               name="participate"
             >
               <option value="no">No — keep me out</option>
               <option value="yes">Yes — opt me in</option>
-            </select>
+            </Select>
           </label>
           <label className="text-sm font-bold">
             Display name
-            <select
-              className="mt-1 w-full rounded-lg border p-3 font-normal"
+            <Select
+              className="mt-1 w-full rounded-[var(--radius-sm)] border p-3 font-normal"
               defaultValue={preference?.display_name_mode ?? "anonymous"}
               name="nameMode"
             >
               <option value="anonymous">Anonymous climber code</option>
               <option value="name">My display name</option>
-            </select>
+            </Select>
           </label>
-          <button className="min-h-12 self-end rounded-xl bg-black px-5 font-bold text-white">
+          <button className="min-h-12 self-end rounded-[var(--radius-md)] bg-[var(--primary)] px-5 font-bold text-white">
             Save privacy choice
           </button>
         </form>
       </section>
-      <section className="mt-7 rounded-2xl border bg-white p-5">
+      <section className="mt-7 rounded-[var(--radius-lg)] border bg-[var(--surface)] p-5">
         <div className="flex flex-wrap gap-2">
           {categories.map((value) => (
             <Link
-              className={`rounded-full px-4 py-2 text-sm font-bold ${category === value ? "bg-black text-white" : "border"}`}
+              className={`rounded-full px-4 py-2 text-sm font-bold ${category === value ? "bg-[var(--primary)] text-white" : "border"}`}
               href={`${base}?category=${value}&month=${month}`}
               key={value}
             >
@@ -136,14 +137,14 @@ export default async function LeaderboardsPage({
           <label className="text-sm font-bold">
             Month
             <input
-              className="mt-1 block rounded-lg border p-3 font-normal"
+              className="mt-1 block rounded-[var(--radius-sm)] border p-3 font-normal"
               defaultValue={month.slice(0, 7)}
               name="monthPicker"
               type="month"
             />
           </label>
           <input name="month" type="hidden" value={month} />
-          <button className="min-h-12 rounded-xl border px-5 font-bold">
+          <button className="min-h-12 rounded-[var(--radius-md)] border px-5 font-bold">
             View month
           </button>
         </form>
@@ -160,7 +161,7 @@ export default async function LeaderboardsPage({
         <ol className="mt-5 space-y-2">
           {(community ?? []).map((row) => (
             <li
-              className="flex items-center justify-between rounded-xl bg-stone-50 p-4"
+              className="flex items-center justify-between rounded-[var(--radius-md)] bg-[var(--surface-subtle)] p-4"
               key={row.profile_id}
             >
               <span>
@@ -181,7 +182,7 @@ export default async function LeaderboardsPage({
         <h2 className="text-2xl font-black">Formal competitions</h2>
         <div className="mt-4 space-y-5">
           {competitionRows.map((item) => (
-            <article className="rounded-2xl border bg-white p-5" key={item.id}>
+            <article className="rounded-[var(--radius-lg)] border bg-[var(--surface)] p-5" key={item.id}>
               <h3 className="text-xl font-black">{item.name}</h3>
               <p className="text-sm text-[var(--muted)]">
                 Score descending, then tops descending, then fewer attempts.
@@ -190,7 +191,7 @@ export default async function LeaderboardsPage({
               <ol className="mt-4 space-y-2">
                 {item.rows.map((row, index) => (
                   <li
-                    className="flex justify-between rounded-lg bg-stone-50 p-3 text-sm"
+                    className="flex justify-between rounded-[var(--radius-sm)] bg-[var(--surface-subtle)] p-3 text-sm"
                     key={`${row.profile_id}-${row.guest_invite_id}-${index}`}
                   >
                     <span>

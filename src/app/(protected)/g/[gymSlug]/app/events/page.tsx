@@ -47,23 +47,23 @@ export default async function EventsPage({
   }
   const base = `/g/${gym.slug}/app/events`;
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[var(--content)]">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">
+          <p className="app-eyebrow text-[var(--muted)]">
             Events
           </p>
-          <h1 className="mt-3 text-4xl font-black">What’s happening</h1>
+          <h1 className="mt-3 text-4xl font-extrabold tracking-[-.035em]">What’s happening</h1>
         </div>
-        <div className="flex rounded-full border bg-white p-1">
+        <div className="flex rounded-full border bg-[var(--surface)] p-1">
           <Link
-            className={`rounded-full px-4 py-2 text-sm font-bold ${view === "list" ? "bg-black text-white" : ""}`}
+            className={`rounded-full px-4 py-2 text-sm font-bold ${view === "list" ? "bg-[var(--primary)] text-white" : ""}`}
             href={base}
           >
             List
           </Link>
           <Link
-            className={`rounded-full px-4 py-2 text-sm font-bold ${view === "calendar" ? "bg-black text-white" : ""}`}
+            className={`rounded-full px-4 py-2 text-sm font-bold ${view === "calendar" ? "bg-[var(--primary)] text-white" : ""}`}
             href={`${base}?view=calendar`}
           >
             Calendar
@@ -74,7 +74,7 @@ export default async function EventsPage({
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[...grouped].map(([day, items]) => (
             <section
-              className="rounded-2xl border border-[var(--border)] bg-white p-5"
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-5"
               key={day}
             >
               <h2 className="font-black">
@@ -87,7 +87,7 @@ export default async function EventsPage({
                 {items.map((event) => (
                   <li key={event.id}>
                     <Link
-                      className="block rounded-lg bg-stone-50 p-3"
+                      className="block rounded-[var(--radius-sm)] bg-[var(--surface-subtle)] p-3"
                       href={`${base}/${event.id}`}
                     >
                       <strong>{event.title}</strong>
@@ -109,7 +109,7 @@ export default async function EventsPage({
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((event) => (
             <article
-              className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white"
+              className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]"
               key={event.id}
             >
               {event.imageUrl ? (

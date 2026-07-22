@@ -74,19 +74,19 @@ export function FirstGymForm({ defaultEmail = "" }: { defaultEmail?: string }) {
   return (
     <form action={action} aria-describedby={state.message ? summaryId : undefined} className="space-y-7">
       {state.message ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 outline-none" id={summaryId} ref={summary} role="alert" tabIndex={-1}>
+        <div className="rounded-[var(--radius-lg)] border border-red-200 bg-red-50 p-4 outline-none" id={summaryId} ref={summary} role="alert" tabIndex={-1}>
           <p className="font-bold text-red-900">The gym was not created</p>
           <p className="mt-1 text-sm text-red-800">{state.message}</p>
         </div>
       ) : null}
 
-      <fieldset className="grid gap-5 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7 md:grid-cols-2">
+      <fieldset className="grid gap-5 rounded-[var(--radius-panel)] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7 md:grid-cols-2">
         <legend className="px-2 text-xl font-black">Organisation</legend>
         <Field error={errors.name} label="Gym name" name="name" required>
           <input
             {...validationProps("name", errors.name)}
             autoComplete="organization"
-            className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal"
+            className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal"
             maxLength={120}
             name="name"
             onChange={(event) => {
@@ -99,12 +99,12 @@ export function FirstGymForm({ defaultEmail = "" }: { defaultEmail?: string }) {
           />
         </Field>
         <Field error={errors.slug} label="Gym URL" name="slug" required>
-          <div className="mt-2 flex min-h-12 items-center rounded-xl border border-[var(--border)] bg-white focus-within:outline-3 focus-within:outline-offset-3 focus-within:outline-[var(--focus-ring)]">
+          <div className="mt-2 flex min-h-12 items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] focus-within:outline-3 focus-within:outline-offset-3 focus-within:outline-[var(--focus-ring)]">
             <span aria-hidden="true" className="pl-4 text-sm text-[var(--muted)]">/g/</span>
             <input
               aria-describedby={`slug-availability${errors.slug ? " slug-error" : ""}`}
               aria-invalid={slugInvalid}
-              className="min-h-11 min-w-0 flex-1 rounded-xl px-1 pr-4 font-normal outline-none"
+              className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-md)] px-1 pr-4 font-normal outline-none"
               maxLength={63}
               minLength={3}
               name="slug"
@@ -122,32 +122,32 @@ export function FirstGymForm({ defaultEmail = "" }: { defaultEmail?: string }) {
           </p>
         </Field>
         <Field error={errors.contactEmail} label="Contact email (optional)" name="contactEmail">
-          <input {...validationProps("contactEmail", errors.contactEmail)} autoComplete="email" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal" defaultValue={values?.contactEmail ?? defaultEmail} maxLength={320} name="contactEmail" type="email" />
+          <input {...validationProps("contactEmail", errors.contactEmail)} autoComplete="email" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal" defaultValue={values?.contactEmail ?? defaultEmail} maxLength={320} name="contactEmail" type="email" />
         </Field>
         <Field error={errors.contactPhone} label="Phone (optional)" name="contactPhone">
-          <input {...validationProps("contactPhone", errors.contactPhone)} autoComplete="tel" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal" defaultValue={values?.contactPhone} maxLength={40} name="contactPhone" type="tel" />
+          <input {...validationProps("contactPhone", errors.contactPhone)} autoComplete="tel" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal" defaultValue={values?.contactPhone} maxLength={40} name="contactPhone" type="tel" />
         </Field>
         <Field className="md:col-span-2" error={errors.websiteUrl} label="Website (optional)" name="websiteUrl">
-          <input {...validationProps("websiteUrl", errors.websiteUrl)} autoComplete="url" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal" defaultValue={values?.websiteUrl} maxLength={2048} name="websiteUrl" placeholder="https://example.com" type="url" />
+          <input {...validationProps("websiteUrl", errors.websiteUrl)} autoComplete="url" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal" defaultValue={values?.websiteUrl} maxLength={2048} name="websiteUrl" placeholder="https://example.com" type="url" />
         </Field>
       </fieldset>
 
-      <fieldset className="grid gap-5 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7 md:grid-cols-2">
+      <fieldset className="grid gap-5 rounded-[var(--radius-panel)] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7 md:grid-cols-2">
         <legend className="px-2 text-xl font-black">Address <span className="text-sm font-normal text-[var(--muted)]">(optional)</span></legend>
         <Field className="md:col-span-2" error={errors.addressLine1} label="Address line 1" name="addressLine1">
-          <input {...validationProps("addressLine1", errors.addressLine1)} autoComplete="address-line1" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal" defaultValue={values?.addressLine1} maxLength={160} name="addressLine1" />
+          <input {...validationProps("addressLine1", errors.addressLine1)} autoComplete="address-line1" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal" defaultValue={values?.addressLine1} maxLength={160} name="addressLine1" />
         </Field>
         <Field className="md:col-span-2" error={errors.addressLine2} label="Address line 2" name="addressLine2">
-          <input {...validationProps("addressLine2", errors.addressLine2)} autoComplete="address-line2" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal" defaultValue={values?.addressLine2} maxLength={160} name="addressLine2" />
+          <input {...validationProps("addressLine2", errors.addressLine2)} autoComplete="address-line2" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal" defaultValue={values?.addressLine2} maxLength={160} name="addressLine2" />
         </Field>
         <Field error={errors.city} label="Town or city" name="city">
-          <input {...validationProps("city", errors.city)} autoComplete="address-level2" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal" defaultValue={values?.city} maxLength={100} name="city" />
+          <input {...validationProps("city", errors.city)} autoComplete="address-level2" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal" defaultValue={values?.city} maxLength={100} name="city" />
         </Field>
         <Field error={errors.postcode} label="Postcode" name="postcode">
-          <input {...validationProps("postcode", errors.postcode)} autoComplete="postal-code" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal" defaultValue={values?.postcode} maxLength={20} name="postcode" />
+          <input {...validationProps("postcode", errors.postcode)} autoComplete="postal-code" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal" defaultValue={values?.postcode} maxLength={20} name="postcode" />
         </Field>
         <Field error={errors.countryCode} label="Country code" name="countryCode">
-          <input {...validationProps("countryCode", errors.countryCode)} autoCapitalize="characters" autoComplete="country" className="mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 font-normal uppercase" defaultValue={values?.countryCode ?? "GB"} maxLength={2} minLength={2} name="countryCode" pattern="[A-Za-z]{2}" />
+          <input {...validationProps("countryCode", errors.countryCode)} autoCapitalize="characters" autoComplete="country" className="mt-2 min-h-12 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 font-normal uppercase" defaultValue={values?.countryCode ?? "GB"} maxLength={2} minLength={2} name="countryCode" pattern="[A-Za-z]{2}" />
         </Field>
       </fieldset>
 

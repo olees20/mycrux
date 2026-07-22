@@ -6,9 +6,9 @@ describe("primary button styling", () => {
   it("keeps explicit contrasting colours in every interactive state", () => {
     const classes = buttonStyles();
 
-    expect(classes).toContain("bg-[var(--foreground)]");
-    expect(classes).toContain("text-[var(--surface)]");
-    expect(classes).toContain("hover:text-[var(--surface)]");
+    expect(classes).toContain("bg-[var(--primary)]");
+    expect(classes).toContain("text-[var(--primary-foreground)]");
+    expect(classes).toContain("hover:text-[var(--primary-foreground)]");
     expect(classes).toContain("active:text-white");
     expect(classes).toContain("disabled:text-[var(--foreground)]");
     expect(classes).toContain("aria-disabled:text-[var(--foreground)]");

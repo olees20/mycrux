@@ -93,11 +93,13 @@ test("homepage primary links retain contrast and a visible focus indicator", asy
   }
 });
 
-test("public layouts do not overflow common viewport widths", async ({ page }) => {
-  for (const width of [320, 768, 1280]) {
-    await page.setViewportSize({ width, height: 800 });
-    await page.goto("/login");
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
-    expect(overflow, `Unexpected horizontal overflow at ${width}px`).toBe(false);
+test("public layouts do not overflow target viewport sizes", async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1024, height: 768 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    for (const route of ["/", "/login", "/register", "/forgot-password", "/reset-password"]) {
+      await page.goto(route);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+      expect(overflow, `Unexpected horizontal overflow on ${route} at ${viewport.width}×${viewport.height}`).toBe(false);
+    }
   }
 });

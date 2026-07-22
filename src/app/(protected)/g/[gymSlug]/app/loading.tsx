@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/layout";
 export default function GymHomeLoading() {
-  return <div aria-label="Loading gym home" className="mx-auto max-w-7xl animate-pulse"><div className="h-64 rounded-3xl bg-black/10" /><div className="mt-6 grid gap-6 lg:grid-cols-3"><div className="space-y-6 lg:col-span-2">{[1,2,3].map((item) => <div className="h-56 rounded-2xl bg-black/10" key={item} />)}</div><div className="space-y-6">{[1,2,3].map((item) => <div className="h-40 rounded-2xl bg-black/10" key={item} />)}</div></div></div>;
+  return <div aria-busy="true" aria-live="polite" className="app-container-wide"><span className="sr-only">Loading the gym map</span><Skeleton className="h-8 w-52"/><Skeleton className="mt-3 h-5 w-full max-w-lg"/><Skeleton className="mt-5 h-[min(68vh,42rem)] w-full rounded-[var(--radius-panel)]"/></div>;
 }

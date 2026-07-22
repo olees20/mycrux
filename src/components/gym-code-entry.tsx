@@ -8,7 +8,7 @@ export function GymCodeEntry() {
         <input
           autoCapitalize="characters"
           autoComplete="off"
-          className="min-h-12 min-w-0 flex-1 rounded-xl border border-[var(--border)] px-4 font-mono text-lg uppercase tracking-[0.18em]"
+          className="min-h-12 min-w-0 flex-1 rounded-[var(--radius-md)] border border-[var(--border)] px-4 font-mono text-lg uppercase tracking-[0.18em]"
           id="gym-code"
           maxLength={9}
           name="code"

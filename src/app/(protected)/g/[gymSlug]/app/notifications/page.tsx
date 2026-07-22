@@ -67,16 +67,16 @@ export default async function NotificationsPage({
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
+          <p className="app-eyebrow text-[var(--muted)]">
             Inbox
           </p>
-          <h1 className="mt-3 text-4xl font-black">Notifications</h1>
+          <h1 className="mt-3 text-4xl font-extrabold tracking-[-.035em]">Notifications</h1>
           <p className="mt-2 text-sm text-[var(--muted)]">{unread ?? 0} unread</p>
         </div>
         {unread ? (
           <form action={markAllNotificationsReadAction}>
             <input name="gymSlug" type="hidden" value={gym.slug} />
-            <button className="min-h-11 rounded-full border border-black/10 px-4 text-sm font-bold">
+            <button className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border)] px-4 text-sm font-bold">
               Mark all read
             </button>
           </form>
@@ -89,8 +89,8 @@ export default async function NotificationsPage({
               <li
                 className={
                   item.read_at
-                    ? "rounded-2xl border border-black/10 bg-[var(--surface)] p-5 opacity-70"
-                    : "rounded-2xl border-2 border-[var(--accent)] bg-[var(--surface)] p-5"
+                    ? "rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-5 opacity-70"
+                    : "rounded-[var(--radius-lg)] border-2 border-[var(--accent)] bg-[var(--surface)] p-5"
                 }
                 key={item.id}
               >
@@ -128,7 +128,7 @@ export default async function NotificationsPage({
               </li>
             ))}
             {notifications?.length ? null : (
-              <li className="rounded-2xl bg-black/5 p-5 text-sm text-[var(--muted)]">
+              <li className="rounded-[var(--radius-lg)] bg-[var(--primary)]/5 p-5 text-sm text-[var(--muted)]">
                 You have no notifications.
               </li>
             )}
@@ -137,7 +137,7 @@ export default async function NotificationsPage({
         <aside>
           <form
             action={updateNotificationPreferencesAction}
-            className="rounded-2xl border border-black/10 bg-[var(--surface)] p-5"
+            className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-5"
           >
             <input name="gymSlug" type="hidden" value={gym.slug} />
             <h2 className="text-xl font-black">Preferences</h2>
@@ -153,7 +153,7 @@ export default async function NotificationsPage({
               <label className="text-xs font-semibold">
                 Quiet from
                 <input
-                  className="mt-1 min-h-10 w-full rounded-lg border border-black/10 px-2"
+                  className="mt-1 min-h-10 w-full rounded-[var(--radius-sm)] border border-[var(--border)] px-2"
                   defaultValue={
                     preferences?.quiet_hours_start?.slice(0, 5) ?? ""
                   }
@@ -164,14 +164,14 @@ export default async function NotificationsPage({
               <label className="text-xs font-semibold">
                 Until
                 <input
-                  className="mt-1 min-h-10 w-full rounded-lg border border-black/10 px-2"
+                  className="mt-1 min-h-10 w-full rounded-[var(--radius-sm)] border border-[var(--border)] px-2"
                   defaultValue={preferences?.quiet_hours_end?.slice(0, 5) ?? ""}
                   name="quietEnd"
                   type="time"
                 />
               </label>
             </div>
-            <button className="mt-5 min-h-11 rounded-full bg-[var(--foreground)] px-5 text-sm font-bold text-white">
+            <button className="mt-5 min-h-11 rounded-[var(--radius-md)] bg-[var(--foreground)] px-5 text-sm font-bold text-white">
               Save preferences
             </button>
             <p className="mt-3 text-xs text-[var(--muted)]">

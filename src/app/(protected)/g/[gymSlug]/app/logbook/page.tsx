@@ -1,3 +1,4 @@
+import { Select } from "@/components/ui/form-controls";
 import Image from "next/image";
 import Link from "next/link";
 import { AscentForm } from "@/components/ascent-form";
@@ -111,27 +112,27 @@ export default async function LogbookPage({
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[.2em] text-[var(--muted)]">
+          <p className="app-eyebrow text-[var(--muted)]">
             Training history
           </p>
-          <h1 className="mt-2 text-4xl font-black">Your logbook</h1>
+          <h1 className="mt-2 text-4xl font-extrabold tracking-[-.035em]">Your logbook</h1>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Newest session first. You always retain access regardless of social
             privacy.
           </p>
         </div>
         <Link
-          className="inline-flex min-h-12 items-center rounded-xl bg-black px-5 font-bold text-white"
+          className="inline-flex min-h-12 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-5 font-bold text-white"
           href={`/g/${gym.slug}/app/routes`}
         >
           Find a route to log
         </Link>
       </div>
-      <form className="mt-7 grid gap-3 rounded-2xl border bg-white p-4 sm:grid-cols-4">
+      <form className="mt-7 grid gap-3 rounded-[var(--radius-lg)] border bg-[var(--surface)] p-4 sm:grid-cols-4">
         <label className="text-sm font-bold">
           Outcome
-          <select
-            className="mt-1 w-full rounded-lg border p-3 font-normal"
+          <Select
+            className="mt-1 w-full rounded-[var(--radius-sm)] border p-3 font-normal"
             defaultValue={search.outcome ?? ""}
             name="outcome"
           >
@@ -141,12 +142,12 @@ export default async function LogbookPage({
                 {value}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <label className="text-sm font-bold">
           Privacy
-          <select
-            className="mt-1 w-full rounded-lg border p-3 font-normal"
+          <Select
+            className="mt-1 w-full rounded-[var(--radius-sm)] border p-3 font-normal"
             defaultValue={search.visibility ?? ""}
             name="visibility"
           >
@@ -156,12 +157,12 @@ export default async function LogbookPage({
                 {value}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <label className="text-sm font-bold">
           From
           <input
-            className="mt-1 w-full rounded-lg border p-3 font-normal"
+            className="mt-1 w-full rounded-[var(--radius-sm)] border p-3 font-normal"
             defaultValue={search.from}
             name="from"
             type="date"
@@ -170,13 +171,13 @@ export default async function LogbookPage({
         <label className="text-sm font-bold">
           To
           <input
-            className="mt-1 w-full rounded-lg border p-3 font-normal"
+            className="mt-1 w-full rounded-[var(--radius-sm)] border p-3 font-normal"
             defaultValue={search.to}
             name="to"
             type="date"
           />
         </label>
-        <button className="min-h-12 rounded-xl border font-bold sm:col-span-4">
+        <button className="min-h-12 rounded-[var(--radius-md)] border font-bold sm:col-span-4">
           Apply filters
         </button>
       </form>
@@ -189,7 +190,7 @@ export default async function LogbookPage({
             new Date(ascent.created_at).getTime() >= editableAfter;
           return (
             <article
-              className="rounded-2xl border border-[var(--border)] bg-white p-5"
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-5"
               key={ascent.id}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -215,7 +216,7 @@ export default async function LogbookPage({
                     {ascent.attempts} attempt{ascent.attempts === 1 ? "" : "s"}
                   </p>
                 </div>
-                <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-bold">
+                <span className="rounded-full bg-[var(--surface-subtle)] px-3 py-1 text-xs font-bold">
                   {ascent.visibility}
                 </span>
               </div>
@@ -229,7 +230,7 @@ export default async function LogbookPage({
                   item.url ? (
                     item.media_type === "video" ? (
                       <video
-                        className="w-full rounded-xl"
+                        className="w-full rounded-[var(--radius-md)]"
                         controls
                         key={item.id}
                         src={item.url}
@@ -237,7 +238,7 @@ export default async function LogbookPage({
                     ) : (
                       <Image
                         alt={`Media for ${title}`}
-                        className="h-auto w-full rounded-xl"
+                        className="h-auto w-full rounded-[var(--radius-md)]"
                         height={700}
                         key={item.id}
                         src={item.url}
@@ -248,7 +249,7 @@ export default async function LogbookPage({
                 )}
               </div>
               {editable ? (
-                <details className="mt-5 rounded-xl bg-stone-50 p-4">
+                <details className="mt-5 rounded-[var(--radius-md)] bg-[var(--surface-subtle)] p-4">
                   <summary className="cursor-pointer font-bold">
                     Edit ascent
                   </summary>
@@ -267,7 +268,7 @@ export default async function LogbookPage({
                         value={ascent.route_id}
                       />
                       <input name="ascentId" type="hidden" value={ascent.id} />
-                      <button className="min-h-12 rounded-xl border border-red-700 px-5 font-bold text-red-700">
+                      <button className="min-h-12 rounded-[var(--radius-md)] border border-red-700 px-5 font-bold text-red-700">
                         Remove from logbook
                       </button>
                     </form>
@@ -282,7 +283,7 @@ export default async function LogbookPage({
           );
         })}
         {media.length ? null : (
-          <p className="rounded-2xl border bg-white p-8 text-center text-[var(--muted)]">
+          <p className="rounded-[var(--radius-lg)] border bg-[var(--surface)] p-8 text-center text-[var(--muted)]">
             No ascents match these filters.
           </p>
         )}

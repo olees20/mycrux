@@ -7,9 +7,9 @@ describe("public homepage", () => {
     render(<MarketingPage />);
 
     expect(screen.getByRole("link", { name: "Create your account" })).toHaveClass(
-      "bg-[var(--foreground)]",
-      "text-[var(--surface)]",
-      "hover:text-[var(--surface)]",
+      "bg-[var(--primary)]",
+      "text-[var(--primary-foreground)]",
+      "hover:text-[var(--primary-foreground)]",
       "active:text-white",
     );
   });
